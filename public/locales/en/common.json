@@ -1,0 +1,316 @@
+{
+  "home": "Home",
+  "about": "About Us",
+  "scholarship": "Scholarship Programme",
+  "courses": "Courses",
+  "onlineMode": "Online Mode",
+  "offlineMode": "Offline Mode",
+  "currentAffairs": "Current Affairs",
+  "blogs": "Blogs",
+  "login": "Log In",
+  "aboutDikshant": "About Dikshant IAS",
+  "aboutUpsc": "About UPSC",
+  "visitHindi": "VISIT OUR HINDI WEBSITE",
+  "visitEnglish": "VISIT OUR ENGLISH WEBSITE",
+  "downloadApp": "DOWNLOAD DIKSHANT LEARNING APP",
+  "latestNews": "Latest News and",
+  "updates": "Updates",
+
+  "ELearning": "E-Learning Materials",
+  "Browse": "Download IAS-related study materials (English & Hindi).",
+  "EName": "Name",
+  "MonthYear": "Month & Year",
+  "Download": "Download",
+  "English": "English",
+  "Hindi": "Hindi",
+  "Prev": "Prev",
+  "Next": "Next",
+
+
+
+  "quickLinks": "QUICK LINKS",
+  "contact": "Contact Us",
+  "gallery": "Gallery",
+  "onlineCourses": "Online Courses",
+  "offlineCourse": "Offline Course",
+  "mainsCorner": "Mains Corner",
+  "mentorship": "Mentorship Programme",
+  "interviewGuidance": "Interview Guidance",
+  "essayWriting": "Essay Answer Writing",
+  "whatToReadHindu": "What to Read in Hindu",
+  "whatToReadIndianExpress": "What to Read in Indian Express",
+  "editorialAnalysis": "Editorial Analysis",
+  "dailyCAAnalysis": "Daily Current Affairs Analysis",
+  "dailyCAQuiz": "Daily Current Affairs Quiz",
+  "importantFacts": "Important Facts of the Day",
+  "privacyPolicy": "Privacy & Refund Policy",
+  "terms": "Terms & Conditions",
+  "dataPolicy": "Data Policy",
+  "socialMedia": "SOCIAL MEDIA",
+  "getDirection": "Get Direction",
+  "empowering": "Empowering minds for a brighter future.",
+
+  "talkToExperts": "Talk to our experts",
+
+  "new": "New",
+  "announcement": "Announcement",
+  "announcementSubtitle": "We are delighted to share some exciting news with all our students, aspirants, and well-wishers! 🚀",
+  "announcementDesc": "At Dikshant IAS, we have always been committed to providing the finest guidance, structured learning, and personal mentorship to help UPSC aspirants achieve their dreams. To further strengthen this mission, we are proud to announce our new initiative that brings even more value to your preparation journey:",
+
+  "topperReview": {
+    "heading": "Views About",
+    "brand": "Dikshant IAS",
+    "subheading": "India's Best Mock Interview Programme",
+    "videos": {
+      "shruti": "Shruti Sharma Air- 01",
+      "gamini": "Gamini Singla, CSE 2023, AIR 03",
+      "prince": "Prince Kumar - Rank 89 | UPSC 2022",
+      "madhav": "Madhav - Rank 148 | CSE 2022"
+    }
+  },
+  "importantAnnouncement": "IMPORTANT ANNOUNCEMENT",
+
+  "successStoriesTitle": "Success Stories That",
+  "successStoriesHighlight": "Inspire Excellence",
+  "mockInterview": "India's Best Mock Interview Programme",
+  "successStoriesDesc": "Meet our successful candidates who cleared UPSC and are now serving the nation",
+  "background": "Background",
+  "attempts": "Attempts",
+  "optional": "Optional",
+  "ourResults": "Our Results",
+  "ourResultsSubtitle": "India's Best Mock Interview Programme",
+
+  "about_title": "Dikshant IAS A Premier Civil Services Exam Coaching Institute",
+  "about_description": "Dikshant IAS stands as a premier coaching institute dedicated to guiding aspirants on their journey to success in the Civil Services Examination. With a team of highly experienced and dedicated educators, the institute offers comprehensive preparation for UPSC and State PSC exams. Known for its structured curriculum, personalized mentoring, and result-oriented approach, Dikshant IAS ensures that every student receives the right guidance and support to excel in one of the most competitive exams in India. The institute emphasizes conceptual clarity, current affairs integration, answer writing practice, and interview preparation. Regular test series, doubt-solving sessions, and performance assessments help students stay focused and on track. Whether you’re a beginner or a repeat aspirant, Dikshant IAS provides a nurturing and disciplined environment to bring out the best in every candidate.",
+
+  "vision_title": "Our Vision",
+  "vision_quote": "“You can’t cross the sea merely by standing and staring at the water.” – Tagore",
+  "vision_para1": "Our main objective is to guide the motivated young minds toward a fruitful professional life and a better career. As we strive for greatness, we are dedicated to each student’s success at our institute.",
+  "vision_para2": "Because Dikshant IAS prepares you for all three stages of the recruiting process—the preliminary exam, the main exam, and the interview stage—joining us for a year, we can assure you of a bright future at an affordable fee.",
+  "vision_para3": "You must comprehend that our objective is not just to prepare you for a test that will be very challenging, but also to help you find a rewarding profession. Our main objective is to guide the motivated young minds toward a fruitful professional life and a better career.",
+
+  "mission_title": "Our Mission",
+  "mission_quote": "From Intent To AIM, From Obtaining to Becoming",
+  "mission_para1": "A candidate preparing for the Civil Services Examination does not have much time at its disposal, and the number of tasks that must be completed within this short period of time is truly extensive...",
+  "mission_para2": "It will be utterly absurd to believe that one may adequately prepare for this exam in a short amount of time on their own. Therefore, the preparation strategy must be tailored to the particular requirements of this exam...",
+
+  "thoughts_title": "Thoughts",
+  "thoughts_quote": "From Ambition To Aspiration, From Acquiring To Becoming",
+  "thoughts_para": "Our experienced faculties have designed the curriculum conscientiously to directly meet the demands of the examinations...",
+
+  "founders": {
+    "pandey": {
+      "name": "Dr. S.S. Pandey",
+      "title": "Educator & Director, Dikshant IAS",
+      "company": "Dikshant IAS",
+      "description": "Dr. S. S. Pandey got his Ph.D. in 2000 on “Labour: Management Relations in India,” and after getting his Ph.D., he joined as a research assistant at Indira Gandhi Rashtriya Kala Kendra, New Delhi, with famous anthropologist Dr. B. N. Saraswati. In 2002, he joined as an assistant professor at Ram Manohar Lohia Awadh University, Faizabad, Uttar Pradesh (HNB PG College, Lalgang). He worked at the college for a year and then resigned from his job to teach UPSC aspirants."
+    },
+    "ashutosh": {
+      "name": "Ashutosh Dixit",
+      "title": "Educator & CEO, Dikshant IAS",
+      "company": "Dikshant IAS",
+      "description": "From the boardrooms of global corporations to the classrooms of aspiring civil servants, Ashutosh Dixit has carved a unique path—where corporate excellence meets educational transformation. A visionary leader with a heart for public good, Ashutosh Dixit today stands as a mentor, strategist, and nation-builder, steering one of India’s most socially committed institutions—Dikshant Education Centre Private Limited."
+    }
+  },
+  "readMore": "Read More",
+
+  "tabs": {
+    "journey": {
+      "title": "20+ Years Journey of Excellence",
+      "cardTitle": "20+ Years Journey of Excellence",
+      "description": "We are India's well-known Institute and the Best IAS Coaching in India preparing candidates for the Civil Services Examination at all three levels- Prelims, Mains & personality test.",
+      "achievement": "Trusted by thousands of successful candidates"
+    },
+    "faculty": {
+      "title": "Experienced Faculty Members",
+      "cardTitle": "Experienced Faculty Members",
+      "description": "Our IAS Coaching Center in Delhi is equipped with the team of top most faculties for preparation of UPSC (Prelims+Mains) who are known for producing best results year after year."
+    },
+    "materials": {
+      "title": "Best Study Materials",
+      "cardTitle": "Best Study Materials",
+      "description": "Our students always receive well curated study resources, which helps them stay on task and saves them time."
+    },
+    "interview": {
+      "title": "Best Mock Interview Programme",
+      "cardTitle": "Best Mock Interview Programme",
+      "description": "Dikshant IAS offers the Best Mock Interview Program in India with the most knowledgeable IAS interview panel, including Prof. D. P. Agarwal, former board members, top bureaucrats, and academicians."
+    },
+    "seminar": {
+      "title": "Seminar and Topper Class",
+      "cardTitle": "Seminar and Topper Class",
+      "description": "We organize seminars and topper classes where seasoned UPSC professionals assist students with their preparation and doubts."
+    }
+  },
+
+  "coursess": {
+    "sectionTitle": {
+      "part1": "Best",
+      "highlight": "IAS Coaching",
+      "part2": "Institute in India"
+    },
+    "online": {
+      "title": "Online Courses",
+      "subtitle": "Show more"
+    },
+    "distance": {
+      "title": "Distance Learning",
+      "subtitle": "Show more"
+    },
+    "test": {
+      "title": "Test Series",
+      "subtitle": "Show more"
+    },
+    "scholarship": {
+      "title": "Scholarship",
+      "subtitle": "Show more"
+    },
+    "study": {
+      "title": "Study Material",
+      "subtitle": "Notes & Resources"
+    }
+  },
+
+  "footer": {
+    "sections": {
+      "quickLinks": "QUICK LINKS",
+      "courses": "COURSES",
+      "currentAffairs": "CURRENT AFFAIRS",
+      "policies": "POLICIES",
+      "socialMedia": "SOCIAL MEDIA",
+      "downloadApp": "Download App",
+      "address": "Address",
+      "phone": "Phone",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "getDirection": "Get Direction"
+    },
+    "links": {
+      "home": "Home",
+      "about": "About",
+      "scholarshipProgramme": "Scholarship Programme",
+      "blog": "Blog",
+      "contact": "Contact Us",
+      "gallery": "Gallery",
+      "onlineCourse": "Online Courses",
+      "offlineCourse": "Offline Course",
+      "mainsCorner": "Mains Corner",
+      "mentorshipProgramme": "Mentorship Programme",
+      "interviewGuidancer": "Interview Guidancer",
+      "essayAnswerWriting": "Essay Answer Writing",
+      "whatToReadHindu": "What to Read in Hindu",
+      "whatToReadIndianExpress": "What to Read in Indian Express",
+      "editorialAnalysis": "Editorial Analysis",
+      "dailyCurrentAffairsAnalysis": "Daily Current Affairs Analysis",
+      "dailyCurrentAffairsQuiz": "Daily Current Affairs Quiz",
+      "importantFactsOfDay": "Important Facts of the Day",
+      "privacyRefundPolicy": "Privacy & Refund Policy",
+      "termsConditions": "Terms & Conditions",
+      "dataPolicy": "Data Policy"
+    }
+  },
+
+  "aboutupsc": {
+    "aboutTitle": "About UPSC Civil Services Examination (UPSC CSE)",
+    "aboutDesc": "The UPSC Civil Services Examination (CSE) stands as one of the most esteemed competitive exams in India, conducted annually by the Union Public Service Commission. It is designed to recruit candidates for prominent government positions, including the IAS, IPS, and IFS. The selection process is highly competitive and consists of three stages: the Preliminary Examination, the Main Examination, and the Personality Test (Interview).",
+
+    "skillsTitle": "Skills Required to Excel in UPSC CSE",
+    "skillsDesc": "The Preliminary Examination serves as an initial screening stage, designed to assess a candidate's fundamental knowledge and cognitive aptitude, helping identify serious contenders for the Mains. The Mains Examination delves deeper, testing an aspirant’s capacity for critical thinking, analytical reasoning, and effective written communication through structured and insightful answers. The final stage, the Interview (Personality Test), evaluates the candidate's intellectual depth, social awareness, and interpersonal skills — qualities essential for a successful career in the Civil Services.",
+
+    "successTitle": "Achieving Success with Dikshant IAS",
+    "successDesc1": "Dikshant IAS provides comprehensive support to civil services aspirants through a wide array of initiatives and services. Its holistic approach to preparation equips students with the essential skills and competencies needed to succeed at every stage of the UPSC CSE—be it the Prelims, Mains, or Personality Test.",
+    "successDesc2": "Dikshant IAS provides comprehensive and cutting-edge UPSC coaching through both online and offline/classroom platforms, ensuring students receive the best possible learning experience. The institute also offers its prestigious All India UPSC Mock Test Series covering GS Prelims, Mains, CSAT, Essay, and Optional Subjects, designed to facilitate regular evaluation and consistent enhancement of student performance.",
+    "successDesc3": "A dedicated and dynamic mentoring ecosystem delivers personalized guidance, helping students recognize their areas for improvement while providing targeted support to unlock their full potential and achieve success.",
+    "successDesc4": "Dikshant IAS is recognized as one of the leading IAS academies in the country, thanks to its strong presence across more than 10 cities and a robust online platform that reaches students nationwide. Known for its innovative approach to UPSC online coaching, the institute offers real-time support that empowers aspirants throughout their preparation journey. This commitment to excellence and accessibility makes Dikshant IAS a trusted destination for those aspiring to join the Civil Services and serve the nation.",
+
+    "communityTitle": "Become a part of the Dikshant IAS Community.",
+    "communityDesc": "Stay informed about crucial UPSC preparation updates. Connect with the Dikshant IAS community on social media to remain engaged with our informative and collaborative network."
+  },
+
+  "scholarships": {
+    "title": "Dikshant Scholarship Program",
+    "desc1": "At Dikshant IAS, we believe that quality education and UPSC preparation should be accessible to all, regardless of economic or social background. To support deserving and hardworking aspirants, we proudly offer need-based and category-based scholarships.",
+    "desc2": "Dikshant Scholarship Program, is a welfare program run by Dikshant IAS under which free coaching is provided to socially and economically weaker students living in India. This program is funded by NGOs.",
+    "funded": " ",
+    "register": "To avail the benefits of the scholarship program, click on the button below and get yourself registered.",
+
+    "notesTitle": "Important Notes",
+    "notes": [
+      "Students must present valid and up-to-date documents to claim scholarship benefits.",
+      "The final approval of scholarship rests with the Dikshant IAS Scholarship Committee.",
+      "Limited seats available under each category. Scholarships are granted on a first-come, first-served basis."
+    ],
+
+    "applyTitle": "How to Apply?",
+    "apply": [
+      "Fill the scholarship section in the scholarship form.",
+      "Wait for call from our calling team.",
+      "You can also reach on our helpline number - +91-9354994539"
+    ],
+
+    "mission": "Empower your UPSC journey with Dikshant IAS – Where talent meets opportunity."
+  },
+
+  "contacts": {
+    "contactAddress": "Our contact address",
+    "mainOffice": "Main Office",
+    "emailUs": "Email us",
+    "phone": "Phone",
+    "findLocation": "Find our location",
+    "haveQuestions": "Do you have any questions?",
+    "sayHi": "Have a question or just want to say hi? We'd love to hear from you.",
+    "yourName": "Your Name",
+    "yourEmail": "Your Email",
+    "yourPhone": "Your Phone",
+    "yourMessage": "Your Message",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "successMessage": "Thanks! Your message has been sent. We’ll get back to you soon.",
+    "errorMessage": "Something went wrong. Please try again."
+  },
+  
+  "scholarshipShortMap": {
+    "p1": "PROGRAMME - 1: 60% Scholarship",
+    "p2": "PROGRAMME - 2: 50% Scholarship",
+    "p3": "PROGRAMME - 3: 40% Scholarship"
+  },
+  "scholarshipDetails": {
+    "applyNow": "Apply Now",
+     "applyFor": "Apply for",
+    "faq": [
+      {
+        "id": 1,
+        "key": "p1",
+        "title": "PROGRAMME - 1: 60% Scholarship Programme for BPL Students",
+        "content": [
+          "Providing coaching to BPL students with 60% fee scholarship (Online/Offline, 100 students per year). Required documents:",
+          "Aadhar Card",
+          "BPL Card",
+          "4 Passport size photographs"
+        ]
+      },
+      {
+        "id": 2,
+        "key": "p2",
+        "title": "PROGRAMME - 2: 50% Scholarship for SC / ST / OBC / Minorities / Girls / EWS / Defence Wards Students",
+        "content": [
+          "50% fee scholarship for SC/ST/OBC/Minorities/Girls/EWS/Defence Wards students. Required documents:",
+          "Aadhar Card",
+          "Caste/Minorities certificate + Income certificate (< 8 lakhs)",
+          "Defence ID proof",
+          "4 Passport size photographs"
+        ]
+      },
+      {
+        "id": 3,
+        "key": "p3",
+        "title": "PROGRAMME - 3: 40% Scholarship Programme for Meritorious Students",
+        "content": [
+          "40% fee scholarship for Meritorious Students (50 students/year). An aptitude test will be conducted. Required documents:",
+          "Aadhar Card",
+          "4 Passport size photographs"
+        ]
+      }
+    ]
+  }
+}

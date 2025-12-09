@@ -1,0 +1,330 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import AdminLayout from "@/component/admin/AdminLayout";
+import { Trash2, Edit2, Plus, Search, Activity } from "lucide-react";
+import toast from "react-hot-toast";
+import ConfirmDialog from "@/component/admin/ConfirmDialog";
+
+interface Page {
+  _id: string;
+  title: string;
+  slug: string;
+  content: string;
+  active: boolean;
+  image?: { url: string; alt?: string };
+  metaTitle?: string;
+  metaDescription?: string;
+  createdAt?: string;
+}
+
+export default function PagesPage() {
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);   // 👈 added
+  const [authorized, setAuthorized] = useState(false);
+  const [pages, setPages] = useState<Page[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [confirmBtnText, setConfirmBtnText] = useState("Confirm");
+  const itemsPerPage = 5;
+
+  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [searchTitle, setSearchTitle] = useState<string>("");
+
+  useEffect(() => {
+    setMounted(true); // ✅ ensures rendering only on client
+    const token = localStorage.getItem("adminToken");
+    if (!token) window.location.href = "/admin/login";
+    else {
+      setAuthorized(true);
+      fetchPages();
+    }
+  }, []);
+
+  const fetchPages = async () => {
+    try {
+      const res = await fetch("/api/admin/pages");
+      if (!res.ok) throw new Error("Failed to fetch pages");
+      const data = await res.json();
+      setPages(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch pages");
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    setConfirmTitle("Delete Page?");
+    setConfirmMessage("This action cannot be undone.");
+    setConfirmBtnText("Delete");
+
+    setConfirmAction(() => async () => {
+      try {
+        const res = await fetch(`/api/admin/pages/${id}`, { method: "DELETE" });
+        const data = await res.json();
+
+        if (!res.ok) {
+          toast.error(data.error || "Failed to delete page");
+          return;
+        }
+
+        fetchPages();
+        toast.success("Page deleted successfully!");
+      } catch (err) {
+        toast.error("Failed to delete page");
+      } finally {
+        setConfirmOpen(false);
+      }
+    });
+
+    setConfirmOpen(true);
+  };
+
+  const handleToggleActive = (id: string, currentStatus: boolean) => {
+    setConfirmTitle(currentStatus ? "Deactivate Page?" : "Activate Page?");
+    setConfirmMessage(
+      `Are you sure you want to ${currentStatus ? "deactivate" : "activate"} this page?`
+    );
+    setConfirmBtnText(currentStatus ? "Yes, Deactivate" : "Yes, Activate");
+
+    setConfirmAction(() => async () => {
+      try {
+        const res = await fetch(`/api/admin/pages/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ active: !currentStatus }),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setPages((prev) =>
+            prev.map((p) =>
+              p._id === id ? { ...p, active: data.page.active } : p
+            )
+          );
+
+          toast.success(`Page ${!currentStatus ? "activated" : "deactivated"}`);
+        } else {
+          toast.error("Something went wrong.");
+        }
+      } catch (err) {
+        toast.error("Failed to update page.");
+      } finally {
+        setConfirmOpen(false);
+      }
+    });
+
+    setConfirmOpen(true);
+  };
+
+  const filteredPages = pages.filter((page) => {
+    const matchesStatus =
+      filterStatus === "true"
+        ? page.active
+        : filterStatus === "false"
+        ? !page.active
+        : true;
+
+    const matchesTitle = page.title
+      .toLowerCase()
+      .includes(searchTitle.toLowerCase());
+
+    return matchesStatus && matchesTitle;
+  });
+
+  const totalPages = Math.ceil(filteredPages.length / itemsPerPage);
+  const paginatedData = filteredPages.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // 🚀 FIX: Don't render until client-side mounted
+  if (!mounted) return null;
+
+  if (!authorized)
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <p className="text-gray-700 font-semibold text-lg">Loading...</p>
+      </div>
+    );
+
+   return (
+    <AdminLayout>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Manage Pages</h1>
+
+      <div className="bg-white p-6 rounded-2xl shadow-lg mb-8">
+        {/* Filters + Add */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <h2 className="text-xl font-semibold text-gray-700">All Pages</h2>
+
+          <button
+            onClick={() => router.push("/admin/settings/pages/add")}
+            className="flex items-center gap-1 px-3 py-1.5 bg-[#e94e4e] text-white text-sm rounded-md hover:bg-red-600 shadow transition"
+          >
+            <Plus size={14} /> New Page
+          </button>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap gap-3 items-center bg-white p-4 rounded-xl shadow-sm mb-3">
+          <div className="relative">
+            <Activity className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="pl-7 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-1 focus:ring-[#e94e4e] focus:outline-none shadow-sm transition"
+            >
+              <option value="">All Status</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+          </div>
+
+          <div className="relative flex-1 min-w-[150px]">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+            <input
+              type="text"
+              value={searchTitle}
+              onChange={(e) => setSearchTitle(e.target.value)}
+              placeholder="Search..."
+              className="pl-7 pr-3 py-2 w-full rounded-lg border border-gray-300 focus:ring-1 focus:ring-[#e94e4e] focus:outline-none shadow-sm transition"
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse bg-white rounded-2xl shadow-lg overflow-hidden">
+            <thead className="bg-gray-100 text-gray-700 text-sm uppercase tracking-wide font-semibold">
+              <tr>
+                <th className="py-4 px-5 text-left">Image</th>
+                <th className="py-4 px-5 text-left">Title</th>
+                <th className="py-4 px-5 text-left">Slug</th>
+                <th className="py-4 px-5 text-center">Status</th>
+                <th className="py-4 px-5 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-800 text-sm">
+              {paginatedData.length > 0 ? (
+                paginatedData.map((page) => (
+                  <tr key={page._id} className="hover:bg-gray-50 border-b">
+                    <td className="py-3 px-5">
+                      {page.image?.url ? (
+                        <img
+                          src={page.image.url}
+                          alt={page.image.alt || page.title}
+                          className="h-16 w-32 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="h-16 w-32 bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+                          No Image
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-3 px-5 font-medium">{page.title}</td>
+                    <td className="py-3 px-5">{page.slug}</td>
+                    <td className="py-3 px-5 text-center">
+                      <div
+                        onClick={() => handleToggleActive(page._id, page.active)}
+                        className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${
+                          page.active ? "bg-green-500" : "bg-gray-300"
+                        }`}
+                      >
+                        <span
+                          className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${
+                            page.active ? "translate-x-6" : "translate-x-0"
+                          }`}
+                        ></span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-5 text-center">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => router.push(`/admin/settings/pages/${page._id}`)}
+                          className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white shadow hover:scale-110 transition"
+                          title="Edit"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(page._id)}
+                          className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500 text-white shadow hover:scale-110 transition"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="text-center py-8 text-gray-500 italic"
+                  >
+                    No pages found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-end items-center mt-4 space-x-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={`px-3 py-1 rounded-md font-medium ${
+              currentPage === 1
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Prev
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded-md font-medium ${
+                currentPage === i + 1
+                  ? "bg-[#e94e4e] text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className={`px-3 py-1 rounded-md font-medium ${
+              currentPage === totalPages
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        title={confirmTitle}
+        message={confirmMessage}
+        confirmText={confirmBtnText}
+        cancelText="Cancel"
+        onConfirm={confirmAction}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    </AdminLayout>
+  );
+}
