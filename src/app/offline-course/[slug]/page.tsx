@@ -49,6 +49,11 @@ const CoursePage = () => {
     const [course, setCourse] = useState<Course | null>(null);
     const [loading, setLoading] = useState(true);
 
+      const [formLoading, setFormLoading] = useState(false);
+        const [success, setSuccess] = useState("");
+        const [error, setError] = useState("");
+    
+
     useEffect(() => {
         if (!slug) return;
 
@@ -81,6 +86,50 @@ const CoursePage = () => {
             {label}
         </button>
     );
+
+
+       const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+                e.preventDefault();
+    
+                const form = e.currentTarget; // ✅ store reference for reset
+    
+                setFormLoading(true);
+                setSuccess("");
+                setError("");
+    
+                const data = Object.fromEntries(new FormData(form));
+    
+                let res: Response;
+    
+                try {
+                    res = await fetch("/api/admin/course-enquiry", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data),
+                    });
+                } catch (err) {
+                    console.error("Fetch failed:", err);
+                    setError("Network error. Please try again later.");
+                    setSuccess("");
+                    setFormLoading(false);
+                    return;
+                }
+    
+                // Trust only HTTP Status
+                if (res.ok) {
+                    setSuccess("Thank you for your enquiry! Our team will contact you shortly with course details.");
+                    setError("");
+                    form.reset(); //  GUARANTEED RESET
+                      setTimeout(() => {
+                        setSuccess("");
+                    }, 5000); // 5 seconds
+                } else {
+                    setError("Something went wrong. Please try again.");
+                    setSuccess("");
+                }
+    
+                setFormLoading(false);
+            };
 
     const handleReviewSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -401,24 +450,61 @@ const CoursePage = () => {
                                     </button>
                                 </div>
                             </div>
-                            <div className="mt-6 bg-gradient-to-br from-gray-900 to-red-900 rounded-lg overflow-hidden text-white">
+                            
+                             <div className="mt-6 bg-gradient-to-br from-gray-900 to-red-900 rounded-lg overflow-hidden text-white">
                                 <div className="p-6">
-                                    <h3 className="text-lg font-semibold mb-2">Newest offer</h3>
+                                    <h3 className="text-xl font-bold mb-2">Get Course Details</h3>
                                     <p className="text-sm text-gray-300 mb-4">
-                                        Create a landing page for this course to maximize Conversions.
+                                        Fill in the form below and our team will contact you with complete course details.
                                     </p>
-                                    <div className="relative mb-4">
-                                        <Image
-                                            width={500}
-                                            height={500}
-                                            src="/img/offer.png"
-                                            alt="Thumbnails preview"
-                                            className="w-full rounded-lg"
-                                        />
-                                    </div>
-                                    <button className="w-full bg-yellow-500 text-black py-2 rounded font-semibold hover:bg-yellow-400 transition-colors">
-                                        View more
-                                    </button>
+                                    {success && <p className="text-green-400 text-sm mb-2 mt-3">{success}</p>}
+                                    {!success && error && <p className="text-red-400 text-sm">{error}</p>}
+
+
+
+                                    {/* FORM */}
+                                    <form className="space-y-3" onSubmit={handleSubmit}>
+
+                                       <input
+                                            type="text"
+                                            placeholder="Full Name"
+                                            name="name"
+                                            required
+                                            pattern="[A-Za-z ]+"
+                                            title="Name should contain only letters and spaces"
+                                            className="w-full px-3 py-2 rounded bg-white text-black text-sm outline-none focus:ring-2 focus:ring-yellow-400"
+                                            />
+                                            
+                                            <input
+                                            type="tel"
+                                            placeholder="Phone Number"
+                                            name="phone"
+                                            required
+                                            inputMode="numeric"
+                                            pattern="[0-9]{10}"
+                                            maxLength={10}
+                                            title="Enter a valid 10-digit phone number"
+                                            className="w-full px-3 py-2 rounded bg-white text-black text-sm outline-none focus:ring-2 focus:ring-yellow-400"
+                                            />
+
+                                          <textarea
+                                            placeholder="Your Message (Optional)"
+                                            name="message"
+                                            rows={3}
+                                            className="w-full px-3 py-2 rounded bg-white text-black text-sm outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+                                            ></textarea>
+
+
+                                        <button
+                                            type="submit"
+                                            disabled={formLoading}
+                                            className="w-full bg-yellow-500 text-black py-2 rounded font-semibold hover:bg-yellow-400 disabled:opacity-50"
+                                        >
+                                            {formLoading ? "Sending..." : "Enquire Now"}
+                                        </button>
+
+                                    </form>
+
                                 </div>
                             </div>
                         </div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { useParams } from "next/navigation";
-import { Star, Clock, Users, Globe, Smartphone, Infinity, Book, CalendarDays, PlayIcon } from 'lucide-react';
+import { Star, Clock, Globe, Smartphone, Infinity, Book, CalendarDays, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
 import parse from "html-react-parser";
 import Skeleton from "react-loading-skeleton";
@@ -49,6 +49,13 @@ const CoursePage = () => {
     const [course, setCourse] = useState<Course | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const [formLoading, setFormLoading] = useState(false);
+    const [success, setSuccess] = useState("");
+    const [error, setError] = useState("");
+
+    
+
+
     useEffect(() => {
         if (!slug) return;
 
@@ -82,6 +89,54 @@ const CoursePage = () => {
         </button>
     );
 
+
+        const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+
+            const form = e.currentTarget; // ✅ store reference for reset
+
+            setFormLoading(true);
+            setSuccess("");
+            setError("");
+
+            const data = Object.fromEntries(new FormData(form));
+
+            let res: Response;
+
+            try {
+                res = await fetch("/api/admin/course-enquiry", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+            } catch (err) {
+                console.error("Fetch failed:", err);
+                setError("Network error. Please try again later.");
+                setSuccess("");
+                setFormLoading(false);
+                return;
+            }
+
+            // Trust only HTTP Status
+            if (res.ok) {
+                setSuccess("Thank you for your enquiry! Our team will contact you shortly with course details.");
+                setError("");
+                form.reset(); //  GUARANTEED RESET
+                  setTimeout(() => {
+                    setSuccess("");
+                }, 5000); // 5 seconds
+            } else {
+                setError("Something went wrong. Please try again.");
+                setSuccess("");
+            }
+
+            setFormLoading(false);
+        };
+
+
+
+
+
     const handleReviewSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log('Review submitted:', { reviewerName, reviewRating, reviewText });
@@ -91,59 +146,59 @@ const CoursePage = () => {
         setReviewerName('');
     };
 
-   if (loading) {
-  return (
-   <div className="container max-w-7xl mx-auto p-6">
-      {/* Header Section */}
-      <div className="bg-blue-100 rounded-2xl p-6 mb-6 flex flex-col lg:flex-row gap-6">
-        {/* Left Content */}
-        <div className="flex-1">
-          <Skeleton height={30} width="50%" className="mb-4" />
-          <div className="flex items-center gap-4 mb-4">
-            <Skeleton circle height={20} width={20} />
-            <Skeleton width={120} height={16} />
-            <Skeleton width={80} height={16} />
-          </div>
-          <div className="flex gap-3">
-            <Skeleton height={30} width={80} />
-            <Skeleton height={30} width={100} />
-          </div>
-        </div>
+    if (loading) {
+        return (
+            <div className="container max-w-7xl mx-auto p-6">
+                {/* Header Section */}
+                <div className="bg-blue-100 rounded-2xl p-6 mb-6 flex flex-col lg:flex-row gap-6">
+                    {/* Left Content */}
+                    <div className="flex-1">
+                        <Skeleton height={30} width="50%" className="mb-4" />
+                        <div className="flex items-center gap-4 mb-4">
+                            <Skeleton circle height={20} width={20} />
+                            <Skeleton width={120} height={16} />
+                            <Skeleton width={80} height={16} />
+                        </div>
+                        <div className="flex gap-3">
+                            <Skeleton height={30} width={80} />
+                            <Skeleton height={30} width={100} />
+                        </div>
+                    </div>
 
-        {/* Course Image */}
-        <div className="w-full lg:w-1/3">
-          <Skeleton height={200} className="rounded-xl" />
-        </div>
-      </div>
+                    {/* Course Image */}
+                    <div className="w-full lg:w-1/3">
+                        <Skeleton height={200} className="rounded-xl" />
+                    </div>
+                </div>
 
-      {/* Main Section */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left: Overview */}
-        <div className="flex-1">
-          <h2 className="text-lg font-bold mb-4 text-gray-600">
-            <Skeleton width={150} height={20} />
-          </h2>
-          <Skeleton count={6} height={16} className="mb-2" />
-        </div>
+                {/* Main Section */}
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Left: Overview */}
+                    <div className="flex-1">
+                        <h2 className="text-lg font-bold mb-4 text-gray-600">
+                            <Skeleton width={150} height={20} />
+                        </h2>
+                        <Skeleton count={6} height={16} className="mb-2" />
+                    </div>
 
-        {/* Right: Price & Details */}
-        <div className="w-full lg:w-1/3 bg-white shadow rounded-xl p-6">
-          <Skeleton height={30} width="50%" className="mb-4" /> {/* Price */}
-          <ul className="space-y-3">
-            {Array(6)
-              .fill(0)
-              .map((_, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <Skeleton circle height={20} width={20} />
-                  <Skeleton width="70%" height={16} />
-                </li>
-              ))}
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
-}
+                    {/* Right: Price & Details */}
+                    <div className="w-full lg:w-1/3 bg-white shadow rounded-xl p-6">
+                        <Skeleton height={30} width="50%" className="mb-4" /> {/* Price */}
+                        <ul className="space-y-3">
+                            {Array(6)
+                                .fill(0)
+                                .map((_, i) => (
+                                    <li key={i} className="flex items-center gap-3">
+                                        <Skeleton circle height={20} width={20} />
+                                        <Skeleton width="70%" height={16} />
+                                    </li>
+                                ))}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        );
+    }
     return (
         <div>
             {/* Header */}
@@ -251,9 +306,9 @@ const CoursePage = () => {
                                         [&_a]:text-blue-600
                                         hover:[&_a]:underline
                                     "
-                                    >
+                                >
                                     {parse(course.content)}
-                                    </div>
+                                </div>
 
 
                                 {/* Course Videos */}
@@ -264,34 +319,34 @@ const CoursePage = () => {
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                                         {course.videos?.map((videoUrl, index) => {
-  let embedUrl = videoUrl;
+                                            let embedUrl = videoUrl;
 
-  if (videoUrl.includes("watch?v=")) {
-    embedUrl = videoUrl.replace("watch?v=", "embed/");
-  } else if (videoUrl.includes("youtu.be/")) {
-    embedUrl = videoUrl.replace("youtu.be/", "www.youtube.com/embed/");
-  }
+                                            if (videoUrl.includes("watch?v=")) {
+                                                embedUrl = videoUrl.replace("watch?v=", "embed/");
+                                            } else if (videoUrl.includes("youtu.be/")) {
+                                                embedUrl = videoUrl.replace("youtu.be/", "www.youtube.com/embed/");
+                                            }
 
-  return (
-    <div key={index} className="text-center">
-      <iframe
-        width="100%"
-        height="200"
-        className="rounded-xl"
-        src={embedUrl}
-        title={`Video Class ${index + 1}`}
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerPolicy="strict-origin-when-cross-origin"
-        allowFullScreen
-      ></iframe>
+                                            return (
+                                                <div key={index} className="text-center">
+                                                    <iframe
+                                                        width="100%"
+                                                        height="200"
+                                                        className="rounded-xl"
+                                                        src={embedUrl}
+                                                        title={`Video Class ${index + 1}`}
+                                                        frameBorder="0"
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                        referrerPolicy="strict-origin-when-cross-origin"
+                                                        allowFullScreen
+                                                    ></iframe>
 
-      <h3 className="font-bold mt-2 text-blue-500">
-        Video Class {index + 1}
-      </h3>
-    </div>
-  );
-})}
+                                                    <h3 className="font-bold mt-2 text-blue-500">
+                                                        Video Class {index + 1}
+                                                    </h3>
+                                                </div>
+                                            );
+                                        })}
 
                                     </div>
                                 </div>
@@ -341,20 +396,20 @@ const CoursePage = () => {
                                                 className="w-12 h-12 rounded-full"
                                             /> */}
                                             <div className="flex-1">
-                                                                                            <div className="flex items-center gap-2 mb-1">
-                                                                                                <h4 className="font-semibold text-[#040c33]">Vijay Verma</h4>
-                                                                                                <div className="flex text-yellow-400">
-                                                                                                    {[...Array(5)].map((_, i) => (
-                                                                                                        <Star key={i} className="w-4 h-4 fill-current" />
-                                                                                                    ))}
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div className="text-sm text-blue-950 mb-2">Course Review</div>
-                                                                                           <p className="text-blue-950 text-sm">
-                                                                                            "This course exceeded my expectations! The instructor explained complex topics in a clear and engaging way, with practical examples that I could immediately apply. The content was well-structured, and the exercises helped reinforce my learning. I feel much more confident in my skills now and would highly recommend this course to anyone looking to level up."
-                                                                                            </p>
-                                            
-                                                                                        </div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <h4 className="font-semibold text-[#040c33]">Vijay Verma</h4>
+                                                    <div className="flex text-yellow-400">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star key={i} className="w-4 h-4 fill-current" />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div className="text-sm text-blue-950 mb-2">Course Review</div>
+                                                <p className="text-blue-950 text-sm">
+                                                    "This course exceeded my expectations! The instructor explained complex topics in a clear and engaging way, with practical examples that I could immediately apply. The content was well-structured, and the exercises helped reinforce my learning. I feel much more confident in my skills now and would highly recommend this course to anyone looking to level up."
+                                                </p>
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -396,7 +451,7 @@ const CoursePage = () => {
                                             <Clock className="w-4 h-4 text-red-700" />
                                             <span className="text-blue-950">Duration: {course.duration}</span>
                                         </div>
-                                       
+
                                         <div className="flex items-center gap-3">
                                             <Globe className="w-4 h-4 text-red-700" />
                                             <span className="text-blue-950">Language: {course.languages}</span>
@@ -420,24 +475,61 @@ const CoursePage = () => {
                             </div>
                             <div className="mt-6 bg-gradient-to-br from-gray-900 to-red-900 rounded-lg overflow-hidden text-white">
                                 <div className="p-6">
-                                    <h3 className="text-lg font-semibold mb-2">Newest offer</h3>
+                                    <h3 className="text-xl font-bold mb-2">Get Course Details</h3>
                                     <p className="text-sm text-gray-300 mb-4">
-                                        Create a landing page for this course to maximize Conversions.
+                                        Fill in the form below and our team will contact you with complete course details.
                                     </p>
-                                    <div className="relative mb-4">
-                                        <Image
-                                            width={500}
-                                            height={500}
-                                            src="/img/offer.png"
-                                            alt="Thumbnails preview"
-                                            className="w-full rounded-lg"
-                                        />
-                                    </div>
-                                    <button className="w-full bg-yellow-500 text-black py-2 rounded font-semibold hover:bg-yellow-400 transition-colors">
-                                        View more
-                                    </button>
+                                    {success && <p className="text-green-400 text-sm mb-2 mt-3">{success}</p>}
+                                    {!success && error && <p className="text-red-400 text-sm">{error}</p>}
+
+
+
+                                    {/* FORM */}
+                                    <form className="space-y-3" onSubmit={handleSubmit}>
+
+                                       <input
+                                            type="text"
+                                            placeholder="Full Name"
+                                            name="name"
+                                            required
+                                            pattern="[A-Za-z ]+"
+                                            title="Name should contain only letters and spaces"
+                                            className="w-full px-3 py-2 rounded bg-white text-black text-sm outline-none focus:ring-2 focus:ring-yellow-400"
+                                            />
+                                            
+                                            <input
+                                            type="tel"
+                                            placeholder="Phone Number"
+                                            name="phone"
+                                            required
+                                            inputMode="numeric"
+                                            pattern="[0-9]{10}"
+                                            maxLength={10}
+                                            title="Enter a valid 10-digit phone number"
+                                            className="w-full px-3 py-2 rounded bg-white text-black text-sm outline-none focus:ring-2 focus:ring-yellow-400"
+                                            />
+
+                                          <textarea
+                                            placeholder="Your Message (Optional)"
+                                            name="message"
+                                            rows={3}
+                                            className="w-full px-3 py-2 rounded bg-white text-black text-sm outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+                                            ></textarea>
+
+
+                                        <button
+                                            type="submit"
+                                            disabled={formLoading}
+                                            className="w-full bg-yellow-500 text-black py-2 rounded font-semibold hover:bg-yellow-400 disabled:opacity-50"
+                                        >
+                                            {formLoading ? "Sending..." : "Enquire Now"}
+                                        </button>
+
+                                    </form>
+
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -550,7 +642,7 @@ const CoursePage = () => {
                         </div>
                     </div>
                 </div>
-              )}
+            )}
         </div>
     );
 };

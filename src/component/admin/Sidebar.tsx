@@ -11,6 +11,7 @@
     ChevronDown,
     ChevronRight,
     Layers,
+    MailOpen
   } from "lucide-react";
   import Link from "next/link";
   import { usePathname } from "next/navigation";
@@ -43,8 +44,15 @@
     { href: "/admin/testimonials", label: "Testimonials", icon: Users },
     { href: "/admin/results", label: "Result", icon: FileText },
     { href: "/admin/gallery", label: "Gallery", icon: MessageSquare },
-     // ✅ New Scholarship Enquiry
+  {
+  label: "Enquiries",
+  icon: MailOpen,
+  children: [
     { href: "/admin/scholarships", label: "Scholarship Enquiry", icon: FileText },
+    { href: "/admin/course-enquiry", label: "Course Enquiry", icon: BookOpen },
+  ],
+},
+
     {
       label: "Settings",
       icon: Settings,
