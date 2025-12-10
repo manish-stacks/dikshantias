@@ -379,10 +379,7 @@ const CoursePage = () => {
                                             <Clock className="w-4 h-4 text-red-700" />
                                             <span className="text-blue-950">Duration: {course.duration}</span>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <Users className="w-4 h-4 text-red-700" />
-                                            <span className="text-blue-950">Enrolled: 391 students</span>
-                                        </div>
+                                        
                                         <div className="flex items-center gap-3">
                                             <Globe className="w-4 h-4 text-red-700" />
                                             <span className="text-blue-950">Language: {course.languages}</span>

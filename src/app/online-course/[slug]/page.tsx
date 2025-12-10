@@ -222,7 +222,39 @@ const CoursePage = () => {
                         {activeTab === 'description' && (
                             <div>
                                 {/* Course Description */}
-                                {parse(course.content)}
+                                <div
+                                    className="
+                                        prose 
+                                        prose-gray 
+                                        sm:prose-base 
+                                        lg:prose-lg 
+                                        xl:prose-xl 
+                                        max-w-none 
+                                        text-justify 
+                                        leading-relaxed
+
+                                        [&_p]:mb-4
+                                        [&_ul]:ml-6
+                                        [&_ul]:list-disc
+                                        [&_ol]:ml-6
+                                        [&_ol]:list-decimal
+                                        [&_li]:mb-2
+
+                                        [&_h1]:mt-6 [&_h1]:mb-4 [&_h1]:font-bold
+                                        [&_h2]:mt-5 [&_h2]:mb-3 [&_h2]:font-semibold
+                                        [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:font-semibold
+
+                                        [&_img]:rounded-lg
+                                        [&_img]:shadow
+                                        [&_img]:my-4
+
+                                        [&_a]:text-blue-600
+                                        hover:[&_a]:underline
+                                    "
+                                    >
+                                    {parse(course.content)}
+                                    </div>
+
 
                                 {/* Course Videos */}
                                 <div className="w-full mb-8 mt-8">
@@ -364,10 +396,7 @@ const CoursePage = () => {
                                             <Clock className="w-4 h-4 text-red-700" />
                                             <span className="text-blue-950">Duration: {course.duration}</span>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <Users className="w-4 h-4 text-red-700" />
-                                            <span className="text-blue-950">Enrolled: 391 students</span>
-                                        </div>
+                                       
                                         <div className="flex items-center gap-3">
                                             <Globe className="w-4 h-4 text-red-700" />
                                             <span className="text-blue-950">Language: {course.languages}</span>
