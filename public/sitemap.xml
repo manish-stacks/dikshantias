@@ -1,121 +1,118 @@
-<url>
-<loc>https://www.dikshantias.com/</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/about-us</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/scholarship-programme</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/blogs</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/about-upsc</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/online-course</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/offline-course</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/e-learning</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/current-affairs/what-to-read-in-hindu</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>0.8</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/current-affairs/what-to-read-in-indian-express</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>0.8</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/current-affairs/daily-current-affairs-analysis</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>0.8</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/current-affairs/editorial-analysis</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>0.8</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/current-affairs/important-facts-of-the-day</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>0.8</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/ashutosh-dixit</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/image</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/contact-us</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/gallery</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/mains-corner</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/coming-soon</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/current-affairs/daily-current-affairs-quiz</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>0.8</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/privacy-refund-policy</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/terms-conditions</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/data-policy</loc>
-<lastmod>2025-11-28T10:53:07+01:00</lastmod>
-<priority>1.0</priority>
-</url>
-<url>
-<loc>https://www.dikshantias.com/current-affairs</loc>
-<lastmod>2025-11-28T10:53:14+01:00</lastmod>
-<priority>1.0</priority>
-</url>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://www.dikshantias.com/</loc>
+    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/about-us</loc>
+    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/scholarship-programme</loc>
+    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/blogs</loc>
+    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/about-upsc</loc>
+    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/online-course</loc>
+    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/offline-course</loc>
+    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/e-learning</loc>
+    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/current-affairs</loc>
+    <lastmod>2025-11-28T10:53:14+01:00</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/current-affairs/what-to-read-in-hindu</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/current-affairs/what-to-read-in-indian-express</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/current-affairs/daily-current-affairs-analysis</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/current-affairs/editorial-analysis</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/current-affairs/important-facts-of-the-day</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/current-affairs/daily-current-affairs-quiz</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/ashutosh-dixit</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/gallery</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/contact-us</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/privacy-refund-policy</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/terms-conditions</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/data-policy</loc>
+    <priority>1.0</priority>
+  </url>
+
 </urlset>
