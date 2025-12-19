@@ -3,55 +3,55 @@
 
   <url>
     <loc>https://www.dikshantias.com/</loc>
-    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/about-us</loc>
-    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/scholarship-programme</loc>
-    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/blogs</loc>
-    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/about-upsc</loc>
-    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/online-course</loc>
-    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/offline-course</loc>
-    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/e-learning</loc>
-    <lastmod>2025-11-28T10:53:07+01:00</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/current-affairs</loc>
-    <lastmod>2025-11-28T10:53:14+01:00</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <priority>1.0</priority>
   </url>
 
@@ -101,18 +101,28 @@
   </url>
 
   <url>
-    <loc>https://www.dikshantias.com/privacy-refund-policy</loc>
+    <loc>https://www.dikshantias.com/mains-corner</loc>
     <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/coming-soon</loc>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://www.dikshantias.com/privacy-refund-policy</loc>
+    <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/terms-conditions</loc>
-    <priority>1.0</priority>
+    <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://www.dikshantias.com/data-policy</loc>
-    <priority>1.0</priority>
+    <priority>0.6</priority>
   </url>
 
 </urlset>
