@@ -40,7 +40,7 @@ export default function CurrentAffairsPage() {
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMessage, setConfirmMessage] = useState("");
   const [confirmBtnText, setConfirmBtnText] = useState("Confirm");
-  const itemsPerPage = 5;
+  const itemsPerPage = 50;
 
   const [filterCategory, setFilterCategory] = useState<string>("");
   const [filterSubCategory, setFilterSubCategory] = useState<string>("");

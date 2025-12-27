@@ -176,7 +176,7 @@ const Header: React.FC = () => {
                                 </div>
                                 <div className="text-sm">
                                     <div className="text-xs text-gray-500">{t("talkToExperts")}</div>
-                                    <div className="font-medium"><a href="tel:07428092240">+91 7428092240</a></div>
+                                    <div className="font-medium"><a href="tel:09312511015">+91 9312511015</a></div>
                                 </div>
                             </div>
 
@@ -306,8 +306,8 @@ const Header: React.FC = () => {
                                 <div className="text-sm">
                                     <div className="text-xs text-gray-500">{t("talkToExperts")}</div>
                                     <div className="font-bold text-gray-900 text-lg">
-                                        <a href={`tel:${settings?.phone || '+917428092240'}`} className="hover:text-[#81190B]">
-                                            {settings?.phone || '+91 7428092240'}
+                                        <a href={`tel:${settings?.phone || '+919312511015'}`} className="hover:text-[#81190B]">
+                                            {settings?.phone || '+91 9312511015'}
                                         </a>
                                     </div>
 

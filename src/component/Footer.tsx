@@ -132,10 +132,10 @@ const Footer: React.FC = () => {
               <div>
                 <span className="font-semibold">{t('footer.sections.phone')}:</span>{' '}
                 <a
-                  href={`tel:${settings?.phone || '+917428092240'}`}
+                  href={`tel:${settings?.phone || '+919312511015'}`}
                   className="text-slate-700 hover:underline"
                 >
-                  {settings?.phone || '+91 7428092240'}
+                  {settings?.phone || '+91 9312511015'}
                 </a>
               </div>
               <div>

@@ -145,10 +145,10 @@ const ContactUs: React.FC = () => {
   <span className="text-slate-700 font-medium">
     <span className="font-bold">{t('contacts.phone')}:</span>{' '}
     <a
-      href={`tel:${settings?.phone?.replace(/\s+/g, '') || '+917428092240'}`}
+      href={`tel:${settings?.phone?.replace(/\s+/g, '') || '+919312511015'}`}
       className="text-slate-700 hover:underline"
     >
-      {settings?.phone || '+91 7428092240'}
+      {settings?.phone || '+91 9312511015'}
     </a>
   </span>
 </div>
