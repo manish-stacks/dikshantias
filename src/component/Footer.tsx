@@ -135,7 +135,7 @@ const Footer: React.FC = () => {
                   href={`tel:${settings?.phone || '+919312511015'}`}
                   className="text-slate-700 hover:underline"
                 >
-                  {settings?.phone || '+91 9312511015'}
+                  {settings?.phone || '+91 7428092240'}
                 </a>
               </div>
               <div>
