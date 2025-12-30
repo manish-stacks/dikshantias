@@ -44,9 +44,7 @@ const Header: React.FC = () => {
     const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
     const [settings, setSettings] = useState<SettingsData | null>(null);
     const { t, i18n } = useTranslation("common")
-
-
-    // ✅ translations
+    
 
     const [lang, setLang] = useState(i18n.language || "en");
 
