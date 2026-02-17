@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { X } from 'lucide-react';
-import Image from 'next/image';
+import React from "react";
+import { X } from "lucide-react";
+import Image from "next/image";
 
 function decodeHtml(html?: string): string {
-  if (!html) return '';
+  if (!html) return "";
   return html
-    .replace(/\\u003C/g, '<')
-    .replace(/\\u003E/g, '>')
-    .replace(/\\u0026/g, '&')
-    .replace(/&ndash;/g, '–')
-    .replace(/&lsquo;/g, '‘')
-    .replace(/&rsquo;/g, '’')
-    .replace(/&nbsp;/g, ' ');
+    .replace(/\\u003C/g, "<")
+    .replace(/\\u003E/g, ">")
+    .replace(/\\u0026/g, "&")
+    .replace(/&ndash;/g, "–")
+    .replace(/&lsquo;/g, "‘")
+    .replace(/&rsquo;/g, "’")
+    .replace(/&nbsp;/g, " ");
 }
 
 interface HinduDetailsProps {
@@ -24,14 +24,22 @@ interface HinduDetailsProps {
   imageAlt?: string;
 }
 
-const HinduDetails: React.FC<HinduDetailsProps> = ({ title, content, onClose, imageUrl, imageAlt }) => {
+const HinduDetails: React.FC<HinduDetailsProps> = ({
+  title,
+  content,
+  onClose,
+  imageUrl,
+  imageAlt,
+}) => {
   const decodedContent = decodeHtml(content);
 
   return (
     <div className="bg-[#F1F5F9] shadow-lg rounded-2xl p-6 md:p-10 max-w-6xl mx-auto relative">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 border-b pb-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-[#00072c]">{title}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-[#00072c]">
+          {title}
+        </h1>
         {onClose && (
           <button
             onClick={onClose}
@@ -63,23 +71,69 @@ const HinduDetails: React.FC<HinduDetailsProps> = ({ title, content, onClose, im
         //   dangerouslySetInnerHTML={{ __html: decodedContent }}
         // />
 
+        //     <div
+        //       className="
+        //         max-w-none text-gray-800 leading-relaxed space-y-8
+        //         [&>h1]:text-3xl [&>h1]:mt-10 [&>h1]:mb-6
+        //         [&>h2]:text-2xl [&>h2]:mt-8 [&>h2]:mb-5
+        //         [&>h3]:text-xl [&>h3]:mt-6 [&>h3]:mb-4
+        //         [&>p]:mb-6
+        //         [&>ul]:list-disc [&>ul]:pl-8 [&>ul]:mb-6
+        //         [&>ol]:list-decimal [&>ol]:pl-8 [&>ol]:mb-6
+        //         [&>li]:mb-3
+        //         [&>blockquote]:border-l-4 [&>blockquote]:border-gray-300 [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-gray-600 [&>blockquote]:my-6
+        //         [&>img]:rounded-lg [&>img]:my-8
+        //       "
+        //       dangerouslySetInnerHTML={{ __html: decodedContent }}
+        //     />
+        //   ) : (
+        //     <p className="text-gray-500 italic">No content available.</p>
+        //   )}
+        // </div>
+
         <div
           className="
-            max-w-none text-gray-800 leading-relaxed space-y-8
+            max-w-none text-gray-800 leading-relaxed space-y-6
+
             [&>h1]:text-3xl [&>h1]:mt-10 [&>h1]:mb-6
             [&>h2]:text-2xl [&>h2]:mt-8 [&>h2]:mb-5
             [&>h3]:text-xl [&>h3]:mt-6 [&>h3]:mb-4
+
             [&>p]:mb-6
-            [&>ul]:list-disc [&>ul]:pl-8 [&>ul]:mb-6
-            [&>ol]:list-decimal [&>ol]:pl-8 [&>ol]:mb-6
-            [&>li]:mb-3
-            [&>blockquote]:border-l-4 [&>blockquote]:border-gray-300 [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-gray-600 [&>blockquote]:my-6
-            [&>img]:rounded-lg [&>img]:my-8
+
+            /* Main UL */
+            [&>ul]:list-disc 
+            [&>ul]:pl-8 
+            [&>ul]:mb-6
+            [&>ul>li]:mb-3
+
+            /* Sub UL (2nd level) */
+            [&>ul>li>ul]:list-circle
+            [&>ul>li>ul]:pl-14
+            [&>ul>li>ul>li]:mb-2
+
+            /* 3rd Level UL (Optional support) */
+            [&>ul>li>ul>li>ul]:list-square
+            [&>ul>li>ul>li>ul]:pl-14
+
+            /* Ordered List */
+            [&>ol]:list-decimal 
+            [&>ol]:pl-8 
+            [&>ol]:mb-6
+            [&>ol>li]:mb-3
+
+            [&>blockquote]:border-l-4 
+            [&>blockquote]:border-gray-300 
+            [&>blockquote]:pl-6 
+            [&>blockquote]:italic 
+            [&>blockquote]:text-gray-600 
+            [&>blockquote]:my-6
+
+            [&>img]:rounded-lg 
+            [&>img]:my-8
           "
           dangerouslySetInnerHTML={{ __html: decodedContent }}
         />
-
-
       ) : (
         <p className="text-gray-500 italic">No content available.</p>
       )}

@@ -11,7 +11,6 @@ const VisitorSchema: Schema = new Schema(
     ip: {
       type: String,
       required: true,
-      unique: true, // Prevent duplicate IPs
     },
   },
   { timestamps: true },
