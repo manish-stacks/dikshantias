@@ -65,13 +65,13 @@ export default function HomePopup() {
               <Download size={16} />
               Download App
             </a>
-
+            {/* 
             <a
               href="/contact"
               className="bg-purple-700 hover:bg-purple-800 text-white px-5 py-2 rounded-lg text-sm md:text-base transition"
             >
               Claim Course
-            </a>
+            </a> */}
           </div>
         </div>
       </div>
