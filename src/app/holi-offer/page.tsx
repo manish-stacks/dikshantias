@@ -13,7 +13,7 @@ const HoliOfferPage = () => {
         {/* Left Side - Image */}
         <div className="relative bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center p-6">
           <Image
-            src="/img/holioffer.png"
+            src="/img/holioffers.png"
             alt={t("holiOffer.alt")}
             width={900}
             height={1200}

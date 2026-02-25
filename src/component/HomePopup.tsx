@@ -31,7 +31,7 @@ export default function HomePopup() {
 
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-700 to-pink-600 text-white text-center py-3 text-lg font-semibold">
-          🎉 Holi 99% Scholarship Offer
+          🎉 Holi 95% Scholarship Offer
         </div>
 
         {/* Image Section - Fully Visible */}
@@ -53,7 +53,7 @@ export default function HomePopup() {
           </h2>
 
           <p className="text-gray-600 text-sm md:text-base mb-4">
-            Get up to 99% scholarship on selected UPSC courses.
+            Get up to 95% scholarship on selected UPSC courses.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
