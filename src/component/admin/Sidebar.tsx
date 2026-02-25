@@ -72,7 +72,7 @@ export default function Sidebar() {
         { href: "/admin/e-learning", label: "E-Learning", icon: BookOpen },
         { href: "/admin/settings/pages", label: "Pages" },
         { href: "/admin/settings/web", label: "Web" },
-        { href: "/admin/settings/popup", label: "Popup", icon: Image },
+        { href: "/admin/settings/popup", label: "Popup" },
       ],
     },
   ];
