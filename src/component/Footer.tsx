@@ -350,7 +350,7 @@ const Footer: React.FC = () => {
                 <Image
                   src={settings.image.url}
                   alt="Logo"
-                  width={200}
+                  width={160}
                   height={100}
                   className="mx-auto md:mx-0"
                 />
