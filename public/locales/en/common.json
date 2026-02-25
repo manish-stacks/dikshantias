@@ -26,8 +26,6 @@
   "Prev": "Prev",
   "Next": "Next",
 
-
-
   "quickLinks": "QUICK LINKS",
   "contact": "Contact Us",
   "gallery": "Gallery",
@@ -268,7 +266,7 @@
     "successMessage": "Thanks! Your message has been sent. We’ll get back to you soon.",
     "errorMessage": "Something went wrong. Please try again."
   },
-  
+
   "scholarshipShortMap": {
     "p1": "PROGRAMME - 1: 60% Scholarship",
     "p2": "PROGRAMME - 2: 50% Scholarship",
@@ -276,7 +274,7 @@
   },
   "scholarshipDetails": {
     "applyNow": "Apply Now",
-     "applyFor": "Apply for",
+    "applyFor": "Apply for",
     "faq": [
       {
         "id": 1,
@@ -312,5 +310,13 @@
         ]
       }
     ]
+  },
+  "holiOffer": {
+    "badge": "Limited Time Holi Scholarship",
+    "title": "Celebrate Holi with a",
+    "highlight": "99% Scholarship",
+    "description": "This Holi, take a confident step toward your UPSC dream. Unlock exclusive scholarship benefits available for a short time only.",
+    "button": "Download App & Claim Offer",
+    "note": "Seats are limited. Offer valid for a short duration."
   }
 }
