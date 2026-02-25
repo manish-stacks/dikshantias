@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-  
+
 interface SliderItem {
   _id: string;
   title: string;
@@ -20,7 +20,11 @@ interface SliderItem {
   };
 }
 
-export default function HomeSlider({ sliderType }: { sliderType: "Desktop" | "Mobile" }) {
+export default function HomeSlider({
+  sliderType,
+}: {
+  sliderType: "Desktop" | "Mobile";
+}) {
   const [sliders, setSliders] = useState<SliderItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +75,7 @@ export default function HomeSlider({ sliderType }: { sliderType: "Desktop" | "Mo
       pagination={{ clickable: true }}
       className="md:rounded-xl rounded-lg"
     >
-      {sliders.map((slide, index) => (
+      {/* {sliders.map((slide, index) => (
         <SwiperSlide key={`${sliderType}-${slide._id}-${index}`}>
           <div className="h-auto bg-white shadow-md md:rounded-lg overflow-hidden">
             <Image
@@ -82,6 +86,32 @@ export default function HomeSlider({ sliderType }: { sliderType: "Desktop" | "Mo
               className="w-full h-full object-cover"
               priority
             />
+          </div>
+        </SwiperSlide>
+      ))} */}
+
+      {sliders.map((slide, index) => (
+        <SwiperSlide key={`${sliderType}-${slide._id}-${index}`}>
+          <div className="relative h-auto bg-white shadow-md md:rounded-lg overflow-hidden">
+            <Image
+              width={1920}
+              height={500}
+              src={slide.image.url}
+              alt={slide.title}
+              className="w-full h-full object-cover"
+              priority
+            />
+
+            {/* ✅ Show Button Only For SCHOLARSHIP */}
+            {slide.title.trim().toUpperCase() === "SCHOLARSHIP" && (
+              <div className="absolute bottom-[20px] right-6 md:right-16">
+                <a href="/holi-offer">
+                  <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-lg transition-all duration-300">
+                    Apply Now
+                  </button>
+                </a>
+              </div>
+            )}
           </div>
         </SwiperSlide>
       ))}
