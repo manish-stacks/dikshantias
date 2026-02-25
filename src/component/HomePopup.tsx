@@ -37,7 +37,7 @@ export default function HomePopup() {
         {/* Image Section - Fully Visible */}
         <div className="w-full flex justify-center bg-white">
           <Image
-            src="/img/holi.png"
+            src="/img/holis.png"
             alt="Holi Offer"
             width={800}
             height={1000}
