@@ -30,10 +30,10 @@ export default function HomePopup() {
         </button>
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-700 to-pink-600 text-white text-center py-3 text-lg font-semibold">
-          🎉 Holi Offer Hurry Up !
+        <div className="bg-gradient-to-r from-purple-700 to-pink-600 text-white text-center py-3 text-lg font-extrabold">
+          <span>🎉 Holi Offer</span>
+          <span className="ml-20">Hurry Up !</span>
         </div>
-
         {/* Image Section - Fully Visible */}
         <div className="w-full flex justify-center bg-white">
           <Image
