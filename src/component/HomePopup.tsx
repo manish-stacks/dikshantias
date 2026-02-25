@@ -31,13 +31,13 @@ export default function HomePopup() {
 
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-700 to-pink-600 text-white text-center py-3 text-lg font-semibold">
-          🎉 Holi 95% Scholarship Offer
+          🎉 Holi Offer Hurry Up !
         </div>
 
         {/* Image Section - Fully Visible */}
         <div className="w-full flex justify-center bg-white">
           <Image
-            src="/img/holis.png"
+            src="/img/holiss.png"
             alt="Holi Offer"
             width={800}
             height={1000}
@@ -70,7 +70,7 @@ export default function HomePopup() {
               href="/holi-offer"
               className="bg-purple-700 hover:bg-purple-800 text-white px-5 py-2 rounded-lg text-sm md:text-base transition"
             >
-              Course Details
+              View Course Details
             </a>
           </div>
         </div>

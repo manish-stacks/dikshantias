@@ -104,9 +104,33 @@ export default function HomeSlider({
 
             {/* ✅ Show Button Only For SCHOLARSHIP */}
             {slide.title.trim().toUpperCase() === "SCHOLARSHIP" && (
-              <div className="absolute bottom-[20px] right-6 md:right-16">
+              // <div className="absolute bottom-[20px] right-6 md:right-16">
+              //   <a href="/holi-offer">
+              //     <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-lg transition-all duration-300">
+              //       Apply Now
+              //     </button>
+              //   </a>
+              // </div>
+
+              <div
+                className="
+                  absolute 
+                  bottom-2 right-3 
+                  sm:bottom-3 sm:right-6
+                  md:bottom-5 md:right-14
+                "
+              >
                 <a href="/holi-offer">
-                  <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-lg transition-all duration-300">
+                  <button
+                    className="
+                    bg-red-600 hover:bg-red-700 text-white 
+                    px-3 py-1.5 text-xs
+                    sm:px-4 sm:py-2 sm:text-sm
+                    md:px-6 md:py-3 md:text-lg
+                    rounded-md md:rounded-lg
+                    font-semibold shadow-lg transition-all duration-300
+                  "
+                  >
                     Apply Now
                   </button>
                 </a>
