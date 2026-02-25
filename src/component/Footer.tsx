@@ -475,7 +475,7 @@ const Footer: React.FC = () => {
           {/* Download App */}
           <div className="text-right">
             <Link
-              href="#"
+              href="https://play.google.com/store/apps/details?id=in.kaksya.dikshant&hl=en_IN"
               className="bg-red-700 rounded-sm text-sm px-5 py-3 font-medium text-gray-50 my-3 mx-1"
             >
               {t("footer.sections.downloadApp")}
