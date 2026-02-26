@@ -2,8 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export default function GlobalBanner() {
+  const pathname = usePathname();
+
+  // 🔒 Hide banner in admin routes
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <div className="w-full bg-white border-gray-200">
       <div className="max-w-7xl mx-auto px-3 py-3">
