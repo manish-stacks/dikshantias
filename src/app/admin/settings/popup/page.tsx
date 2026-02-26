@@ -260,17 +260,20 @@ export default function PopupPage() {
                 paginatedData.map((popup) => (
                   <tr key={popup._id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-5">
-                      {popup.image?.url ? (
-                        <img
-                          src={popup.image.url}
-                          alt={popup.title}
-                          className="h-16 w-32 object-cover rounded"
-                        />
-                      ) : (
-                        "No Image"
-                      )}
+                      <div className="h-20 w-36 relative rounded-lg overflow-hidden border bg-gray-100 flex items-center justify-center">
+                        {popup.image?.url ? (
+                          <img
+                            src={popup.image.url}
+                            alt={popup.title}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                          />
+                        ) : (
+                          <span className="text-gray-400 text-xs font-medium">
+                            No Image
+                          </span>
+                        )}
+                      </div>
                     </td>
-
                     <td className="py-3 px-5 font-medium">{popup.title}</td>
 
                     <td className="py-3 px-5 text-center">{popup.subtitle}</td>

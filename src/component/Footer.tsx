@@ -65,7 +65,8 @@ function useCountUp(target: number, duration = 1600): number {
 
 // ── Live Visitor Counter Component ─────────────────────────────────────────
 const LiveVisitorCounter: React.FC<{ count: number }> = ({ count }) => {
-  const animated = useCountUp(count);
+  const BASE = 100000; // 1 Lakh default
+  const animated = useCountUp(BASE + count);
 
   return (
     <>
@@ -489,7 +490,7 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="pt-6 border-t border-gray-200">
           <p className="text-xs text-blue-950">
-            {settings.name} © 2025. | All Rights Reserved. | Develop By Hover
+            {settings.name} © 2026. | All Rights Reserved. | Develop By Hover
             Business Services LLP
           </p>
         </div>
