@@ -1,12 +1,12 @@
-import OnlineCourse from '@/component/onlinecourse/OnlineCourse'
-import React from 'react'
+import OnlineCourse from "@/component/onlinecourse/OnlineCourse";
+import React from "react";
 
 function page() {
   return (
     <>
-    <OnlineCourse />
+      <OnlineCourse />
     </>
-  )
+  );
 }
 
-export default page
+export default page;
