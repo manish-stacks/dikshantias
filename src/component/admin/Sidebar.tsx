@@ -28,7 +28,21 @@ export default function Sidebar() {
 
   const menus = [
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/announcement", label: "Announcement", icon: MessageSquare },
+    // { href: "/admin/announcement", label: "Announcement", icon: MessageSquare },
+
+    {
+      label: "Announcement",
+      icon: MessageSquare,
+      children: [
+        {
+          href: "/admin/announcement",
+          label: "Announcement",
+          icon: MessageSquare,
+        },
+        { href: "/admin/settings/popup", label: "Popup" },
+      ],
+    },
+
     {
       label: "Categories",
       icon: Layers,
@@ -72,7 +86,6 @@ export default function Sidebar() {
         { href: "/admin/e-learning", label: "E-Learning", icon: BookOpen },
         { href: "/admin/settings/pages", label: "Pages" },
         { href: "/admin/settings/web", label: "Web" },
-        { href: "/admin/settings/popup", label: "Popup" },
       ],
     },
   ];

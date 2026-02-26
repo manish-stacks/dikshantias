@@ -23,41 +23,44 @@ export async function GET() {
   }
 }
 
-// ✅ CREATE popup
+// CREATE popup
+// CREATE popup
 export async function POST(req: Request) {
   try {
     await connectToDB();
 
     const formData = await req.formData();
 
-    const headerTitle = formData.get("headerTitle") as string;
-    const subTitle = (formData.get("subTitle") as string) || "";
-    const description = (formData.get("description") as string) || "";
-    const displayOrder = Number(formData.get("displayOrder") || 0);
+    const title = formData.get("title")?.toString().trim();
+    const subtitle = formData.get("subtitle")?.toString().trim();
+    const description = formData.get("description")?.toString() || "";
 
-    const primaryText = formData.get("primaryText") as string;
-    const primaryLink = formData.get("primaryLink") as string;
+    const primaryText = formData.get("primaryText")?.toString() || "";
+    const primaryLink = formData.get("primaryLink")?.toString() || "";
 
-    const secondaryText = formData.get("secondaryText") as string;
-    const secondaryLink = formData.get("secondaryLink") as string;
+    const secondaryText = formData.get("secondaryText")?.toString() || "";
+    const secondaryLink = formData.get("secondaryLink")?.toString() || "";
 
     const imageFile = formData.get("image") as File | null;
 
-    if (!headerTitle) {
+    if (!title) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    }
+
+    if (!subtitle) {
       return NextResponse.json(
-        { error: "Header title is required" },
+        { error: "Subtitle is required" },
         { status: 400 },
       );
     }
 
-    if (!imageFile) {
+    if (!imageFile || imageFile.size === 0) {
       return NextResponse.json({ error: "Image is required" }, { status: 400 });
     }
 
     const buffer = Buffer.from(await imageFile.arrayBuffer());
 
-    // Upload to S3
-    const uploaded = await uploadToS3(
+    const { url, key } = await uploadToS3(
       buffer,
       imageFile.name,
       imageFile.type,
@@ -65,14 +68,10 @@ export async function POST(req: Request) {
     );
 
     const newPopup = await PopupModel.create({
-      headerTitle,
-      subTitle,
+      title,
+      subtitle,
       description,
-      displayOrder,
-      image: {
-        url: uploaded.url,
-        key: uploaded.key,
-      },
+      image: { url, key },
       primaryButton: {
         text: primaryText,
         link: primaryLink,
@@ -86,7 +85,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newPopup, { status: 201 });
   } catch (error: any) {
-    console.error("Error creating popup:", error);
+    console.error("Create Error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to create popup" },
       { status: 500 },

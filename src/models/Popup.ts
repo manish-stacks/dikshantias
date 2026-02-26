@@ -2,17 +2,25 @@ import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface IPopup extends Document {
   title: string;
+  subtitle: string;
   description?: string;
+
   image: {
     url: string;
     key: string;
   };
-  buttonText?: string;
-  buttonLink?: string;
-  displayOrder: number;
+
+  primaryButton?: {
+    text: string;
+    link: string;
+  };
+
+  secondaryButton?: {
+    text: string;
+    link: string;
+  };
+
   active: boolean;
-  startDate?: Date;
-  endDate?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -20,6 +28,7 @@ export interface IPopup extends Document {
 const PopupSchema: Schema = new Schema(
   {
     title: { type: String, required: true },
+    subtitle: { type: String, required: true },
 
     description: { type: String },
 
@@ -28,17 +37,17 @@ const PopupSchema: Schema = new Schema(
       key: { type: String, required: true },
     },
 
-    buttonText: { type: String },
+    primaryButton: {
+      text: { type: String },
+      link: { type: String },
+    },
 
-    buttonLink: { type: String },
-
-    displayOrder: { type: Number, default: 0 },
+    secondaryButton: {
+      text: { type: String },
+      link: { type: String },
+    },
 
     active: { type: Boolean, default: true },
-
-    startDate: { type: Date },
-
-    endDate: { type: Date },
   },
   { timestamps: true },
 );

@@ -8,7 +8,7 @@ interface Params {
   params: { id: string };
 }
 
-// ✅ GET single popup
+// GET single popup
 export async function GET(req: Request, { params }: Params) {
   try {
     await connectToDB();
@@ -28,14 +28,15 @@ export async function GET(req: Request, { params }: Params) {
   }
 }
 
-// ✅ UPDATE popup
+// UPDATE popup
+// UPDATE popup
 export async function PATCH(req: Request, { params }: Params) {
   try {
     await connectToDB();
 
     const contentType = req.headers.get("content-type");
 
-    // Toggle Active Only
+    // Toggle Active
     if (contentType?.includes("application/json")) {
       const body = await req.json();
 
@@ -46,7 +47,6 @@ export async function PATCH(req: Request, { params }: Params) {
       return NextResponse.json({ popup: updated });
     }
 
-    // Full Update with FormData
     const formData = await req.formData();
 
     const popup = await PopupModel.findById(params.id);
@@ -54,51 +54,61 @@ export async function PATCH(req: Request, { params }: Params) {
       return NextResponse.json({ error: "Popup not found" }, { status: 404 });
     }
 
-    const headerTitle = formData.get("headerTitle") as string;
-    const subTitle = (formData.get("subTitle") as string) || "";
-    const description = (formData.get("description") as string) || "";
-    const displayOrder = Number(formData.get("displayOrder") || 0);
+    const title = formData.get("title")?.toString().trim();
+    const subtitle = formData.get("subtitle")?.toString().trim();
+    const description = formData.get("description")?.toString() || "";
+
+    const primaryText = formData.get("primaryText")?.toString() || "";
+    const primaryLink = formData.get("primaryLink")?.toString() || "";
+
+    const secondaryText = formData.get("secondaryText")?.toString() || "";
+    const secondaryLink = formData.get("secondaryLink")?.toString() || "";
+
+    popup.title = title ?? popup.title;
+    popup.subtitle = subtitle ?? popup.subtitle;
+    popup.description = description;
+
+    popup.primaryButton = {
+      text: primaryText,
+      link: primaryLink,
+    };
+
+    popup.secondaryButton = {
+      text: secondaryText,
+      link: secondaryLink,
+    };
 
     const imageFile = formData.get("image") as File | null;
 
     if (imageFile && imageFile.size > 0) {
       const buffer = Buffer.from(await imageFile.arrayBuffer());
 
-      // Delete old image
       if (popup.image?.key) {
         await deleteFromS3(popup.image.key);
       }
 
-      const uploaded = await uploadToS3(
+      const { url, key } = await uploadToS3(
         buffer,
         imageFile.name,
         imageFile.type,
         "popup",
       );
 
-      popup.image = {
-        url: uploaded.url,
-        key: uploaded.key,
-      };
+      popup.image = { url, key };
     }
-
-    popup.headerTitle = headerTitle;
-    popup.subTitle = subTitle;
-    popup.description = description;
-    popup.displayOrder = displayOrder;
 
     await popup.save();
 
     return NextResponse.json(popup);
   } catch (error: any) {
+    console.error("Update Error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to update popup" },
       { status: 500 },
     );
   }
 }
-
-// ✅ DELETE popup
+// DELETE popup
 export async function DELETE(req: Request, { params }: Params) {
   try {
     await connectToDB();
