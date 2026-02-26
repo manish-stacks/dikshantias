@@ -29,7 +29,6 @@ export async function GET(req: Request, { params }: Params) {
 }
 
 // UPDATE popup
-// UPDATE popup
 export async function PATCH(req: Request, { params }: Params) {
   try {
     await connectToDB();
@@ -108,6 +107,7 @@ export async function PATCH(req: Request, { params }: Params) {
     );
   }
 }
+
 // DELETE popup
 export async function DELETE(req: Request, { params }: Params) {
   try {

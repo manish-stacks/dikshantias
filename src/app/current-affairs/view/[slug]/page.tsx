@@ -63,13 +63,13 @@ export default function CurrentAffairDetailsPage() {
       {/* Top Horizontal Ad Banner */}
       <div className="w-full mb-6">
         {/* Desktop Banner */}
-        <div className="hidden sm:block">
+        {/* <div className="hidden sm:block">
           <img
             src="/img/holi-banner.png"
             alt="Holi Offer"
             className="w-full h-auto rounded-xl shadow-md"
           />
-        </div>
+        </div> */}
 
         {/* Mobile Banner */}
         {/* <div className="block sm:hidden px-3">

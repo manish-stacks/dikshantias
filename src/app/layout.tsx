@@ -6,7 +6,7 @@ import Providers from "./providers";
 import { Suspense } from "react";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
-
+import GlobalBanner from "@/component/GlobalBanner";
 export const metadata: Metadata = {
   title: "Best IAS Coaching Centre in Delhi | Dikshant IAS",
   description:
@@ -48,7 +48,10 @@ export default function RootLayout({
       <body>
         <Providers>
           <Suspense fallback={<div>Loading...</div>}>
-            <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+            <ClientLayoutWrapper>
+              <GlobalBanner />
+              {children}
+            </ClientLayoutWrapper>
           </Suspense>
 
           {/* ✅ Toast Notifications */}
