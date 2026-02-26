@@ -56,7 +56,7 @@ export default function HeroSlider() {
   ];
 
   return (
-    <div className="bg-white -mt-14 md:mt-3 mx-2">
+    <div className="bg-white mt-2 md:mt-3 mx-2">
       {/* Top Slider (Desktop) */}
       <div className="max-w-7xl md:mx-auto mx-1 hidden md:flex">
         <HomeSlider sliderType="Desktop" />

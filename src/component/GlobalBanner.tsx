@@ -6,22 +6,35 @@ import { usePathname } from "next/navigation";
 
 export default function GlobalBanner() {
   const pathname = usePathname();
-
-  // 🔒 Hide banner in admin routes
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <div className="w-full bg-white border-gray-200">
+    <div className="w-full bg-white relative z-10">
       <div className="max-w-7xl mx-auto px-3 py-3">
-        <Link href="/holi-offer" className="block">
-          <Image
-            src="/img/holi-banner.png"
-            alt="Holi Offer"
-            width={1600}
-            height={500}
-            priority
-            className="w-full h-auto rounded-xl shadow-md cursor-pointer transition-transform duration-300 hover:scale-[1.01]"
-          />
+        <Link href="/holi-offer" className="block w-full">
+          {/* Mobile */}
+          {/* <div className="block sm:hidden relative w-full">
+            <Image
+              src="/img/coming-soon.jpg"
+              alt="Mobile Banner"
+              width={800}
+              height={400}
+              className="w-full h-auto rounded-lg shadow-md"
+              priority
+            />
+          </div> */}
+
+          {/* Desktop */}
+          <div className="hidden sm:block relative w-full">
+            <Image
+              src="/img/holi-banner.png"
+              alt="Desktop Banner"
+              width={1600}
+              height={500}
+              className="w-full h-auto rounded-xl shadow-md"
+              priority
+            />
+          </div>
         </Link>
       </div>
     </div>

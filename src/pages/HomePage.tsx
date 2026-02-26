@@ -12,12 +12,16 @@ import TabBestIasCoachingCenter from "@/component/home/TabBestIasCoachingCenter"
 import Testimonials from "@/component/home/Testimonials";
 import TopperReview from "@/component/home/TopperReview";
 import HomePopup from "@/component/HomePopup";
+import GlobalBanner from "@/component/GlobalBanner";
 import React from "react";
 
 function HomePage() {
   return (
     <>
       <HomePopup />
+      <div className="relative z-20">
+        <GlobalBanner />
+      </div>
       <HeroSlider />
       <TopperReview />
       <Testimonials />

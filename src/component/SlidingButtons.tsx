@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, Globe, Globe2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Globe,
+  Globe2,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface ButtonData {
@@ -14,7 +20,11 @@ interface ButtonData {
   action?: () => void;
 }
 
-export default function SlidingButtons({ className = "" }: { className?: string }) {
+export default function SlidingButtons({
+  className = "",
+}: {
+  className?: string;
+}) {
   const [currentSlide, setCurrentSlide] = useState<number>(0);
   const { t, i18n } = useTranslation("common");
 
@@ -46,7 +56,7 @@ export default function SlidingButtons({ className = "" }: { className?: string 
       iconBg: "bg-purple-400",
       action: () =>
         window.open(
-          "https://play.google.com/store/apps/details?id=in.kaksya.dikshant&hl=en_IN"
+          "https://play.google.com/store/apps/details?id=in.kaksya.dikshant&hl=en_IN",
         ),
     },
   ];
@@ -59,7 +69,8 @@ export default function SlidingButtons({ className = "" }: { className?: string 
     return () => clearInterval(intervalId);
   }, [buttons.length]);
 
-  const prevSlide = () => setCurrentSlide((p) => (p - 1 + buttons.length) % buttons.length);
+  const prevSlide = () =>
+    setCurrentSlide((p) => (p - 1 + buttons.length) % buttons.length);
   const nextSlide = () => setCurrentSlide((p) => (p + 1) % buttons.length);
 
   return (
@@ -86,7 +97,7 @@ export default function SlidingButtons({ className = "" }: { className?: string 
       </div>
 
       {/* Mobile Carousel */}
-      <div className="md:hidden relative overflow-hidden pb-16">
+      <div className="md:hidden relative overflow-hidden">
         <div
           className="flex transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -94,7 +105,10 @@ export default function SlidingButtons({ className = "" }: { className?: string 
           {buttons.map((btn) => {
             const Icon = btn.icon;
             return (
-              <div key={`m-btn-${btn.id}-${btn.textKey}`} className="w-full flex-shrink-0 px-4">
+              <div
+                key={`m-btn-${btn.id}-${btn.textKey}`}
+                className="w-full flex-shrink-0 px-4"
+              >
                 <button
                   onClick={btn.action}
                   className={`${btn.bgColor} ${btn.textColor} w-full px-6 py-2 rounded-lg flex items-center justify-center gap-3 font-semibold text-[13px]`}
@@ -133,7 +147,11 @@ export default function SlidingButtons({ className = "" }: { className?: string 
         >
           <ChevronRight
             size={16}
-            className={currentSlide === buttons.length - 1 ? "text-gray-400" : "text-gray-700"}
+            className={
+              currentSlide === buttons.length - 1
+                ? "text-gray-400"
+                : "text-gray-700"
+            }
           />
         </button>
       </div>
