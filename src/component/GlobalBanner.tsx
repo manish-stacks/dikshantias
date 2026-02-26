@@ -13,7 +13,7 @@ export default function GlobalBanner() {
       <div className="max-w-7xl mx-auto px-3 py-3">
         <Link href="/holi-offer" className="block w-full">
           {/* Mobile */}
-          <div className="block sm:hidden relative w-full">
+          {/* <div className="block sm:hidden relative w-full">
             <Image
               src="/img/coming-soon.jpg"
               alt="Mobile Banner"
@@ -22,7 +22,7 @@ export default function GlobalBanner() {
               className="w-full h-auto rounded-lg shadow-md"
               priority
             />
-          </div>
+          </div> */}
 
           {/* Desktop */}
           <div className="hidden sm:block relative w-full">
