@@ -318,5 +318,19 @@
     "description": "This Holi, take a confident step toward your UPSC dream. Unlock exclusive scholarship benefits available for a short time only.",
     "button": "Download App & Claim Offer",
     "note": "Seats are limited. Offer valid for a short duration."
+  },
+  "demoSection": {
+    "watch": "Watch",
+    "demo": "Demo Classes",
+    "demo1": "Demo - 1",
+    "demo2": "Demo - 2"
+  },
+  "coursesDemo": {
+    "gs_ncert": "GS - NCERT",
+    "gs_bpsc": "GS - BPSC",
+    "csat_hindi": "CSAT (Hindi Med.)",
+    "csat_english": "CSAT (English Med.)",
+    "gs_upsc": "GS - UPSC (English Med.)",
+    "sociology": "SOCIOLOGY (Optional)"
   }
 }

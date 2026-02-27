@@ -97,7 +97,7 @@ export default function SlidingButtons({
       </div>
 
       {/* Mobile Carousel */}
-      <div className="md:hidden relative overflow-hidden pb-16">
+      <div className="md:hidden relative overflow-hidden">
         <div
           className="flex transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}

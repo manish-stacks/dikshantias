@@ -28,7 +28,7 @@ interface Course {
 
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl  transition-shadow duration-300">
       {/* Card Header with Image and Badge */}
       <div className="relative h-38 md:h-32 bg-gradient-to-br from-gray-700 to-gray-900">
         <div className="absolute">
@@ -202,7 +202,7 @@ const OnlineCourse: React.FC = () => {
   }
   return (
     <>
-      <div className="container max-w-7xl mx-auto my-4 -mt-14 md:mt-3 px-2 md:px-0">
+      <div className="container max-w-7xl mx-auto my-4 mt-6 md:mt-3 px-2 md:px-0">
         <Image
           src="/img/online-course/online-course-hero.webp"
           width={1920}
