@@ -15,7 +15,7 @@ export default function GlobalBanner() {
           {/* Mobile */}
           <div className="block sm:hidden relative w-full">
             <Image
-              src="/img/holioffer.png"
+              src="/img/holi1.png"
               alt="Mobile Banner"
               width={800}
               height={400}
@@ -27,7 +27,7 @@ export default function GlobalBanner() {
           {/* Desktop */}
           <div className="hidden sm:block relative w-full">
             <Image
-              src="/img/holioffer.png"
+              src="/img/holi1.png"
               alt="Desktop Banner"
               width={1600}
               height={500}
