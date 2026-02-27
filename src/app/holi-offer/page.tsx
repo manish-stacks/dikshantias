@@ -73,7 +73,7 @@ const HoliOfferPage = () => {
                     p-4 hover:bg-gray-50 transition duration-200"
                 >
                   {/* Title */}
-                  <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 sm:mb-0">
+                  <h3 className="text-base md:text-lg font-semibold text-[#FB2C36]  mb-3 sm:mb-0">
                     {course.title}
                   </h3>
 
@@ -96,7 +96,7 @@ const HoliOfferPage = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 sm:flex-none text-center 
-                          bg-[#FB2C36] hover:bg-[#DC2626] 
+                           bg-[#1E3A8A] hover:bg-[#1E40AF]  
                           text-white px-3 py-2 rounded-md text-sm font-medium 
                           transition"
                     >
