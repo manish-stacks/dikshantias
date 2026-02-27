@@ -92,7 +92,7 @@ const BlogPage: React.FC = () => {
     : blogs;
 
   return (
-    <div className="bg-white min-h-screen mt-3 md:mt-3">
+    <div className="bg-white min-h-screen mt-1 md:mt-1">
       <div className="max-w-7xl mx-auto py-8 flex flex-col md:flex-row gap-8">
         {/* Main Content */}
         <main className="flex-1">

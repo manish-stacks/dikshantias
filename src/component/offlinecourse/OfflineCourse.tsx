@@ -183,7 +183,7 @@ const OfflineCourse: React.FC = () => {
 
   return (
     <>
-      <div className="container max-w-7xl mx-auto my-4 mt-6 md:mt-3 px-2 md:px-0">
+      <div className="container max-w-7xl mx-auto my-4 mt-2 md:mt-3 px-2 md:px-0">
         <Image
           src="/img/online-course/online-course-hero.webp"
           width={1920}

@@ -184,7 +184,7 @@ const ReadInHindu: React.FC = () => {
 
   return (
     <>
-      <div className="container max-w-7xl mx-auto mt-6 md:mt-3 my-4 px-2 md:px-0">
+      <div className="container max-w-7xl mx-auto mt-2 md:mt-3 my-4 px-2 md:px-0">
         <Image
           src="/img/current-affairs-banner.webp"
           width={1920}

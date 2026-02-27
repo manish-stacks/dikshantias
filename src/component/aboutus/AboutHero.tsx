@@ -5,7 +5,7 @@ import React from "react";
 function AboutHero() {
   return (
     <>
-      <div className="container max-w-7xl mx-auto my-4 px-2 mt-6 md:mt-3 md:px-0">
+      <div className="container max-w-7xl mx-auto my-4 px-2 mt-1 md:mt-3 md:px-0">
         <Image
           src="/img/about-us-hero.webp"
           width={1920}

@@ -18,7 +18,7 @@ const Page: React.FC = () => {
   return (
     <>
       {/* Hero Section */}
-      <div className="container max-w-7xl mx-auto my-4 px-2 mt-6 md:mt-3 md:px-0">
+      <div className="container max-w-7xl mx-auto my-4 px-2 mt-2 md:mt-3 md:px-0">
         <Image
           src="/img/Scholarship-banner.png"
           width={1920}
