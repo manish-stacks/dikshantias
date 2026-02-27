@@ -109,11 +109,20 @@ const HoliOfferPage = () => {
               {t("holiOffer.badge")}
             </span>
 
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E3A8A] leading-snug mb-4">
-              {t("holiOffer.title")}{" "}
+            {/* <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E3A8A] leading-snug mb-4">
+              {t("holiOffer.title")} <br></br>
               <span className="text-[#FB2C36]">{t("holiOffer.highlight")}</span>
-            </h1>
+            </h1> */}
 
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight mb-4">
+              <span className="text-[#1E3A8A] block">
+                {t("holiOffer.title")}
+              </span>
+
+              <span className="text-[#FB2C36] block">
+                {t("holiOffer.highlight")}
+              </span>
+            </h1>
             <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-6 text-justify md:text-left">
               {t("holiOffer.description")}
             </p>
