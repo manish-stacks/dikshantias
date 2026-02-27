@@ -19,9 +19,9 @@ function HomePage() {
   return (
     <>
       <HomePopup />
-      <div className="relative z-20">
+      {/* <div className="relative z-20">
         <GlobalBanner />
-      </div>
+      </div> */}
       <HeroSlider />
       <TopperReview />
       <Testimonials />

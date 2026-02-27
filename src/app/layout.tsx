@@ -49,7 +49,7 @@ export default function RootLayout({
         <Providers>
           <Suspense fallback={<div>Loading...</div>}>
             <ClientLayoutWrapper>
-              {/* <GlobalBanner /> */}
+              <GlobalBanner />
               {children}
             </ClientLayoutWrapper>
           </Suspense>
