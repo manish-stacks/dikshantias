@@ -63,22 +63,7 @@ export default function CurrentAffairDetailsPage() {
       {/* Top Horizontal Ad Banner */}
       <div className="w-full mb-6">
         {/* Desktop Banner */}
-        {/* <div className="hidden sm:block">
-          <img
-            src="/img/holi-banner.png"
-            alt="Holi Offer"
-            className="w-full h-auto rounded-xl shadow-md"
-          />
-        </div> */}
-
-        {/* Mobile Banner */}
-        {/* <div className="block sm:hidden px-3">
-          <img
-            src="/img/holi-banner.png"
-            alt="Holi Offer"
-            className="w-full h-auto rounded-lg shadow-md"
-          />
-        </div> */}
+       
       </div>
       <button
         onClick={() => router.back()}

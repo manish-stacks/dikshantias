@@ -1,7 +1,13 @@
-'use client';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Clock, Users, CheckCircle } from 'lucide-react';
-import Image from 'next/image';
+"use client";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Users,
+  CheckCircle,
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface Program {
@@ -33,27 +39,28 @@ const FeatureUpsc: React.FC = () => {
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const res = await fetch('/api/admin/courses');
+        const res = await fetch("/api/admin/courses");
         const data = await res.json();
         const formatted = data.map((course) => ({
           _id: course._id,
           slug: course.slug,
-          badge: course.badge || '',
-          badgeColor: course.badgeColor || 'bg-gray-500',
+          badge: course.badge || "",
+          badgeColor: course.badgeColor || "bg-gray-500",
           title: course.title,
-          description: course.shortContent || '',
+          description: course.shortContent || "",
           originalPrice: course.originalPrice,
           currentPrice: course.price,
-          duration: course.duration ? `${course.duration} Hours` : 'N/A',
-           students: course.students || `No of hours - ${course.lectures || 0}`,
+          duration: course.duration ? `${course.duration}` : "N/A",
+          students: course.students || `No. of hours - ${course.lectures || 0}`,
           features: course.features || [],
-          moreFeatures: course.features?.length > 2 ? course.features.length - 2 : 0,
-          image: course.image?.url || '/img/default-course.webp',
-          backcolor: 'purple-200',
+          moreFeatures:
+            course.features?.length > 2 ? course.features.length - 2 : 0,
+          image: course.image?.url || "/img/default-course.webp",
+          backcolor: "purple-200",
         }));
         setPrograms(formatted);
       } catch (err) {
-        console.error('Failed to fetch programs:', err);
+        console.error("Failed to fetch programs:", err);
       }
     };
     fetchPrograms();
@@ -69,8 +76,8 @@ const FeatureUpsc: React.FC = () => {
     };
 
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const maxSlides = Math.max(0, programs.length - slidesToShow);
@@ -87,7 +94,8 @@ const FeatureUpsc: React.FC = () => {
     setCurrentSlide((prev) => (prev <= 0 ? maxSlides : prev - 1));
   };
 
-  const goToSlide = (index: number) => setCurrentSlide(Math.min(index, maxSlides));
+  const goToSlide = (index: number) =>
+    setCurrentSlide(Math.min(index, maxSlides));
 
   // Autoplay
   useEffect(() => {
@@ -101,7 +109,8 @@ const FeatureUpsc: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-xl md:text-3xl font-bold text-[#040c33] mb-3 md:mb-5 text-start">
-            Featured UPSC <span className="text-[#f43144]">Coaching Programs</span>
+            Featured UPSC{" "}
+            <span className="text-[#f43144]">Coaching Programs</span>
           </h2>
         </div>
 
@@ -152,7 +161,7 @@ const FeatureUpsc: React.FC = () => {
                   key={index}
                   onClick={() => goToSlide(index)}
                   className={`w-7 h-2 md:w-7 md:h-3 rounded-full ${
-                    currentSlide === index ? 'bg-[#f43144]' : 'bg-gray-300'
+                    currentSlide === index ? "bg-[#f43144]" : "bg-gray-300"
                   }`}
                 />
               ))}
@@ -173,27 +182,43 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow bg-white h-full relative">
       {/* Badge */}
-      {program.badge && (
-        <div className={`absolute top-4 left-4 ${program.badgeColor} text-white px-3 py-1 rounded-full text-sm font-medium z-10`}>
+      {program.badge?.trim() && (
+        <div
+          className={`absolute top-4 left-4 ${
+            program.badgeColor || "bg-blue-600"
+          } text-white px-3 py-1 rounded-full text-sm font-medium z-10`}
+        >
           {program.badge}
         </div>
       )}
 
       {/* Price */}
       <div className="absolute top-4 right-4 bg-white rounded-lg shadow p-2 z-10 text-sm">
-        <div className="text-blue-400 line-through text-xs">₹{program.originalPrice.toLocaleString()}</div>
-        <div className="text-[#f43144] font-bold">₹{program.currentPrice.toLocaleString()}</div>
+        <div className="text-blue-400 line-through text-xs">
+          ₹{program.originalPrice.toLocaleString()}
+        </div>
+        <div className="text-[#f43144] font-bold">
+          ₹{program.currentPrice.toLocaleString()}
+        </div>
       </div>
 
       {/* Image */}
       <div className="h-48 relative">
-        <Image src={program.image} alt={program.title} layout="fill" objectFit="cover" className="rounded-t-2xl" />
+        <Image
+          src={program.image}
+          alt={program.title}
+          layout="fill"
+          objectFit="cover"
+          className="rounded-t-2xl"
+        />
       </div>
 
       {/* Content */}
       <div className="p-4 flex flex-col h-auto">
         <h3 className="text-lg font-bold text-[#040c33]">{program.title}</h3>
-        <p className="text-blue-950 text-sm mt-1 mb-3 line-clamp-2">{program.description}</p>
+        <p className="text-blue-950 text-sm mt-1 mb-3 line-clamp-2">
+          {program.description}
+        </p>
 
         <div className="flex justify-between text-[#ee6b36] text-sm mb-3">
           <div className="flex items-center gap-1">
@@ -209,29 +234,21 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
         {/* Features */}
         <div className="space-y-2 mb-4">
           {program.features.slice(0, 2).map((feature, i) => (
-            <div key={i} className="flex items-center gap-2 text-sm text-blue-950">
+            <div
+              key={i}
+              className="flex items-center gap-2 text-sm text-blue-950"
+            >
               <CheckCircle className="w-4 h-4 text-green-500" />
               {feature}
             </div>
           ))}
           {program.features.length > 2 && (
             <div className="text-[#f43144] text-sm font-medium">
-              +{program.features.length - 2 + (program.moreFeatures || 0)} more features
+              +{program.features.length - 2 + (program.moreFeatures || 0)} more
+              features
             </div>
           )}
         </div>
-
-        {/* Buttons */}
-        {/* <div className="mt-auto flex gap-2.5 items-center">
-          <Link href={`/online-course/${program.slug}`}>
-          <button className="bg-blue-950 hover:bg-[#d12a3a] w-full text-white py-2 px-5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1">
-            View Details
-          </button>
-        </Link>
-          <button className="bg-[#f43144] hover:bg-blue-950 text-white py-2 px-5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1">
-            Enroll Now
-          </button>
-        </div>   */}
         <div className="mt-auto flex justify-center w-full">
           <Link href={`/online-course/${program.slug}`} className="w-full">
             <button className="bg-blue-950 hover:bg-[#d12a3a] w-full text-white py-2 px-5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1">

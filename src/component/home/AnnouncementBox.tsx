@@ -83,7 +83,7 @@ const AnnouncementBox: React.FC = () => {
               isHovered ? "" : "animate-scroll"
             }`}
           >
-            {[...announcements, ...announcements].map((announcement, index) => (
+            {announcements.map((announcement, index) => (
               <div
                 key={announcement._id + "-" + index}
                 className={`px-4 py-3 border-slate-50 rounded-xl my-2 ${announcement.bgcolor}`}
