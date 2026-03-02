@@ -61,12 +61,12 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
         </div>
 
         {/* Rating */}
-        <div className="absolute bottom-3 left-3 bg-yellow-100 rounded-full px-2 py-1 flex items-center shadow">
+        {/* <div className="absolute bottom-3 left-3 bg-yellow-100 rounded-full px-2 py-1 flex items-center shadow">
           <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-current mr-1" />
           <span className="text-xs sm:text-sm font-medium text-gray-800">
             {course.rating ?? 4.9}
           </span>
-        </div>
+        </div> */}
       </div>
 
       {/* Card Content */}
