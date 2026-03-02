@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [authorized, setAuthorized] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
+  const [holiCount, setHoliCount] = useState<number | null>(null);
 
   // Calculate max index for dots navigation
   const maxIndex = Math.max(0, Math.ceil(toppers.length / itemsPerView) - 1);
@@ -43,6 +44,19 @@ export default function Dashboard() {
     updateItemsPerView();
     window.addEventListener("resize", updateItemsPerView);
     return () => window.removeEventListener("resize", updateItemsPerView);
+  }, []);
+
+  useEffect(() => {
+    const fetchHoliCount = async () => {
+      const res = await fetch("/api/holi-offer-visit");
+      const data = await res.json();
+      setHoliCount(data.count);
+    };
+
+    fetchHoliCount();
+    const interval = setInterval(fetchHoliCount, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const prevSlide = () => {
@@ -75,13 +89,14 @@ export default function Dashboard() {
     <AdminLayout>
       {/* Welcome Section */}
       <div className="mb-8 p-6 bg-gradient-to-r from-[#1C398E] via-[#2E4BAF] via-[#3C5FD1] to-[#5B7FFF] rounded-3xl shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative overflow-hidden text-white">
-
         <div className="flex flex-col gap-3">
           <h1 className="text-3xl font-extrabold drop-shadow-lg flex items-center gap-2">
             Good to see you, Dikshant IAS
             <Smile size={32} className="text-white-400 animate-bounce" />
           </h1>
-          <p className="text-white/90 text-lg drop-shadow-sm">See today’s insights and stay ahead of your goals.</p>
+          <p className="text-white/90 text-lg drop-shadow-sm">
+            See today’s insights and stay ahead of your goals.
+          </p>
 
           {/* Colorful Buttons */}
           <div className="mt-4 flex flex-col sm:flex-row gap-3">
@@ -109,7 +124,6 @@ export default function Dashboard() {
               <Download size={18} />
               DOWNLOAD DIKSHANT LEARNING APP
             </a>
-
           </div>
         </div>
 
@@ -132,23 +146,63 @@ export default function Dashboard() {
 
       {/* Dashboard Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card icon={<Users size={28} />} title="Students" value="1200+" colors={["from-blue-400", "to-blue-600"]} />
-        <Card icon={<BookOpen size={28} />} title="Courses" value="35" colors={["from-green-400", "to-green-600"]} />
-        <Card icon={<MessageSquare size={28} />} title="Enquiries" value="6" colors={["from-purple-400", "to-purple-600"]} />
-        <Card icon={<FileText size={28} />} title="Blogs" value="50" colors={["from-red-400", "to-red-600"]} />
+        <Card
+          icon={<Users size={28} />}
+          title="Students"
+          value="1200+"
+          colors={["from-blue-400", "to-blue-600"]}
+        />
+        <Card
+          icon={<BookOpen size={28} />}
+          title="Courses"
+          value="35"
+          colors={["from-green-400", "to-green-600"]}
+        />
+        <Card
+          icon={<MessageSquare size={28} />}
+          title="Enquiries"
+          value="6"
+          colors={["from-purple-400", "to-purple-600"]}
+        />
+        <Card
+          icon={<FileText size={28} />}
+          title="Blogs"
+          value="50"
+          colors={["from-red-400", "to-red-600"]}
+        />
         <Card
           icon={<span className="text-2xl font-bold text-white-500">₹</span>}
           title="Revenue"
           value="12,500"
           colors={["from-yellow-400", "to-yellow-600"]}
         />
-        <Card icon={<CheckCircle size={28} />} title="Completed Tasks" value="120" colors={["from-teal-400", "to-teal-600"]} />
-        <Card icon={<Bell size={28} />} title="Notifications" value="8" colors={["from-pink-400", "to-pink-600"]} />
-        <Card icon={<Users size={28} />} title="Active Users" value="350" colors={["from-indigo-400", "to-indigo-600"]} />
+        <Card
+          icon={<CheckCircle size={28} />}
+          title="Completed Tasks"
+          value="120"
+          colors={["from-teal-400", "to-teal-600"]}
+        />
+        <Card
+          icon={<Bell size={28} />}
+          title="Notifications"
+          value="8"
+          colors={["from-pink-400", "to-pink-600"]}
+        />
+        <Card
+          icon={<Users size={28} />}
+          title="Active Users"
+          value="350"
+          colors={["from-indigo-400", "to-indigo-600"]}
+        />
+        <Card
+          icon={<Users size={28} />}
+          title="Holi Offer Traffic"
+          value={holiCount !== null ? holiCount.toString() : "Loading..."}
+          colors={["from-pink-500", "to-blue-500"]}
+        />
       </div>
 
       {/* Result Section */}
-
     </AdminLayout>
   );
 }
@@ -229,7 +283,9 @@ function Card({
     <div
       className={`bg-gradient-to-r ${colors[0]} ${colors[1]} text-white shadow-lg rounded-2xl p-6 flex items-center gap-4 hover:shadow-xl hover:scale-105 transition-transform duration-200`}
     >
-      <div className="bg-white/20 p-3 rounded-xl shadow-sm flex items-center justify-center">{icon}</div>
+      <div className="bg-white/20 p-3 rounded-xl shadow-sm flex items-center justify-center">
+        {icon}
+      </div>
       <div>
         <h2 className="text-base font-semibold">{title}</h2>
         <p className="text-2xl font-bold">{value}</p>
