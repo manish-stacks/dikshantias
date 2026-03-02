@@ -7,7 +7,7 @@ import cloudinary from "@/lib/cloudinary";
 // GET single page
 export async function GET(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   try {
     const { id } = context.params;
@@ -25,7 +25,7 @@ export async function GET(
 // UPDATE Page (PUT)
 export async function PUT(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   try {
     const { id } = context.params;
@@ -83,7 +83,7 @@ export async function PUT(
           (error, result) => {
             if (error) return reject(error);
             resolve(result);
-          }
+          },
         );
         uploadStream.end(buffer);
       });
@@ -105,7 +105,7 @@ export async function PUT(
     console.error("Error updating page:", err);
     return NextResponse.json(
       { error: err.message || "Failed to update page" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -113,7 +113,7 @@ export async function PUT(
 // UPDATE Page active status (PATCH)
 export async function PATCH(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   try {
     const { id } = context.params;
@@ -124,7 +124,7 @@ export async function PATCH(
     const page = await PagesModel.findByIdAndUpdate(
       id,
       { active },
-      { new: true }
+      { new: true },
     );
 
     if (!page) {
@@ -141,7 +141,7 @@ export async function PATCH(
 // DELETE page
 export async function DELETE(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   try {
     const { id } = context.params;

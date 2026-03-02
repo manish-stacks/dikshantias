@@ -180,7 +180,7 @@ interface ProgramCardProps {
 
 const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
   return (
-    <div className="rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow bg-white h-full relative">
+    <div className="rounded overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow bg-white h-full relative">
       {/* Badge */}
       {program.badge?.trim() && (
         <div
@@ -193,7 +193,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
       )}
 
       {/* Price */}
-      <div className="absolute top-4 right-4 bg-white rounded-lg shadow p-2 z-10 text-sm">
+      <div className="absolute top-2 right-3 bg-white rounded-lg shadow-md px-3 py-2 z-10 text-sm">
         <div className="text-blue-400 line-through text-xs">
           ₹{program.originalPrice.toLocaleString()}
         </div>
@@ -203,13 +203,23 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
       </div>
 
       {/* Image */}
-      <div className="h-48 relative">
+      {/* <div className="h-48 relative">
         <Image
           src={program.image}
           alt={program.title}
           layout="fill"
           objectFit="cover"
           className="rounded-t-2xl"
+        />
+      </div> */}
+
+      <div className="relative w-full aspect-[16/9] overflow-hidden rounded">
+        <Image
+          src={program.image || "/img/Prelims-Foundation-Course.webp"}
+          alt={program.image || program.title}
+          fill
+          sizes="(max-width: 768px) 100vw, 25vw"
+          className="object-cover"
         />
       </div>
 

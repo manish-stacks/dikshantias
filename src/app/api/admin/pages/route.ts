@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import cloudinary from "@/lib/cloudinary"; 
+import cloudinary from "@/lib/cloudinary";
 import { connectToDB } from "@/lib/mongodb";
 import PagesModel from "@/models/PagesModel";
-
 
 // GET all Pages
 export async function GET() {
@@ -12,7 +11,10 @@ export async function GET() {
     return NextResponse.json(sliders);
   } catch (error) {
     console.error("Error fetching Pages:", error);
-    return NextResponse.json({ error: "Failed to fetch Pages" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch Pages" },
+      { status: 500 },
+    );
   }
 }
 
@@ -26,7 +28,7 @@ export async function POST(req: Request) {
     const slug = formData.get("slug") as string;
     const content = formData.get("content") as string;
     const active = formData.get("active") === "true";
- 
+
     const metaTitle = formData.get("metaTitle") as string;
     const metaDescription = formData.get("metaDescription") as string;
     const metaKeywords = formData.get("metaKeywords")
@@ -35,7 +37,7 @@ export async function POST(req: Request) {
     const canonicalUrl = formData.get("canonicalUrl") as string;
     const ogTitle = formData.get("ogTitle") as string;
     const ogDescription = formData.get("ogDescription") as string;
-    const index = formData.get("index") !== "false"; 
+    const index = formData.get("index") !== "false";
     const follow = formData.get("follow") !== "false";
 
     let imageData = null;
@@ -50,7 +52,7 @@ export async function POST(req: Request) {
           (error, result) => {
             if (error) return reject(error);
             resolve(result);
-          }
+          },
         );
         uploadStream.end(buffer);
       });
@@ -85,9 +87,7 @@ export async function POST(req: Request) {
     console.error("Error creating page:", err);
     return NextResponse.json(
       { error: err.message || "Failed to create page" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-
-
