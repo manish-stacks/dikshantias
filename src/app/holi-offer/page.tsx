@@ -3,9 +3,24 @@
 import Image from "next/image";
 import { Download } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 const HoliOfferPage = () => {
   const { t } = useTranslation("common");
+
+  useEffect(() => {
+    const increaseVisit = async () => {
+      try {
+        await fetch("/api/holi-offer-visit", {
+          method: "POST",
+        });
+      } catch (error) {
+        console.error("Visit count failed");
+      }
+    };
+
+    increaseVisit();
+  }, []);
 
   const demoCourses = [
     {
