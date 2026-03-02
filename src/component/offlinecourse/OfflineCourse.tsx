@@ -30,47 +30,46 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
       {/* Card Header with Image and Badge */}
-      <div className="relative h-38 md:h-32 bg-gradient-to-br from-gray-700 to-gray-900">
-        <div className="absolute">
-          <Image
-            src={course.image?.url || "/img/Prelims-Foundation-Course.webp"}
-            width={900}
-            height={300}
-            alt={course.image?.alt || course.title}
-            className="object-cover h-full w-full"
-          />
-        </div>
+      <div className="relative w-full aspect-[16/9] overflow-hidden rounded">
+        <Image
+          src={course.image?.url || "/img/Prelims-Foundation-Course.webp"}
+          alt={course.image?.alt || course.title}
+          fill
+          sizes="(max-width: 768px) 100vw, 25vw"
+          className="object-cover"
+        />
 
         {/* Badge */}
-        {course.badge && (
+        {course.badge?.trim() && (
           <div
-            className={`absolute top-4 left-4 ${course.badgeColor} text-white px-3 py-1 rounded-full text-sm font-medium`}
+            className={`absolute top-3 left-3 ${
+              course.badgeColor || "bg-blue-600"
+            } text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium`}
           >
             {course.badge}
           </div>
         )}
 
         {/* Price */}
-        <div className="absolute top-4 right-4 bg-white rounded-lg px-3 py-1">
-          <div className="text-gray-400 text-sm line-through">
+        <div className="absolute top-3 right-3 bg-white rounded-lg px-2 sm:px-3 py-1 shadow-md">
+          <div className="text-gray-400 text-xs sm:text-sm line-through">
             ₹{course.originalPrice}
           </div>
-          <div className="text-red-600 text-lg font-bold -mt-1.5">
+          <div className="text-red-600 text-sm sm:text-lg font-bold -mt-1">
             ₹{course.price}
           </div>
         </div>
 
         {/* Rating */}
-        <div className="absolute top-36 left-4 bg-yellow-100 rounded-full px-2 py-1 flex items-center">
-          <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
-          <span className="text-sm font-medium text-gray-800">
+        {/* <div className="absolute bottom-3 left-3 bg-yellow-100 rounded-full px-2 py-1 flex items-center shadow">
+          <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-current mr-1" />
+          <span className="text-xs sm:text-sm font-medium text-gray-800">
             {course.rating ?? 4.9}
           </span>
-        </div>
+        </div> */}
       </div>
-
       {/* Card Content */}
-      <div className="p-6 mt-6 md:mt-12">
+      <div className="p-6 mt-3 md:mt-2">
         <h3 className="text-[18px] font-bold text-[#00072c] mb-2">
           {course.title}
         </h3>
