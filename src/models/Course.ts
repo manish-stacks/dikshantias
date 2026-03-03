@@ -8,7 +8,7 @@ export interface ICourse extends Document {
   active: boolean;
 
   // Basic Info
-  courseMode: "online" | "offline";
+  courseMode: "online" | "offline" | "video";
   lectures: number;
   duration: string;
   languages: string;
@@ -23,14 +23,13 @@ export interface ICourse extends Document {
   secondInstallment?: number;
   thirdInstallment?: number;
   fourthInstallment?: number;
-   
 
   badge?: string;
   badgeColor?: string;
   features?: string[];
 
   // Images
-    image: {
+  image: {
     url: string;
     key: string;
   };
@@ -62,7 +61,11 @@ const CourseSchema: Schema = new Schema(
     content: { type: String, required: true },
     active: { type: Boolean, default: true },
 
-    courseMode: { type: String, enum: ["online", "offline"], required: true },
+    courseMode: {
+      type: String,
+      enum: ["online", "offline", "video"],
+      required: true,
+    },
     lectures: { type: Number },
     duration: { type: String },
     languages: { type: String, required: true },
@@ -77,16 +80,15 @@ const CourseSchema: Schema = new Schema(
     thirdInstallment: { type: Number },
     fourthInstallment: { type: Number },
 
-    badge: { type: String, default: 'Limited Seats' },
-    badgeColor: { type: String, default: 'bg-indigo-500' },
-    features: { type: [String], default: [] },     
+    badge: { type: String, default: "Limited Seats" },
+    badgeColor: { type: String, default: "bg-indigo-500" },
+    features: { type: [String], default: [] },
 
-      image: {
-        url: { type: String, required: true },
-        key: { type: String, required: true },
-        alt: { type: String },
+    image: {
+      url: { type: String, required: true },
+      key: { type: String, required: true },
+      alt: { type: String },
     },
-
 
     demoVideo: { type: String },
     videos: { type: [String], default: [] },
@@ -100,7 +102,7 @@ const CourseSchema: Schema = new Schema(
     index: { type: Boolean, default: true },
     follow: { type: Boolean, default: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Course: Model<ICourse> =

@@ -247,7 +247,7 @@ const Footer: React.FC = () => {
     {
       title: t("footer.sections.courses"),
       links: [
-        { name: t("footer.links.onlineCourse"), href: "/online-course" },
+        { name: t("footer.links.onlineCourse"), href: "/online-live-course" },
         { name: t("footer.links.offlineCourse"), href: "/offline-course" },
         { name: t("footer.links.mainsCorner"), href: "/mains-corner" },
         { name: t("footer.links.mentorshipProgramme"), href: "/coming-soon" },

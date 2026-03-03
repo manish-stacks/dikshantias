@@ -6,31 +6,30 @@ import slugify from "slugify";
 import { uploadToS3, deleteFromS3 } from "@/lib/s3";
 
 // GET course by ID
-export async function GET(  
+export async function GET(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   try {
     await connectToDB();
     const { id } = context.params;
 
     const course = await Course.findById(id);
+    // console.log("Fetched Course:", course);
     if (!course) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
     return NextResponse.json(course, { status: 200 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to fetch course";
+    const message =
+      err instanceof Error ? err.message : "Failed to fetch course";
     console.error("Error fetching course:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 // UPDATE course by ID
-export async function PUT(
-  req: Request,
-  context: RouteContext<{ id: string }>
-) {
+export async function PUT(req: Request, context: RouteContext<{ id: string }>) {
   try {
     await connectToDB();
     const { id } = context.params;
@@ -48,18 +47,21 @@ export async function PUT(
         ? rawSlug
         : slugify(title, { lower: true, strict: true });
 
-        const shortContent = formData.get("shortContent") as string;
-        const content = formData.get("content") as string;
-        const active = formData.get("active")
-          ? JSON.parse(formData.get("active") as string)
-          : true;
-        const courseMode = formData.get("courseMode") as "online" | "offline";
-        const lectures = parseInt(formData.get("lectures") as string, 10);
-        const duration = formData.get("duration") as string;
-        const languages = formData.get("languages") as string;
-        const displayOrder = formData.get("displayOrder")
-          ? parseInt(formData.get("displayOrder") as string, 10)
-          : 0;
+    const shortContent = formData.get("shortContent") as string;
+    const content = formData.get("content") as string;
+    const active = formData.get("active")
+      ? JSON.parse(formData.get("active") as string)
+      : true;
+    const courseMode = formData.get("courseMode") as
+      | "online"
+      | "offline"
+      | "video";
+    const lectures = parseInt(formData.get("lectures") as string, 10);
+    const duration = formData.get("duration") as string;
+    const languages = formData.get("languages") as string;
+    const displayOrder = formData.get("displayOrder")
+      ? parseInt(formData.get("displayOrder") as string, 10)
+      : 0;
 
     const originalPrice = formData.get("originalPrice")
       ? parseFloat(formData.get("originalPrice") as string)
@@ -87,7 +89,7 @@ export async function PUT(
         buffer,
         imageFile.name,
         imageFile.type,
-        "courses"
+        "courses",
       );
 
       updatedImage = {
@@ -147,11 +149,12 @@ export async function PUT(
         ...(badgeColor && { badgeColor }),
         ...(features && { features }),
       },
-      { new: true }
+      { new: true },
     );
     return NextResponse.json(updatedCourse, { status: 200 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to update course";
+    const message =
+      err instanceof Error ? err.message : "Failed to update course";
     console.error("Error updating course:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
@@ -160,7 +163,7 @@ export async function PUT(
 // PATCH: Update course active status only
 export async function PATCH(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   try {
     const { id } = context.params;
@@ -169,14 +172,15 @@ export async function PATCH(
     const course = await Course.findByIdAndUpdate(
       id,
       { active },
-      { new: true }
+      { new: true },
     );
     if (!course) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
     return NextResponse.json({ course });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to update active status";
+    const message =
+      err instanceof Error ? err.message : "Failed to update active status";
     console.error("Error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
@@ -185,7 +189,7 @@ export async function PATCH(
 // DELETE course by ID
 export async function DELETE(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   try {
     await connectToDB();
@@ -203,10 +207,11 @@ export async function DELETE(
 
     return NextResponse.json(
       { message: "Course and associated image deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to delete course";
+    const message =
+      err instanceof Error ? err.message : "Failed to delete course";
     console.error("Error deleting course:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }

@@ -8,8 +8,7 @@ import { uploadToS3 } from "@/lib/s3";
 export async function GET() {
   try {
     await connectToDB();
-    const courses = await Course.find()
-      .sort({ createdAt: -1 }); //  Latest first
+    const courses = await Course.find().sort({ createdAt: -1 }); //  Latest first
     return NextResponse.json(courses, { status: 200 });
   } catch (error) {
     const errMessage = error instanceof Error ? error.message : "Unknown error";
@@ -39,7 +38,10 @@ export async function POST(req: Request) {
       ? JSON.parse(formData.get("active") as string)
       : true;
 
-    const courseMode = formData.get("courseMode") as "online" | "offline";
+    const courseMode = formData.get("courseMode") as
+      | "online"
+      | "offline"
+      | "video";
     const lectures = parseInt(formData.get("lectures") as string, 10);
     const duration = formData.get("duration") as string;
     const languages = formData.get("languages") as string;
@@ -82,7 +84,7 @@ export async function POST(req: Request) {
         buffer,
         imageFile.name,
         imageFile.type,
-        "courses"
+        "courses",
       );
       imageData = {
         url: uploadedImage.url,
@@ -158,7 +160,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newCourse, { status: 201 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to create course";
+    const message =
+      err instanceof Error ? err.message : "Failed to create course";
     console.error("Error creating course:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
