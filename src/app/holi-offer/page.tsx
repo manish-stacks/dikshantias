@@ -60,7 +60,7 @@ const HoliOfferPage = () => {
         {/* LEFT SIDE - IMAGE */}
         <div className="relative bg-[#FFFF] pt-1 flex items-center justify-center p-3">
           <Image
-            src="/img/holioffers.png"
+            src="/img/holi-dhamaka.png"
             alt={t("holiOffer.alt")}
             width={900}
             height={1200}
