@@ -9,7 +9,10 @@ const nextConfig = {
       { protocol: "https", hostname: "images.pexels.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "placehold.co", pathname: "/**" },
-      { protocol: "https", hostname: "dikshantiasnew-web.s3.ap-south-1.amazonaws.com" },
+      {
+        protocol: "https",
+        hostname: "dikshantiasnew-web.s3.ap-south-1.amazonaws.com",
+      },
     ],
   },
 
@@ -35,6 +38,19 @@ const nextConfig = {
         ],
         destination: "https://www.dikshantias.com/:path*",
         permanent: true,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/admin/:path*",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow, noarchive, nosnippet",
+          },
+        ],
       },
     ];
   },
