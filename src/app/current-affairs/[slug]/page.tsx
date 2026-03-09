@@ -221,6 +221,7 @@ const ReadInHindu: React.FC = () => {
                       <h3 className="text-sm md:text-base font-semibold text-[#00072c] leading-tight mb-3 line-clamp-2">
                         {card.title[lang]}
                       </h3>
+
                       <button
                         onClick={() =>
                           router.push(`/current-affairs/view/${card.slug}`)
