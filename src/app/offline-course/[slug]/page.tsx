@@ -214,7 +214,7 @@ const CoursePage = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-6 items-center">
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold text-[#040c33] mb-4">
+              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#040c33] mb-4 leading-tight">
                 {course.title}
               </h1>
               <div className="flex items-center gap-4 text-sm text-blue-950 mb-4">
@@ -224,14 +224,14 @@ const CoursePage = () => {
               </div>
               <div className="flex items-center gap-4 text-sm text-blue-900 mb-4">
                 <div className="flex items-center gap-1">
-                  <CalendarDays className="w-4 h-4" />
+                  {/* <CalendarDays className="w-4 h-4" />
                   <span>
                     {new Date(course.createdAt).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
                     })}
-                  </span>
+                  </span> */}
                 </div>
                 <div className="flex items-center gap-1">
                   <Book className="w-4 h-4" />
@@ -246,10 +246,10 @@ const CoursePage = () => {
                 <div className="flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded-full">
                   <span>{course.courseMode}</span>
                 </div>
-                <div className="flex items-center gap-1 bg-yellow-400 text-black px-3 py-1 rounded-full">
+                {/* <div className="flex items-center gap-1 bg-yellow-400 text-black px-3 py-1 rounded-full">
                   <Star className="w-4 h-4 mb-1" />
                   <span>4.5 Review</span>
-                </div>
+                </div> */}
               </div>
             </div>
             <div className="w-full lg:w-80">
@@ -346,7 +346,7 @@ const CoursePage = () => {
                 </div>
 
                 {/* Reviews Section */}
-                <div className="mt-12 bg-slate-50 px-2 py-4">
+                {/* <div className="mt-12 bg-slate-50 px-2 py-4">
                   <h3 className="text-xl font-semibold mb-6">Reviews</h3>
                   <div className="flex items-center gap-8 mb-8">
                     <div className="text-center">
@@ -387,13 +387,6 @@ const CoursePage = () => {
                   </button>
                   <div className="border-t pt-6">
                     <div className="flex items-start gap-4">
-                      {/* <Image
-                                                width={1920}
-                                                height={500}
-                                                src="https://placehold.co/50x50"
-                                                alt="Keith Son"
-                                                className="w-12 h-12 rounded-full"
-                                            /> */}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-semibold text-[#040c33]">
@@ -420,7 +413,7 @@ const CoursePage = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             )}
           </div>
