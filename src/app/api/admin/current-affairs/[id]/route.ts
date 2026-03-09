@@ -9,10 +9,10 @@ import SubCategoryModel from "@/models/SubCategoryModel";
 
 import { uploadToS3, deleteFromS3 } from "@/lib/s3";
 
-// ✅ GET Current Affair by ID or Slug
+// GET Current Affair by ID or Slug
 export async function GET(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   const { id } = context.params;
 
@@ -33,7 +33,7 @@ export async function GET(
     if (!currentAffair) {
       return NextResponse.json(
         { error: "Current Affair not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -46,18 +46,108 @@ export async function GET(
             ? error.message
             : "Failed to fetch current affair",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ✅ UPDATE Current Affair
+//  UPDATE Current Affair
+// export async function PUT(
+//   request: Request,
+//   context: RouteContext<{ id: string }>,
+// ) {
+//   try {
+//     await connectToDB();
+//     const { id } = context.params;
+
+//     const formData = await request.formData();
+//     const affair = await CurrentAffairs.findById(id);
+
+//     if (!affair) {
+//       return NextResponse.json({ error: "Not found" }, { status: 404 });
+//     }
+
+//     // ✅ Parse bilingual fields
+//     const titleRaw = formData.get("title")?.toString();
+//     if (titleRaw) affair.title = JSON.parse(titleRaw);
+
+//     const shortContentRaw = formData.get("shortContent")?.toString();
+//     if (shortContentRaw) affair.shortContent = JSON.parse(shortContentRaw);
+
+//     const contentRaw = formData.get("content")?.toString();
+//     if (contentRaw) affair.content = JSON.parse(contentRaw);
+
+//     // ✅ Other fields
+//     const slug = formData.get("slug")?.toString();
+//     if (slug) affair.slug = slug;
+
+//     const categoryId = formData.get("category")?.toString();
+//     if (categoryId) affair.category = categoryId;
+
+//     const subCategoryId = formData.get("subCategory")?.toString();
+//     affair.subCategory = subCategoryId || undefined;
+
+//     affair.active = formData.get("active") === "true";
+
+//     const affairDate = formData.get("affairDate")?.toString();
+//     if (affairDate) affair.affairDate = new Date(affairDate);
+
+//     // ✅ Handle image upload with S3
+//     const imageFile = formData.get("image");
+//     if (
+//       imageFile &&
+//       typeof imageFile !== "string" &&
+//       "arrayBuffer" in imageFile
+//     ) {
+//       if (affair.image?.key) {
+//         await deleteFromS3(affair.image.key);
+//       }
+
+//       const buffer = Buffer.from(await imageFile.arrayBuffer());
+//       const uploadedImage = await uploadToS3(
+//         buffer,
+//         (imageFile as File).name,
+//         (imageFile as File).type,
+//         "current_affairs",
+//       );
+
+//       affair.image = {
+//         key: uploadedImage.key,
+//         url: uploadedImage.url,
+//       };
+//     }
+
+//     const imageAlt = formData.get("imageAlt")?.toString();
+//     if (imageAlt) affair.imageAlt = imageAlt;
+
+//     await affair.save();
+
+//     const populated = await affair.populate([
+//       { path: "category", select: "name" },
+//       { path: "subCategory", select: "name" },
+//     ]);
+
+//     return NextResponse.json(populated, { status: 200 });
+//   } catch (error: unknown) {
+//     return NextResponse.json(
+//       {
+//         error:
+//           error instanceof Error
+//             ? error.message
+//             : "Failed to update current affair",
+//       },
+//       { status: 500 },
+//     );
+//   }
+// }
+
 export async function PUT(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   try {
     await connectToDB();
+
     const { id } = context.params;
 
     const formData = await request.formData();
@@ -77,7 +167,7 @@ export async function PUT(
     const contentRaw = formData.get("content")?.toString();
     if (contentRaw) affair.content = JSON.parse(contentRaw);
 
-    // ✅ Other fields
+    // Basic fields
     const slug = formData.get("slug")?.toString();
     if (slug) affair.slug = slug;
 
@@ -92,19 +182,46 @@ export async function PUT(
     const affairDate = formData.get("affairDate")?.toString();
     if (affairDate) affair.affairDate = new Date(affairDate);
 
-    // ✅ Handle image upload with S3
+    // ✅ SEO Fields
+    const metaTitle = formData.get("metaTitle")?.toString();
+    if (metaTitle !== undefined) affair.metaTitle = metaTitle;
+
+    const metaDescription = formData.get("metaDescription")?.toString();
+    if (metaDescription !== undefined) affair.metaDescription = metaDescription;
+
+    const canonicalUrl = formData.get("canonicalUrl")?.toString();
+    if (canonicalUrl !== undefined) affair.canonicalUrl = canonicalUrl;
+
+    const ogTitle = formData.get("ogTitle")?.toString();
+    if (ogTitle !== undefined) affair.ogTitle = ogTitle;
+
+    const ogDescription = formData.get("ogDescription")?.toString();
+    if (ogDescription !== undefined) affair.ogDescription = ogDescription;
+
+    const metaKeywordsRaw = formData.get("metaKeywords")?.toString();
+    if (metaKeywordsRaw) {
+      affair.metaKeywords = JSON.parse(metaKeywordsRaw);
+    }
+
+    // Image Upload
     const imageFile = formData.get("image");
-    if (imageFile && typeof imageFile !== "string" && "arrayBuffer" in imageFile) {
+
+    if (
+      imageFile &&
+      typeof imageFile !== "string" &&
+      "arrayBuffer" in imageFile
+    ) {
       if (affair.image?.key) {
         await deleteFromS3(affair.image.key);
       }
 
       const buffer = Buffer.from(await imageFile.arrayBuffer());
+
       const uploadedImage = await uploadToS3(
         buffer,
         (imageFile as File).name,
         (imageFile as File).type,
-        "current_affairs"
+        "current_affairs",
       );
 
       affair.image = {
@@ -132,16 +249,15 @@ export async function PUT(
             ? error.message
             : "Failed to update current affair",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-
-// ✅ DELETE Current Affair
+//  DELETE Current Affair
 export async function DELETE(
   request: Request,
-  context: RouteContext<{ id: string }>
+  context: RouteContext<{ id: string }>,
 ) {
   try {
     const { id } = context.params;
@@ -151,11 +267,11 @@ export async function DELETE(
     if (!currentAffair) {
       return NextResponse.json(
         { error: "Current Affair not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // ✅ delete image from S3 if exists
+    // delete image from S3 if exists
     if (currentAffair.image?.key) {
       await deleteFromS3(currentAffair.image.key);
     }
@@ -164,7 +280,7 @@ export async function DELETE(
 
     return NextResponse.json(
       { message: "Current Affair deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error: unknown) {
     return NextResponse.json(
@@ -174,7 +290,7 @@ export async function DELETE(
             ? error.message
             : "Failed to delete current affair",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

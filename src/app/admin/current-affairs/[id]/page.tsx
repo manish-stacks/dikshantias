@@ -31,11 +31,18 @@ export default function AddCurrentAffairsPage() {
   const [currentAffairId, setCurrentAffairId] = useState<string | null>(null);
 
   // 📌 Basic Info
-  const [title, setTitle] = useState<{ en: string; hi: string }>({ en: "", hi: "" });
-  const [shortContent, setShortContent] = useState<{ en: string; hi: string }>({ en: "", hi: "" });
-  const [content, setContent] = useState<{ en: string; hi: string }>({ en: "", hi: "" });
-
-
+  const [title, setTitle] = useState<{ en: string; hi: string }>({
+    en: "",
+    hi: "",
+  });
+  const [shortContent, setShortContent] = useState<{ en: string; hi: string }>({
+    en: "",
+    hi: "",
+  });
+  const [content, setContent] = useState<{ en: string; hi: string }>({
+    en: "",
+    hi: "",
+  });
 
   const [slug, setSlug] = useState("");
   const [active, setActive] = useState(true);
@@ -49,6 +56,15 @@ export default function AddCurrentAffairsPage() {
   // 📌 Affair Date
   const [affairDate, setAffairDate] = useState("");
 
+  // 📌 SEO Fields
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [metaKeywords, setMetaKeywords] = useState<string[]>([]);
+  const [metaKeywordInput, setMetaKeywordInput] = useState("");
+  const [canonicalUrl, setCanonicalUrl] = useState("");
+  const [ogTitle, setOgTitle] = useState("");
+  const [ogDescription, setOgDescription] = useState("");
+
   // 📌 Media
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [existingImage, setExistingImage] = useState<string | null>(null);
@@ -58,22 +74,38 @@ export default function AddCurrentAffairsPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  // Add keyword
+  const addMetaKeyword = () => {
+    const keyword = metaKeywordInput.trim();
+    if (!keyword) return;
+
+    if (!metaKeywords.includes(keyword)) {
+      setMetaKeywords([...metaKeywords, keyword]);
+    }
+
+    setMetaKeywordInput("");
+  };
+
+  // Remove keyword
+  const removeMetaKeyword = (keyword: string) => {
+    setMetaKeywords(metaKeywords.filter((k) => k !== keyword));
+  };
+
   // Auto-generate slug
   useEffect(() => {
-  if (title.en) {
-    setSlug(
-      title.en
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-    );
-  } else {
-    setSlug("");
-  }
-}, [title.en]);
-
+    if (title.en) {
+      setSlug(
+        title.en
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-"),
+      );
+    } else {
+      setSlug("");
+    }
+  }, [title.en]);
 
   // Fetch categories, subcategories and existing data (if editing)
   useEffect(() => {
@@ -90,23 +122,36 @@ export default function AddCurrentAffairsPage() {
         setSubCategories(subs);
 
         // Fetch existing current affair if edit
-       if (editId) {
-        const res = await fetch(`/api/admin/current-affairs/${editId}`);
-        const data = await res.json();
+        if (editId) {
+          const res = await fetch(`/api/admin/current-affairs/${editId}`);
+          const data = await res.json();
 
-        setCurrentAffairId(data._id);
-        setTitle({ en: data.title.en, hi: data.title.hi });
-        setShortContent({ en: data.shortContent.en, hi: data.shortContent.hi });
-        setContent({ en: data.content.en, hi: data.content.hi });
-        setCategory(data.category._id?.toString());
-        setSubCategory(data.subCategory?._id?.toString() || "");
-        setActive(data.active);
-        setImageAlt(data.imageAlt || "");
-        setImageFile(null);
-        setExistingImage(data.image?.url || null);
-        setAffairDate(data.affairDate ? new Date(data.affairDate).toISOString().split("T")[0] : "");
-      }
+          setMetaTitle(data.metaTitle || "");
+          setMetaDescription(data.metaDescription || "");
+          setMetaKeywords(data.metaKeywords || []);
+          setCanonicalUrl(data.canonicalUrl || "");
+          setOgTitle(data.ogTitle || "");
+          setOgDescription(data.ogDescription || "");
 
+          setCurrentAffairId(data._id);
+          setTitle({ en: data.title.en, hi: data.title.hi });
+          setShortContent({
+            en: data.shortContent.en,
+            hi: data.shortContent.hi,
+          });
+          setContent({ en: data.content.en, hi: data.content.hi });
+          setCategory(data.category._id?.toString());
+          setSubCategory(data.subCategory?._id?.toString() || "");
+          setActive(data.active);
+          setImageAlt(data.imageAlt || "");
+          setImageFile(null);
+          setExistingImage(data.image?.url || null);
+          setAffairDate(
+            data.affairDate
+              ? new Date(data.affairDate).toISOString().split("T")[0]
+              : "",
+          );
+        }
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
@@ -116,60 +161,74 @@ export default function AddCurrentAffairsPage() {
     fetchData();
   }, [editId]);
 
-     // Filter subcategories based on selected category
-    const filteredSubCategories = subCategories.filter(
-      (sub) => sub.category?._id?.toString() === category
-          || sub.category?._id === category
-    );
+  // Filter subcategories based on selected category
+  const filteredSubCategories = subCategories.filter(
+    (sub) =>
+      sub.category?._id?.toString() === category ||
+      sub.category?._id === category,
+  );
 
   // Submit
- // Submit
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setSubmitting(true);
+  // Submit
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
 
-  try {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    if (currentAffairId) formData.append("_id", currentAffairId);
+      if (currentAffairId) formData.append("_id", currentAffairId);
 
-    // ✅ Send bilingual fields as JSON strings
-    formData.append("title", JSON.stringify(title));
-    formData.append("shortContent", JSON.stringify(shortContent));
-    formData.append("content", JSON.stringify(content));
+      // ✅ Send bilingual fields as JSON strings
+      formData.append("title", JSON.stringify(title));
+      formData.append("shortContent", JSON.stringify(shortContent));
+      formData.append("content", JSON.stringify(content));
 
-    formData.append("slug", slug);
-    formData.append("active", active ? "true" : "false");
-    formData.append("category", category);
-    if (subCategory) formData.append("subCategory", subCategory);
+      formData.append("slug", slug);
+      formData.append("active", active ? "true" : "false");
+      formData.append("category", category);
+      if (subCategory) formData.append("subCategory", subCategory);
 
-    if (affairDate) formData.append("affairDate", new Date(affairDate).toISOString());
+      if (affairDate)
+        formData.append("affairDate", new Date(affairDate).toISOString());
 
-    if (imageFile) formData.append("image", imageFile);
-    if (imageAlt) formData.append("imageAlt", imageAlt);
+      // SEO Fields
+      if (metaTitle) formData.append("metaTitle", metaTitle);
+      if (metaDescription) formData.append("metaDescription", metaDescription);
+      if (canonicalUrl) formData.append("canonicalUrl", canonicalUrl);
+      if (ogTitle) formData.append("ogTitle", ogTitle);
+      if (ogDescription) formData.append("ogDescription", ogDescription);
 
-    const res = await fetch(
-      currentAffairId
-        ? `/api/admin/current-affairs/${currentAffairId}`
-        : "/api/admin/current-affairs",
-      {
-        method: currentAffairId ? "PUT" : "POST",
-        body: formData,
+      if (metaKeywords.length > 0) {
+        formData.append("metaKeywords", JSON.stringify(metaKeywords));
       }
-    );
 
-    if (!res.ok) throw new Error("Failed to save current affair");
+      if (imageFile) formData.append("image", imageFile);
+      if (imageAlt) formData.append("imageAlt", imageAlt);
 
-    toast.success(`Current Affair ${currentAffairId ? "updated" : "added"} successfully`);
-    router.push("/admin/current-affairs");
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to save current affair");
-  } finally {
-    setSubmitting(false);
-  }
-};
+      const res = await fetch(
+        currentAffairId
+          ? `/api/admin/current-affairs/${currentAffairId}`
+          : "/api/admin/current-affairs",
+        {
+          method: currentAffairId ? "PUT" : "POST",
+          body: formData,
+        },
+      );
 
+      if (!res.ok) throw new Error("Failed to save current affair");
+
+      toast.success(
+        `Current Affair ${currentAffairId ? "updated" : "added"} successfully`,
+      );
+      router.push("/admin/current-affairs");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save current affair");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -219,9 +278,11 @@ const handleSubmit = async (e: React.FormEvent) => {
             Basic Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             {/* Title EN */}
+            {/* Title EN */}
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Title (English)</label>
+              <label className="block font-medium text-gray-700 mb-1">
+                Title (English)
+              </label>
               <input
                 type="text"
                 value={title.en}
@@ -233,7 +294,9 @@ const handleSubmit = async (e: React.FormEvent) => {
 
             {/* Title HI */}
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Title (Hindi)</label>
+              <label className="block font-medium text-gray-700 mb-1">
+                Title (Hindi)
+              </label>
               <input
                 type="text"
                 value={title.hi}
@@ -243,8 +306,10 @@ const handleSubmit = async (e: React.FormEvent) => {
               />
             </div>
 
-           <div className="col-span-full">
-              <label className="block font-medium text-gray-700 mb-1">Slug</label>
+            <div className="col-span-full">
+              <label className="block font-medium text-gray-700 mb-1">
+                Slug
+              </label>
               <input
                 type="text"
                 value={slug}
@@ -253,13 +318,14 @@ const handleSubmit = async (e: React.FormEvent) => {
                 required
               />
             </div>
-
           </div>
 
           {/* Category & Sub Category */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-3">
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Category</label>
+              <label className="block font-medium text-gray-700 mb-1">
+                Category
+              </label>
               <select
                 value={category}
                 onChange={(e) => {
@@ -279,7 +345,9 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
 
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Sub Category</label>
+              <label className="block font-medium text-gray-700 mb-1">
+                Sub Category
+              </label>
               <select
                 value={subCategory}
                 onChange={(e) => setSubCategory(e.target.value)}
@@ -297,36 +365,46 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
 
             {/* Date Picker */}
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-            <div>
-              <label className="block font-medium text-gray-700 mb-1">Date</label>
-              <input
-                type="date"
-                value={affairDate}
-                onChange={(e) => setAffairDate(e.target.value)}
-                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+              <div>
+                <label className="block font-medium text-gray-700 mb-1">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  value={affairDate}
+                  onChange={(e) => setAffairDate(e.target.value)}
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+                  required
+                />
+              </div>
             </div>
-          </div> 
           </div>
 
           {/* Short Content EN / HI */}
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Short Content (English)</label>
+              <label className="block font-medium text-gray-700 mb-1">
+                Short Content (English)
+              </label>
               <textarea
                 value={shortContent.en}
-                onChange={(e) => setShortContent({ ...shortContent, en: e.target.value })}
+                onChange={(e) =>
+                  setShortContent({ ...shortContent, en: e.target.value })
+                }
                 className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
                 rows={3}
               />
             </div>
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Short Content (Hindi)</label>
+              <label className="block font-medium text-gray-700 mb-1">
+                Short Content (Hindi)
+              </label>
               <textarea
                 value={shortContent.hi}
-                onChange={(e) => setShortContent({ ...shortContent, hi: e.target.value })}
+                onChange={(e) =>
+                  setShortContent({ ...shortContent, hi: e.target.value })
+                }
                 className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
                 rows={3}
               />
@@ -336,12 +414,133 @@ const handleSubmit = async (e: React.FormEvent) => {
           {/* Full Content EN / HI */}
           <div className="mt-4 grid grid-cols-1  gap-6">
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Full Content (English)</label>
-              <SimpleEditor value={content.en} onChange={(val) => setContent({ ...content, en: val })} />
+              <label className="block font-medium text-gray-700 mb-1">
+                Full Content (English)
+              </label>
+              <SimpleEditor
+                value={content.en}
+                onChange={(val) => setContent({ ...content, en: val })}
+              />
             </div>
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Full Content (Hindi)</label>
-              <SimpleEditor value={content.hi} onChange={(val) => setContent({ ...content, hi: val })} />
+              <label className="block font-medium text-gray-700 mb-1">
+                Full Content (Hindi)
+              </label>
+              <SimpleEditor
+                value={content.hi}
+                onChange={(val) => setContent({ ...content, hi: val })}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* SEO / Meta Fields */}
+        <div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b border-gray-300-b pb-2">
+            SEO / Meta Information
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block font-medium text-gray-700 mb-2">
+                Meta Title
+              </label>
+              <input
+                type="text"
+                value={metaTitle}
+                onChange={(e) => setMetaTitle(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Canonical URL
+              </label>
+              <input
+                type="text"
+                value={canonicalUrl}
+                onChange={(e) => setCanonicalUrl(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-medium text-gray-700 mb-1 mt-2">
+              Meta Description
+            </label>
+            <textarea
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+              className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none "
+              rows={2}
+            />
+          </div>
+
+          {/* Meta Keywords */}
+          <div className="mt-2">
+            <label className="block font-medium text-gray-700 mb-1">
+              Meta Keywords
+            </label>
+            <div className="flex gap-3 mb-3">
+              <input
+                type="text"
+                value={metaKeywordInput}
+                onChange={(e) => setMetaKeywordInput(e.target.value)}
+                className="border border-gray-300 px-4 py-2.5 rounded-lg flex-1 focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+                placeholder="Add keyword"
+              />
+
+              <button
+                type="button"
+                onClick={addMetaKeyword}
+                className="flex items-center gap-2 px-5 py-2 bg-[#e94e4e] text-white rounded-lg shadow-md hover:bg-red-600 transition"
+              >
+                <CheckCircle size={18} className="text-white" />
+                Add
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {metaKeywords.map((k) => (
+                <span
+                  key={k}
+                  className="bg-lime-100 px-3 py-1.5 rounded flex items-center gap-2 text-smborder border-gray-300"
+                >
+                  {k}
+                  <button
+                    type="button"
+                    onClick={() => removeMetaKeyword(k)}
+                    className="text-red-500 font-bold hover:text-red-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* OG Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-2">
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                OG Title
+              </label>
+              <input
+                type="text"
+                value={ogTitle}
+                onChange={(e) => setOgTitle(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                OG Description
+              </label>
+              <textarea
+                value={ogDescription}
+                onChange={(e) => setOgDescription(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+                rows={2}
+              />
             </div>
           </div>
         </div>
@@ -364,7 +563,9 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
 
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Image Alt Text</label>
+              <label className="block font-medium text-gray-700 mb-1">
+                Image Alt Text
+              </label>
               <input
                 type="text"
                 value={imageAlt}

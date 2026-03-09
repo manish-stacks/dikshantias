@@ -14,6 +14,16 @@ export interface ICurrentAffairs extends Document {
   imageAlt?: string;
   active: boolean;
   affairDate?: Date;
+  // SEO fields
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string[];
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  index?: boolean;
+  follow?: boolean;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -50,8 +60,17 @@ const CurrentAffairsSchema: Schema = new Schema(
     imageAlt: String,
     active: { type: Boolean, default: true },
     affairDate: { type: Date, required: true },
+    // SEO fields
+    metaTitle: { type: String },
+    metaDescription: { type: String },
+    metaKeywords: [{ type: String }],
+    canonicalUrl: { type: String },
+    ogTitle: { type: String },
+    ogDescription: { type: String },
+    index: { type: Boolean, default: true },
+    follow: { type: Boolean, default: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const CurrentAffairs: Model<ICurrentAffairs> =
