@@ -213,7 +213,7 @@ const CoursePage = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-6 items-center">
             <div className="flex-1">
-              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#040c33] mb-4 leading-tight">
+              <h1 className="text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#040c33] mb-4 leading-tight">
                 {course.title}
               </h1>
               <div className="flex items-center gap-4 text-sm text-blue-950 mb-4">
