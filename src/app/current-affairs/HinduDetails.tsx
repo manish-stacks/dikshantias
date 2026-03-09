@@ -66,31 +66,6 @@ const HinduDetails: React.FC<HinduDetailsProps> = ({
 
       {/* Body */}
       {decodedContent ? (
-        //         <div
-        //   className="max-w-none text-gray-800 leading-relaxed space-y-6 [&>h1]:text-2xl [&>h2]:text-xl [&>p]:mb-5"
-        //   dangerouslySetInnerHTML={{ __html: decodedContent }}
-        // />
-
-        //     <div
-        //       className="
-        //         max-w-none text-gray-800 leading-relaxed space-y-8
-        //         [&>h1]:text-3xl [&>h1]:mt-10 [&>h1]:mb-6
-        //         [&>h2]:text-2xl [&>h2]:mt-8 [&>h2]:mb-5
-        //         [&>h3]:text-xl [&>h3]:mt-6 [&>h3]:mb-4
-        //         [&>p]:mb-6
-        //         [&>ul]:list-disc [&>ul]:pl-8 [&>ul]:mb-6
-        //         [&>ol]:list-decimal [&>ol]:pl-8 [&>ol]:mb-6
-        //         [&>li]:mb-3
-        //         [&>blockquote]:border-l-4 [&>blockquote]:border-gray-300 [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-gray-600 [&>blockquote]:my-6
-        //         [&>img]:rounded-lg [&>img]:my-8
-        //       "
-        //       dangerouslySetInnerHTML={{ __html: decodedContent }}
-        //     />
-        //   ) : (
-        //     <p className="text-gray-500 italic">No content available.</p>
-        //   )}
-        // </div>
-
         <div
           className="
             max-w-none text-gray-800 leading-relaxed space-y-6
@@ -102,8 +77,8 @@ const HinduDetails: React.FC<HinduDetailsProps> = ({
             [&>p]:mb-6
 
             /* Main UL */
-            [&>ul]:list-disc 
-            [&>ul]:pl-8 
+            [&>ul]:list-disc
+            [&>ul]:pl-8
             [&>ul]:mb-6
             [&>ul>li]:mb-3
 
@@ -117,19 +92,19 @@ const HinduDetails: React.FC<HinduDetailsProps> = ({
             [&>ul>li>ul>li>ul]:pl-14
 
             /* Ordered List */
-            [&>ol]:list-decimal 
-            [&>ol]:pl-8 
+            [&>ol]:list-decimal
+            [&>ol]:pl-8
             [&>ol]:mb-6
             [&>ol>li]:mb-3
 
-            [&>blockquote]:border-l-4 
-            [&>blockquote]:border-gray-300 
-            [&>blockquote]:pl-6 
-            [&>blockquote]:italic 
-            [&>blockquote]:text-gray-600 
+            [&>blockquote]:border-l-4
+            [&>blockquote]:border-gray-300
+            [&>blockquote]:pl-6
+            [&>blockquote]:italic
+            [&>blockquote]:text-gray-600
             [&>blockquote]:my-6
 
-            [&>img]:rounded-lg 
+            [&>img]:rounded-lg
             [&>img]:my-8
           "
           dangerouslySetInnerHTML={{ __html: decodedContent }}

@@ -26,6 +26,47 @@ export async function GET() {
   }
 }
 
+// export async function GET(req: Request) {
+//   try {
+//     await connectToDB();
+
+//     const { searchParams } = new URL(req.url);
+
+//     const page = Number(searchParams.get("page")) || 1;
+//     const limit = Number(searchParams.get("limit")) || 12;
+
+//     const skip = (page - 1) * limit;
+
+//     const currentAffairs = await CurrentAffairs.find({ active: true })
+//       .populate({ path: "category", model: BlogCategoryModel, select: "name" })
+//       .populate({
+//         path: "subCategory",
+//         model: SubCategoryModel,
+//         select: "name",
+//       })
+//       .select("title slug affairDate image imageAlt subCategory") // only needed fields
+//       .sort({ affairDate: -1 })
+//       .skip(skip)
+//       .limit(limit)
+//       .lean(); // huge performance boost
+
+//     const total = await CurrentAffairs.countDocuments({ active: true });
+
+//     return NextResponse.json({
+//       data: currentAffairs,
+//       total,
+//       page,
+//       totalPages: Math.ceil(total / limit),
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     return NextResponse.json(
+//       { error: "Failed to fetch current affairs" },
+//       { status: 500 },
+//     );
+//   }
+// }
+
 // ------------------ CREATE NEW ------------------
 
 // export async function POST(req: Request) {
