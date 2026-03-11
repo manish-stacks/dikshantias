@@ -34,6 +34,8 @@ export default function RootLayout({
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-ZB3WCMNJ4D"
         />
+        <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
+
 
         <Script id="google-analytics">
           {`

@@ -8,22 +8,49 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 interface Course {
-  _id: string;
-  title: string;
-  shortContent: string;
-  duration: string;
-  lectures: number;
-  originalPrice: number;
-  price: number;
-  courseMode: string;
-  badge?: string;
-  badgeColor?: string;
-  image: {
-    url: string;
-    alt: string;
-  };
-  rating?: number;
-  url?: string;
+  id: number;
+  name: string;
+  slug: string;
+
+  imageUrl?: string;
+
+  displayOrder?: number;
+  programId?: number;
+  subjectId?: number[];
+
+  startDate?: string;
+  endDate?: string;
+
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+
+  status: "active" | "inactive";
+
+  shortDescription?: string;
+  longDescription?: string;
+
+  batchPrice?: number;
+  batchDiscountPrice?: number;
+  gst?: number;
+  offerValidityDays?: number;
+
+  quizIds?: number[];
+  testSeriesIds?: number[];
+
+  isEmi: boolean;
+  emiTotal?: number;
+
+  emiSchedule?: {
+    amount: number;
+    dueDate: string;
+  }[];
+
+  category?: string;
+
+  c_status: "Start Soon" | "In Progress" | "Partially Complete" | "Completed";
+
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
@@ -32,31 +59,27 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
       {/* Card Header with Image and Badge */}
       <div className="relative w-full aspect-[16/9] overflow-hidden rounded">
         <Image
-          src={course.image?.url || "/img/Prelims-Foundation-Course.webp"}
-          alt={course.image?.alt || course.title}
+          src={course?.imageUrl || "/img/Prelims-Foundation-Course.webp"}
+          alt={course?.name}
           fill
           sizes="(max-width: 768px) 100vw, 25vw"
           className="object-cover"
         />
 
         {/* Badge */}
-        {course.badge?.trim() && (
-          <div
-            className={`absolute top-3 left-3 ${
-              course.badgeColor || "bg-blue-600"
-            } text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium`}
-          >
-            {course.badge}
+        {course.category && (
+          <div className="absolute top-3 left-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
+            {course.category}
           </div>
         )}
 
         {/* Price */}
         <div className="absolute top-3 right-3 bg-white rounded-lg px-2 sm:px-3 py-1 shadow-md">
           <div className="text-gray-400 text-xs sm:text-sm line-through">
-            ₹{course.originalPrice}
+            ₹{course.batchPrice}
           </div>
           <div className="text-red-600 text-sm sm:text-lg font-bold -mt-1">
-            ₹{course.price}
+            ₹{course.batchDiscountPrice}
           </div>
         </div>
 
@@ -72,19 +95,22 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
       {/* Card Content */}
       <div className="p-6 mt-2 md:mt-2">
         <h3 className="text-[18px] font-bold text-[#00072c] mb-2">
-          {course.title}
+          {course.name}
         </h3>
 
         {/* Duration and Lessons */}
         <div className="flex items-center justify-between mb-4 text-sm text-[#00072c]">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1 text-orange-500" />
-            <span>{course.duration}</span>
+            <span>
+              Start: {new Date(course.startDate || "").toLocaleDateString()}
+            </span>
           </div>
-          <div className="flex items-center">
+
+          {/* <div className="flex items-center">
             <Book className="w-4 h-4 mr-1 text-orange-500" />
-            <span>No. of hours - {course.lectures}</span>
-          </div>
+            <span>Status - {course.c_status}</span>
+          </div> */}
         </div>
 
         {/* Buttons */}
@@ -127,18 +153,27 @@ const OnlineCourse: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(4);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await fetch("/api/admin/courses");
+        const res = await fetch(`${apiUrl}/batchs?limit=100`);
         const data = await res.json();
 
+        console.log("data", data);
+
         // ✅ filter only online courses
-        const onlineCourses = data.filter(
-          (course: Course) => course.courseMode === "online",
+        const onlineCourses = data.items.filter(
+          (course: Course) => course.category === "online",
         );
-        setCourses(onlineCourses);
+
+        const isActiveCourses = onlineCourses.filter(
+          (course: Course) => course.status === "active",
+        );
+
+        console.log("onlineCourses", isActiveCourses);
+        setCourses(isActiveCourses);
       } catch (error) {
         console.error("Error fetching courses:", error);
       } finally {
@@ -208,7 +243,7 @@ const OnlineCourse: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 -mt-7 md:mt-1 lg:grid-cols-4 gap-6">
             {courses.slice(0, visibleCount).map((course) => (
-              <CourseCard key={course._id} course={course} />
+              <CourseCard key={course.id} course={course} />
             ))}
           </div>
 

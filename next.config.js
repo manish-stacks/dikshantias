@@ -10,9 +10,10 @@ const nextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "placehold.co", pathname: "/**" },
       {
-        protocol: "https",
-        hostname: "dikshantiasnew-web.s3.ap-south-1.amazonaws.com",
-      },
+      protocol: "https",
+      hostname: "**.amazonaws.com",
+    },
+      
     ],
   },
 
