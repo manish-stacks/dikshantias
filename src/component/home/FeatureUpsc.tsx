@@ -11,22 +11,49 @@ import Image from "next/image";
 import Link from "next/link";
 
 interface Program {
-  _id: string;
+  id: number;
+  name: string;
   slug: string;
-  badge?: string;
-  badgeColor?: string;
-  title: string;
-  description: string;
-  originalPrice: number;
-  currentPrice: number;
-  rating?: number;
-  duration: string; // from API
-  students?: string; // optional
-  lectures?: number; // fallback if students not present
-  features: string[];
-  moreFeatures?: number;
-  image: string;
-  backcolor?: string;
+
+  imageUrl?: string;
+
+  displayOrder?: number;
+  programId?: number;
+  subjectId?: number[];
+
+  startDate?: string;
+  endDate?: string;
+
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+
+  status: "active" | "inactive";
+
+  shortDescription?: string;
+  longDescription?: string;
+
+  batchPrice?: number;
+  batchDiscountPrice?: number;
+  gst?: number;
+  offerValidityDays?: number;
+
+  quizIds?: number[];
+  testSeriesIds?: number[];
+
+  isEmi: boolean;
+  emiTotal?: number;
+
+  emiSchedule?: {
+    amount: number;
+    dueDate: string;
+  }[];
+
+  category?: string;
+
+  c_status: "Start Soon" | "In Progress" | "Partially Complete" | "Completed";
+
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const FeatureUpsc: React.FC = () => {
@@ -34,31 +61,32 @@ const FeatureUpsc: React.FC = () => {
   const [slidesToShow, setSlidesToShow] = useState<number>(1);
   const [programs, setPrograms] = useState<Program[]>([]);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   // Fetch courses from API
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const res = await fetch("/api/admin/courses");
+        const res = await fetch(`${apiUrl}/batchs?limit=100`);
         const data = await res.json();
-        const formatted = data.map((course) => ({
-          _id: course._id,
-          slug: course.slug,
-          badge: course.badge || "",
-          badgeColor: course.badgeColor || "bg-gray-500",
-          title: course.title,
-          description: course.shortContent || "",
-          originalPrice: course.originalPrice,
-          currentPrice: course.price,
-          duration: course.duration ? `${course.duration}` : "N/A",
-          students: course.students || `No. of hours - ${course.lectures || 0}`,
-          features: course.features || [],
-          moreFeatures:
-            course.features?.length > 2 ? course.features.length - 2 : 0,
-          image: course.image?.url || "/img/default-course.webp",
-          backcolor: "purple-200",
-        }));
-        setPrograms(formatted);
+        // const formatted = data.map((course) => ({
+        //   id: course._id,
+        //   slug: course.slug,
+        //   badge: course.badge || "",
+        //   badgeColor: course.badgeColor || "bg-gray-500",
+        //   title: course.title,
+        //   description: course.shortContent || "",
+        //   originalPrice: course.originalPrice,
+        //   currentPrice: course.price,
+        //   duration: course.duration ? `${course.duration}` : "N/A",
+        //   students: course.students || `No. of hours - ${course.lectures || 0}`,
+        //   features: course.features || [],
+        //   moreFeatures:
+        //     course.features?.length > 2 ? course.features.length - 2 : 0,
+        //   image: course.image?.url || "/img/default-course.webp",
+        //   backcolor: "purple-200",
+        // }));
+        setPrograms(data?.items || []);
       } catch (err) {
         console.error("Failed to fetch programs:", err);
       }
@@ -125,7 +153,7 @@ const FeatureUpsc: React.FC = () => {
             >
               {programs.map((program) => (
                 <div
-                  key={program._id}
+                  key={program.id}
                   className="flex-shrink-0 md:px-3 px-0"
                   style={{ width: `${100 / slidesToShow}%` }}
                 >
@@ -182,23 +210,19 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
   return (
     <div className="rounded overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow bg-white h-full relative">
       {/* Badge */}
-      {program.badge?.trim() && (
-        <div
-          className={`absolute top-4 left-4 ${
-            program.badgeColor || "bg-blue-600"
-          } text-white px-3 py-1 rounded-full text-sm font-medium z-10`}
-        >
-          {program.badge}
+      {program.category && (
+        <div className="absolute top-3 left-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
+          {program.category}
         </div>
       )}
 
       {/* Price */}
-      <div className="absolute top-2 right-3 bg-white rounded-lg shadow-md px-3 py-2 z-10 text-sm">
-        <div className="text-blue-400 line-through text-xs">
-          ₹{program.originalPrice.toLocaleString()}
+      <div className="absolute top-3 right-3 bg-white rounded-lg px-2 sm:px-3 py-1 shadow-md">
+        <div className="text-gray-400 text-xs sm:text-sm line-through">
+          ₹{program.batchPrice}
         </div>
-        <div className="text-[#f43144] font-bold">
-          ₹{program.currentPrice.toLocaleString()}
+        <div className="text-red-600 text-sm sm:text-lg font-bold -mt-1">
+          ₹{program.batchDiscountPrice}
         </div>
       </div>
 
@@ -215,8 +239,8 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
 
       <div className="relative w-full aspect-[16/9] overflow-hidden rounded">
         <Image
-          src={program.image || "/img/Prelims-Foundation-Course.webp"}
-          alt={program.image || program.title}
+          src={program.imageUrl || "/img/Prelims-Foundation-Course.webp"}
+          alt={program.name}
           fill
           sizes="(max-width: 768px) 100vw, 25vw"
           className="object-cover"
@@ -225,24 +249,27 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
 
       {/* Content */}
       <div className="p-4 flex flex-col h-auto">
-        <h3 className="text-lg font-bold text-[#040c33]">{program.title}</h3>
-        <p className="text-blue-950 text-sm mt-1 mb-3 line-clamp-2">
+        <h3 className="text-lg font-bold text-[#040c33]">{program.name}</h3>
+        {/* <p className="text-blue-950 text-sm mt-1 mb-3 line-clamp-2">
           {program.description}
-        </p>
+        </p> */}
 
-        <div className="flex justify-between text-[#ee6b36] text-sm mb-3">
-          <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
-            {program.duration}
+        <div className="flex items-center justify-between mb-4 text-sm text-[#00072c]">
+          <div className="flex items-center">
+            <Clock className="w-4 h-4 mr-1 text-orange-500" />
+            <span>
+              Start: {new Date(program.startDate || "").toLocaleDateString()}
+            </span>
           </div>
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4" />
-            {program.students}
-          </div>
+
+          {/* <div className="flex items-center">
+                    <Book className="w-4 h-4 mr-1 text-orange-500" />
+                    <span>Status - {program.c_status}</span>
+                  </div> */}
         </div>
 
         {/* Features */}
-        <div className="space-y-2 mb-4">
+        {/* <div className="space-y-2 mb-4">
           {program.features.slice(0, 2).map((feature, i) => (
             <div
               key={i}
@@ -258,9 +285,9 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
               features
             </div>
           )}
-        </div>
+        </div> */}
         <div className="mt-auto flex justify-center w-full">
-          <Link href={`/online-course/${program.slug}`} className="w-full">
+          <Link href={`/online-live-course/${program.slug}`} className="w-full">
             <button className="bg-blue-950 hover:bg-[#d12a3a] w-full text-white py-2 px-5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1">
               View Details
             </button>
