@@ -433,33 +433,34 @@ const router = useRouter();
                     <div className="flex items-center gap-3">
                       <Clock className="w-4 h-4 text-red-700" />
                       <span className="text-blue-950">
-                        Duration:{" "}
-                        {course.startDate &&
+                        Validity: As Per Course duration
+                        {/* Validity:{" "} */}
+                        {/* {course.startDate &&
                           new Date(course.startDate).toLocaleDateString()}{" "}
                         -{" "}
                         {course.endDate &&
-                          new Date(course.endDate).toLocaleDateString()}
+                          new Date(course.endDate).toLocaleDateString()} */}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {/* <div className="flex items-center gap-3">
                       <Globe className="w-4 h-4 text-red-700" />
                       <span className="text-blue-950">Hindi</span>
-                    </div>
+                    </div> */}
 
                     <div className="flex items-center gap-3">
                       <Smartphone className="w-4 h-4 text-red-700" />
                       <span className="text-blue-950">
-                        Available on the app
+                        Classroom Programme & Live classes on Dikshant IAS App.
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {/* <div className="flex items-center gap-3">
                       <Infinity className="w-4 h-4 text-red-700" />
                       <span className="text-blue-950">
                         Unlimited access forever
                       </span>
-                    </div>
+                    </div> */}
                   </div>
 
                   <input
