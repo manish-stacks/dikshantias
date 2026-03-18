@@ -7,6 +7,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.pexels.com" },
+      { protocol: "https", hostname: "i.ibb.co" },
+
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "placehold.co", pathname: "/**" },
       {

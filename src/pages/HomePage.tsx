@@ -18,7 +18,7 @@ import React from "react";
 function HomePage() {
   return (
     <>
-      <HomePopup />
+      {/* <HomePopup /> */}
       {/* <div className="relative z-20">
         <GlobalBanner />
       </div> */}
