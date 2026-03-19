@@ -12,7 +12,7 @@ export default function AuthInitializer() {
   }, [initializeAuth]);
 
   if (isInitializing) {
-    return <div>Loading authentication...</div>; // or nice skeleton
+    return null
   }
 
   return null;

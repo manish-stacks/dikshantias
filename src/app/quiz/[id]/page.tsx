@@ -1,4 +1,4 @@
-import QuizPlayer from '@/component/quiz/QuizDetails'
+import { QuizPlayer } from '@/component/quiz/QuizDetails'
 import React from 'react'
 
 const page = ({ params }) => {

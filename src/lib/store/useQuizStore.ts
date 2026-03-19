@@ -12,17 +12,18 @@ export const useQuizStore = create((set, get) => ({
   questionStartTime: null,
   isLastQuestion: false,
   totalQuestions: 0,
+  result: null,
   score: null,
   isSubmitted: false,
   loading: false,
   error: null,
 
 
-  timeRemaining: 0,               
+  timeRemaining: 0,
   timerInterval: null,
 
-  currentQuestionTimer: 30,         
-  currentQuestionTimeLimit: 30,    
+  currentQuestionTimer: 30,
+  currentQuestionTimeLimit: 30,
   questionTimerInterval: null,
 
   logAxiosError: (label, err) => {
@@ -254,7 +255,7 @@ export const useQuizStore = create((set, get) => ({
       console.log("submitQuiz SUCCESS:", res.data);
       const result = res.data.data;
 
-      set({ score: result.score, loading: false });
+      set({ score: result.score, loading: false, result });
 
       if (typeof onResult === "function") {
         onResult(result);

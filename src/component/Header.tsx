@@ -44,19 +44,6 @@ const COURSES_MENU = [
   { href: "/video-courses", icon: Video, label: "Video Courses", desc: "Learn at your pace" },
 ];
 
-const QUIZ_MENU = [
-  { href: "/quiz/subjective", icon: Zap, label: "Daily Quiz", desc: "Quick 10-min practice" },
-  { href: "/quiz/subject-wise", icon: BookOpen, label: "Subject-wise Quiz", desc: "Topic-focused sets" },
-  { href: "/quiz/previous-year", icon: FileText, label: "Previous Year Quiz", desc: "Past exam questions" },
-  { href: "/quiz/leaderboard", icon: Trophy, label: "Leaderboard", desc: "Top performers" },
-];
-
-const TEST_SERIES_MENU = [
-  { href: "/test-series/prelims", icon: Target, label: "Prelims Test Series", desc: "Full-length mock tests" },
-  { href: "/test-series/mains", icon: ClipboardList, label: "Mains Test Series", desc: "Descriptive practice" },
-  { href: "/test-series/sectional", icon: BarChart2, label: "Sectional Tests", desc: "GS, CSAT & optionals" },
-  { href: "/test-series/results", icon: GraduationCap, label: "My Results", desc: "Track your progress" },
-];
 
 /* ────────────────────────────────────────────────────────────── */
 /*  Main Header                                                   */
@@ -196,12 +183,9 @@ const Header: React.FC = () => {
 
               <NavLink href="/quiz">{t("Quiz") || "Quiz"}</NavLink>
 
+              <NavLink href="/test-series">{t("Test Series") || "Test Series"}</NavLink>
 
-              {/* ── Test Series (NEW) ───────────────────── */}
-              <DropdownMenu label="Test Series" menuKey="testSeries" badge="New" badgeColor="bg-emerald-500"
-                openDropdown={openDropdown} onEnter={handleMouseEnter} onLeave={handleMouseLeave}>
-                <MegaDropdown items={TEST_SERIES_MENU} />
-              </DropdownMenu>
+            
 
               <NavLink href="/scholarship-programme">{t("scholarship") || "Scholarship"}</NavLink>
               <NavLink href="/blogs">{t("blogs") || "Blogs"}</NavLink>
@@ -323,16 +307,10 @@ const Header: React.FC = () => {
             </MobileAccordion>
             <MobileLink href="/quiz" onClick={toggleMobileMenu}>Quiz</MobileLink>
 
+            <MobileLink href="/test-series" onClick={toggleMobileMenu}>Test Series</MobileLink>
            
 
-            <MobileAccordion label="Test Series" badge="New" badgeColor="bg-emerald-500"
-              isOpen={openMobileDropdown === "testSeries"} onToggle={() => handleMobileDropdownToggle("testSeries")}>
-              {TEST_SERIES_MENU.map((item) => (
-                <MobileSubLink key={item.href} href={item.href} icon={item.icon} onClick={toggleMobileMenu}>
-                  {item.label}
-                </MobileSubLink>
-              ))}
-            </MobileAccordion>
+           
 
             <MobileLink href="/scholarship-programme" onClick={toggleMobileMenu}>
               {t("scholarship") || "Scholarship"}

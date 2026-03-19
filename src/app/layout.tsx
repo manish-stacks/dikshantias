@@ -50,7 +50,7 @@ export default function RootLayout({
 
       <body>
         <AuthInitializer/>
-          
+       
       
         <Providers>
           <Suspense fallback={<div>Loading...</div>}>

@@ -4,11 +4,12 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axios";
-import {  Lock, CheckCircle } from "lucide-react";
-import { PaymentStatus } from "./PaymentStatus";  
-import { ConfirmModal } from "./ConfirmModal";     
+import { Lock, CheckCircle } from "lucide-react";
+import { PaymentStatus } from "./PaymentStatus";
+import { ConfirmModal } from "./ConfirmModal";
 import ilustartion from './illustration.png'
 import { useAuthStore } from "@/lib/store/auth.store";
+import DikshantAuthModal from "@/components/auth-model/DikshantAuthModal";
 // ────────────────────────────────────────────────
 //  TYPES
 // ────────────────────────────────────────────────
@@ -133,9 +134,8 @@ const QuizCard = ({
     <button
       onClick={() => onPress(item)}
       disabled={!item.isFree && !canAttempt}
-      className={`group flex bg-white rounded-xl border ${
-        !item.isFree && !canAttempt ? "opacity-60 cursor-not-allowed" : "hover:border-red-200 hover:shadow-md"
-      } transition-all duration-200 overflow-hidden text-left w-full`}
+      className={`group flex bg-white rounded-xl border ${!item.isFree && !canAttempt ? "opacity-60 cursor-not-allowed" : "hover:border-red-200 hover:shadow-md"
+        } transition-all duration-200 overflow-hidden text-left w-full`}
     >
       <div className="relative w-28 flex-shrink-0 bg-slate-100">
         {item.image && (
@@ -149,13 +149,12 @@ const QuizCard = ({
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20" />
 
         <span
-          className={`absolute bottom-2 left-2 text-xs font-bold px-2.5 py-1 rounded-full ${
-            item.isFree
+          className={`absolute bottom-2 left-2 text-xs font-bold px-2.5 py-1 rounded-full ${item.isFree
               ? "bg-green-100 text-green-800"
               : isPurchased
-              ? "bg-emerald-100 text-emerald-800"
-              : "bg-red-600 text-white"
-          }`}
+                ? "bg-emerald-100 text-emerald-800"
+                : "bg-red-600 text-white"
+            }`}
         >
           {item.isFree ? "FREE" : isPurchased ? "PURCHASED" : `₹${item.price}`}
         </span>
@@ -236,11 +235,10 @@ const FilterChip = ({
 }) => (
   <button
     onClick={onPress}
-    className={`px-4 py-1.5 text-sm font-medium rounded-full border transition-colors ${
-      active
+    className={`px-4 py-1.5 text-sm font-medium rounded-full border transition-colors ${active
         ? "bg-red-600 text-white border-red-600"
         : "bg-white text-slate-700 border-slate-300 hover:border-red-300 hover:text-red-700"
-    }`}
+      }`}
   >
     {label}
   </button>
@@ -252,14 +250,14 @@ const FilterChip = ({
 
 export default function AllQuizzes() {
   const router = useRouter();
-
-  const {user} = useAuthStore()
+  const [openLogin, setOpenLogin] = useState(false);
+  const { user } = useAuthStore()
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [bundles, setBundles] = useState<Bundle[]>([]);
   const [loading, setLoading] = useState(true);
   const [bundleLoading, setBundleLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-
+const [pendingQuiz, setPendingQuiz] = useState<Quiz | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -321,7 +319,7 @@ export default function AllQuizzes() {
     fetchQuizzes(1, "");
     fetchBundles();
   }, [fetchQuizzes, fetchBundles]);
-  
+
 
   // Debounced search
   useEffect(() => {
@@ -348,33 +346,32 @@ export default function AllQuizzes() {
     return () => observer.disconnect();
   }, [currentPage, totalPages, loadingMore, searchQuery, fetchQuizzes]);
 
+
   // ─── Check purchase status when quiz is selected ──────────
-  const checkPurchaseStatus = useCallback(
-    async (quiz: Quiz) => {
-      if (quiz.isFree) {
-        setIsPurchased(true);
-        setRemainingAttempts(null);
-        setCanAttempt(true);
-        return;
-      }
+const checkPurchaseStatus = useCallback(
+  async (quiz: Quiz) => {
+    if (quiz.isFree) {
+      return { purchased: true, canAttempt: true };
+    }
 
-      try {
-        const res = await axiosInstance.get("/orders/already-purchased", {
-          params: { type: "quiz", itemId: quiz.id },
-        });
+    try {
+      const res = await axiosInstance.get("/orders/already-purchased", {
+        params: { type: "quiz", itemId: quiz.id },
+      });
 
-        const { purchased = false, remainingAttempts = null, canAttempt = true } = res.data || {};
-        setIsPurchased(purchased);
-        setRemainingAttempts(remainingAttempts);
-        setCanAttempt(canAttempt);
-      } catch (err) {
-        console.error("Purchase status check failed", err);
-        setIsPurchased(false);
-        setCanAttempt(false);
-      }
-    },
-    []
-  );
+      const { purchased = false, canAttempt = true } = res.data || {};
+
+      setIsPurchased(purchased);
+      setCanAttempt(canAttempt);
+
+      return { purchased, canAttempt };
+    } catch (err) {
+      console.error("Purchase status check failed", err);
+      return { purchased: false, canAttempt: false };
+    }
+  },
+  []
+);
 
   // ─── Handle quiz click ────────────────────────────────────
   const handleQuizPress = useCallback(
@@ -386,25 +383,34 @@ export default function AllQuizzes() {
     [checkPurchaseStatus]
   );
 
-  
+
 
   const handleBundlePress = (bundle: Bundle) => {
     router.push(`/quiz-bundles/${bundle.id}`);
   };
 
   // ─── Start quiz after confirmation ────────────────────────
-  const handleStartQuiz = () => {
-    if (!selectedQuiz) return;
+const handleStartQuiz = async () => {
+  if (!selectedQuiz) return;
 
-    if (selectedQuiz.isFree || isPurchased) {
-      router.push(`/quiz/${selectedQuiz.id}`);
-    } else {
-      // trigger payment
-      initiateRazorpayPayment();
-    }
-    setShowConfirmModal(false);
-  };
+  if (!user) {
+    setPendingQuiz(selectedQuiz);
+    setShowConfirmModal(false)
+    setOpenLogin(true);
+    return;
+  }
 
+  // ✅ Always re-check purchase before proceeding
+const { purchased } = await checkPurchaseStatus(selectedQuiz);
+
+if (selectedQuiz.isFree || purchased) {
+  router.push(`/quiz/${selectedQuiz.id}`);
+} else {
+  initiateRazorpayPayment();
+}
+  
+  setShowConfirmModal(false);
+};
   // ─── Razorpay Payment Flow ────────────────────────────────
   const initiateRazorpayPayment = async () => {
     if (paying || !selectedQuiz?.price) return;
@@ -414,7 +420,7 @@ export default function AllQuizzes() {
       setPaymentStatus(null);
 
       const orderRes = await axiosInstance.post("/orders", {
-        userId: user?.id, 
+        userId: user?.id,
         type: "quiz",
         itemId: selectedQuiz.id,
         amount: selectedQuiz.price,
@@ -431,7 +437,7 @@ export default function AllQuizzes() {
         image: "https://dikshantiasnew-web.s3.amazonaws.com/logo.png",
         order_id: razorOrder.id,
         prefill: {
-          name: user?.name, 
+          name: user?.name,
           email: user?.email,
           contact: user?.mobile,
         },
@@ -491,265 +497,265 @@ export default function AllQuizzes() {
   //  RENDER
   // ──────────────────────────────────────────────────────────
 
-return (
-  <div className="min-h-screen bg-slate-50 pb-12">
-{/* Hero Banner */}
-<section className="bg-gradient-to-br from-red-600 to-rose-700 text-white py-5 mt-4 lg:py-8">
-  <div className="max-w-7xl mx-auto px-5 lg:px-10 flex flex-col lg:flex-row items-center gap-8">
+  return (
+    <div className="min-h-screen bg-slate-50 pb-12">
+      {/* Hero Banner */}
+      <section className="bg-gradient-to-br from-red-600 to-rose-700 text-white py-5 mt-4 lg:py-8">
+        <div className="max-w-7xl mx-auto px-5 lg:px-10 flex flex-col lg:flex-row items-center gap-8">
 
-    {/* Left Content */}
-    <div className="lg:w-1/2">
+          {/* Left Content */}
+          <div className="lg:w-1/2">
 
-      {/* Live Badge */}
-      <div className="inline-block bg-white/20 text-white text-xs font-medium px-3 py-1 rounded mb-4">
-        • LIVE
-      </div>
-
-      {/* Heading */}
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-snug mb-4">
-        All India Pro Live Tests & <br />
-        Daily <span className="text-green-300">Free</span> Live Quizzes
-      </h1>
-
-      {/* Divider */}
-      <div className="border-t border-dashed border-white/30 my-4"></div>
-
-      {/* Features */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-white/90 text-sm mb-6">
-        <p>• All India ranking with live tests</p>
-        <p>• Performance analysis</p>
-        <p>• Daily free quizzes</p>
-        <p>• Detailed solutions</p>
-      </div>
-
-      {/* CTA */}
-      <button className="bg-white text-red-600 hover:bg-gray-100 text-sm font-medium px-5 py-2 rounded shadow-sm transition">
-        Get Started
-      </button>
-
-    </div>
-
-    {/* Right Image */}
-    <div className="lg:w-1/2 flex justify-center relative">
-
-      {/* Soft Glow */}
-      <div className="absolute w-52 h-52 bg-white/10 blur-2xl rounded-full"></div>
-
-      <Image
-        src={ilustartion}
-        alt="student"
-        className="w-56 lg:w-full h-full relative z-10"
-      />
-    </div>
-
-  </div>
-</section>
-    {/* Main Content Area */}
-    <div className="max-w-7xl mx-auto px-5 md:px-8 mt-10 flex flex-col lg:flex-row gap-8">
-      {/* Sidebar – Filters & Navigation */}
-      <aside className="lg:w-72 flex-shrink-0">
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6 sticky top-8">
-          {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-red-700 flex items-center justify-center text-white font-bold text-xl">
-              D
+            {/* Live Badge */}
+            <div className="inline-block bg-white/20 text-white text-xs font-medium px-3 py-1 rounded mb-4">
+              • LIVE
             </div>
-            <div>
-              <div className="font-bold text-lg tracking-tight">DIKSHANT</div>
-              <div className="text-xs text-red-600 font-semibold">Quiz Arena</div>
+
+            {/* Heading */}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-snug mb-4">
+              All India Pro Live Tests & <br />
+              Daily <span className="text-green-300">Free</span> Live Quizzes
+            </h1>
+
+            {/* Divider */}
+            <div className="border-t border-dashed border-white/30 my-4"></div>
+
+            {/* Features */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-white/90 text-sm mb-6">
+              <p>• All India ranking with live tests</p>
+              <p>• Performance analysis</p>
+              <p>• Daily free quizzes</p>
+              <p>• Detailed solutions</p>
             </div>
+
+            {/* CTA */}
+            <button className="bg-white text-red-600 hover:bg-gray-100 text-sm font-medium px-5 py-2 rounded shadow-sm transition">
+              Get Started
+            </button>
+
           </div>
 
-          {/* Search */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search quizzes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-12 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition-all"
+          {/* Right Image */}
+          <div className="lg:w-1/2 flex justify-center relative">
+
+            {/* Soft Glow */}
+            <div className="absolute w-52 h-52 bg-white/10 blur-2xl rounded-full"></div>
+
+            <Image
+              src={ilustartion}
+              alt="student"
+              className="w-56 lg:w-full h-full relative z-10"
             />
-            <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
+          </div>
+
+        </div>
+      </section>
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-5 md:px-8 mt-10 flex flex-col lg:flex-row gap-8">
+        {/* Sidebar – Filters & Navigation */}
+        <aside className="lg:w-72 flex-shrink-0">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6 sticky top-8">
+            {/* Brand */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-700 flex items-center justify-center text-white font-bold text-xl">
+                D
+              </div>
+              <div>
+                <div className="font-bold text-lg tracking-tight">DIKSHANT</div>
+                <div className="text-xs text-red-600 font-semibold">Quiz Arena</div>
+              </div>
+            </div>
+
+            {/* Search */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search quizzes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-12 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition-all"
+              />
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* Section Toggle */}
-          <div className="flex flex-col gap-1.5">
-            <button
-              onClick={() => setActiveSection("quizzes")}
-              className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                activeSection === "quizzes"
-                  ? "bg-red-50 text-red-700"
-                  : "text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <span>Quizzes</span>
-              <span className="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full">
-                {quizzes.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveSection("bundles")}
-              className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                activeSection === "bundles"
-                  ? "bg-red-50 text-red-700"
-                  : "text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <span>Bundles</span>
-              {bundles.length > 0 && (
-                <span className="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full">
-                  {bundles.length}
-                </span>
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
+                >
+                  ✕
+                </button>
               )}
-            </button>
+            </div>
+
+            {/* Section Toggle */}
+            <div className="flex flex-col gap-1.5">
+              <button
+                onClick={() => setActiveSection("quizzes")}
+                className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeSection === "quizzes"
+                    ? "bg-red-50 text-red-700"
+                    : "text-slate-600 hover:bg-slate-50"
+                  }`}
+              >
+                <span>Quizzes</span>
+                <span className="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full">
+                  {quizzes.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveSection("bundles")}
+                className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeSection === "bundles"
+                    ? "bg-red-50 text-red-700"
+                    : "text-slate-600 hover:bg-slate-50"
+                  }`}
+              >
+                <span>Bundles</span>
+                {bundles.length > 0 && (
+                  <span className="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full">
+                    {bundles.length}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Filters – only for quizzes */}
+            {activeSection === "quizzes" && (
+              <div className="space-y-3 pt-2">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Filter
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <FilterChip
+                    label="All"
+                    active={activeFilter === "all"}
+                    onPress={() => setActiveFilter("all")}
+                  />
+                  <FilterChip
+                    label="Free"
+                    active={activeFilter === "free"}
+                    onPress={() => setActiveFilter("free")}
+                  />
+                  <FilterChip
+                    label="Paid"
+                    active={activeFilter === "paid"}
+                    onPress={() => setActiveFilter("paid")}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-slate-800">
+              {activeSection === "quizzes" ? "Quiz Arena" : "Bundle Packs"}
+            </h1>
+            <p className="text-slate-600 mt-1">
+              {activeSection === "quizzes"
+                ? `${filteredQuizzes.length} ${filteredQuizzes.length === 1 ? "quiz" : "quizzes"} available`
+                : `${bundles.length} bundle${bundles.length !== 1 ? "s" : ""}`}
+            </p>
           </div>
 
-          {/* Filters – only for quizzes */}
-          {activeSection === "quizzes" && (
-            <div className="space-y-3 pt-2">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Filter
+          {activeSection === "quizzes" ? (
+            <>
+              {loading ? (
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                  {Array(6)
+                    .fill(0)
+                    .map((_, i) => (
+                      <SkeletonCard key={i} />
+                    ))}
+                </div>
+              ) : filteredQuizzes.length === 0 ? (
+                <div className="py-20 text-center">
+                  <p className="text-xl font-medium text-slate-700">No quizzes found</p>
+                  <p className="text-slate-500 mt-3">
+                    {searchQuery ? "Try different keywords" : "Check back soon for new content"}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-5 lg:grid-cols-2">
+                  {filteredQuizzes.map((quiz) => (
+                    <QuizCard
+                      key={quiz.id}
+                      item={quiz}
+                      onPress={handleQuizPress}
+                      isPurchased={isPurchased && selectedQuiz?.id === quiz.id}
+                      remainingAttempts={remainingAttempts}
+                      canAttempt={canAttempt}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <div ref={loaderRef} className="py-12 flex justify-center text-slate-500 text-sm font-medium">
+                {loadingMore && "Loading more quizzes..."}
+                {!loadingMore && currentPage < totalPages && "Scroll for more"}
               </div>
-              <div className="flex flex-wrap gap-2">
-                <FilterChip
-                  label="All"
-                  active={activeFilter === "all"}
-                  onPress={() => setActiveFilter("all")}
-                />
-                <FilterChip
-                  label="Free"
-                  active={activeFilter === "free"}
-                  onPress={() => setActiveFilter("free")}
-                />
-                <FilterChip
-                  label="Paid"
-                  active={activeFilter === "paid"}
-                  onPress={() => setActiveFilter("paid")}
-                />
-              </div>
-            </div>
+            </>
+          ) : (
+            <>
+              {bundleLoading ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {Array(6)
+                    .fill(0)
+                    .map((_, i) => (
+                      <SkeletonCard key={i} />
+                    ))}
+                </div>
+              ) : bundles.length === 0 ? (
+                <div className="py-20 text-center">
+                  <p className="text-xl font-medium text-slate-700">No bundles available yet</p>
+                  <p className="text-slate-500 mt-3">Premium collections coming soon</p>
+                </div>
+              ) : (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {bundles.map((bundle) => (
+                    <BundleCard key={bundle.id} item={bundle} onPress={handleBundlePress} />
+                  ))}
+                </div>
+              )}
+            </>
           )}
-        </div>
-      </aside>
+        </main>
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-800">
-            {activeSection === "quizzes" ? "Quiz Arena" : "Bundle Packs"}
-          </h1>
-          <p className="text-slate-600 mt-1">
-            {activeSection === "quizzes"
-              ? `${filteredQuizzes.length} ${filteredQuizzes.length === 1 ? "quiz" : "quizzes"} available`
-              : `${bundles.length} bundle${bundles.length !== 1 ? "s" : ""}`}
-          </p>
-        </div>
-
-        {activeSection === "quizzes" ? (
-          <>
-            {loading ? (
-              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {Array(6)
-                  .fill(0)
-                  .map((_, i) => (
-                    <SkeletonCard key={i} />
-                  ))}
-              </div>
-            ) : filteredQuizzes.length === 0 ? (
-              <div className="py-20 text-center">
-                <p className="text-xl font-medium text-slate-700">No quizzes found</p>
-                <p className="text-slate-500 mt-3">
-                  {searchQuery ? "Try different keywords" : "Check back soon for new content"}
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-5 lg:grid-cols-2">
-                {filteredQuizzes.map((quiz) => (
-                  <QuizCard
-                    key={quiz.id}
-                    item={quiz}
-                    onPress={handleQuizPress}
-                    isPurchased={isPurchased && selectedQuiz?.id === quiz.id}
-                    remainingAttempts={remainingAttempts}
-                    canAttempt={canAttempt}
-                  />
-                ))}
-              </div>
-            )}
-
-            <div ref={loaderRef} className="py-12 flex justify-center text-slate-500 text-sm font-medium">
-              {loadingMore && "Loading more quizzes..."}
-              {!loadingMore && currentPage < totalPages && "Scroll for more"}
-            </div>
-          </>
-        ) : (
-          <>
-            {bundleLoading ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {Array(6)
-                  .fill(0)
-                  .map((_, i) => (
-                    <SkeletonCard key={i} />
-                  ))}
-              </div>
-            ) : bundles.length === 0 ? (
-              <div className="py-20 text-center">
-                <p className="text-xl font-medium text-slate-700">No bundles available yet</p>
-                <p className="text-slate-500 mt-3">Premium collections coming soon</p>
-              </div>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {bundles.map((bundle) => (
-                  <BundleCard key={bundle.id} item={bundle} onPress={handleBundlePress} />
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </main>
-    </div>
-
-    {/* Modals / Toasts */}
-    <ConfirmModal
-      isOpen={showConfirmModal}
-      onClose={() => setShowConfirmModal(false)}
-      onConfirm={handleStartQuiz}
-      title={selectedQuiz?.title || ""}
-      isFree={selectedQuiz?.isFree || false}
-      price={selectedQuiz?.price}
-      isPurchased={isPurchased}
-      paying={paying}
-      paymentStatus={paymentStatus}
-    />
-
-    {paymentStatus && (
-      <PaymentStatus
-        status={paymentStatus}
-        message={
-          paymentStatus === "success"
-            ? "Payment successful! Redirecting to quiz..."
-            : "Payment failed. Please try again."
-        }
-        onClose={() => setPaymentStatus(null)}
+      {/* Modals / Toasts */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleStartQuiz}
+        title={selectedQuiz?.title || ""}
+        isFree={selectedQuiz?.isFree || false}
+        price={selectedQuiz?.price}
+        isPurchased={isPurchased}
+        paying={paying}
+        paymentStatus={paymentStatus}
       />
-    )}
-  </div>
-);
+
+      {paymentStatus && (
+        <PaymentStatus
+          status={paymentStatus}
+          message={
+            paymentStatus === "success"
+              ? "Payment successful! Redirecting to quiz..."
+              : "Payment failed. Please try again."
+          }
+          onClose={() => setPaymentStatus(null)}
+        />
+      )}
+            <DikshantAuthModal open={openLogin} onClose={() => setOpenLogin(false)} />
+      
+    </div>
+  );
 }
