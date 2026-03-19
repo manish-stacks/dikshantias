@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import {
-  Loader2, Video, PlayCircle, BookMarked,
-  ChevronRight, Layers, ArrowLeft,
-} from "lucide-react";
+import { Loader2, Video, PlayCircle, BookMarked, ChevronRight, Layers, ArrowLeft } from "lucide-react";
 import { useSubjectStore } from "@/lib/store/profile.store";
 import { useAuthStore } from "@/lib/store/auth.store";
 import VideoList from "./VideoList";
@@ -16,6 +13,7 @@ export default function CourseSubjectEnrolledPage() {
   const router = useRouter();
   const { batch, videos, loading, fetchBatchAndVideos } = useSubjectStore();
 
+  const [showVideoAll, setShowVideoAll] = useState(false);
   const courseId = searchParams.get("courseId") ?? "";
   const unlocked = searchParams.get("unlocked") === "true";
   const subjectId = searchParams.get("subjectId");
@@ -23,6 +21,11 @@ export default function CourseSubjectEnrolledPage() {
   useEffect(() => {
     if (courseId) fetchBatchAndVideos(courseId, unlocked);
   }, [courseId, unlocked, fetchBatchAndVideos]);
+
+  // Reset showVideoAll when subjectId changes
+  useEffect(() => {
+    if (subjectId) setShowVideoAll(false);
+  }, [subjectId]);
 
   const videoCountBySubject = useMemo(() => {
     return videos.reduce<Record<string, number>>((acc, v) => {
@@ -51,10 +54,12 @@ export default function CourseSubjectEnrolledPage() {
     return sortedSubjects.find((s) => String(s.id) === subjectId) ?? null;
   }, [sortedSubjects, subjectId]);
 
+  // FIX: correctly return all videos when showVideoAll=true and no subjectId
   const videosForSelectedSubject = useMemo(() => {
-    if (!subjectId) return [];
-    return videos.filter((v) => String(v.subjectId) === subjectId);
-  }, [videos, subjectId]);
+    if (!subjectId && showVideoAll) return videos;
+    if (subjectId) return videos.filter((v) => String(v.subjectId) === subjectId);
+    return [];
+  }, [videos, subjectId, showVideoAll]);
 
   const totalVideos = videos.length;
 
@@ -106,24 +111,19 @@ export default function CourseSubjectEnrolledPage() {
           <button
             key={subject.id}
             onClick={() => goToVideos(subject.id)}
-            className={`bg-white rounded-2xl border shadow-sm p-5 flex flex-col items-start gap-4 text-left transition-all group ${
-              subject.videoCount > 0
-                ? "border-slate-100 hover:shadow-lg hover:-translate-y-1 cursor-pointer"
-                : "border-slate-100 opacity-60 cursor-default"
-            }`}
+            className={`bg-white rounded-2xl border shadow-sm p-5 flex flex-col items-start gap-4 text-left transition-all group ${subject.videoCount > 0
+              ? "border-slate-100 hover:shadow-lg hover:-translate-y-1 cursor-pointer"
+              : "border-slate-100 opacity-60 cursor-default"
+              }`}
           >
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-              subject.videoCount > 0 ? "bg-indigo-50 group-hover:bg-indigo-100 transition-colors" : "bg-slate-100"
-            }`}>
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${subject.videoCount > 0 ? "bg-indigo-50 group-hover:bg-indigo-100 transition-colors" : "bg-slate-100"}`}>
               <BookMarked size={19} className={subject.videoCount > 0 ? "text-indigo-500" : "text-slate-300"} />
             </div>
             <p className="text-sm font-semibold text-slate-700 leading-snug line-clamp-2 flex-1">
               {subject.name}
             </p>
             <div className="flex items-center justify-between w-full">
-              <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold ${
-                subject.videoCount > 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400"
-              }`}>
+              <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold ${subject.videoCount > 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400"}`}>
                 {subject.videoCount} {subject.videoCount === 1 ? "video" : "videos"}
               </span>
               {subject.videoCount > 0 && (
@@ -160,8 +160,8 @@ export default function CourseSubjectEnrolledPage() {
     <div className={`grid grid-cols-3 ${divideClass} divide-slate-100 overflow-hidden`}>
       {[
         { label: "Subjects", value: sortedSubjects.length },
-        { label: "Videos",   value: totalVideos },
-        { label: "Active",   value: sortedSubjects.filter(s => s.videoCount > 0).length },
+        { label: "Videos", value: totalVideos },
+        { label: "Active", value: sortedSubjects.filter(s => s.videoCount > 0).length },
       ].map(({ label, value }) => (
         <div key={label} className="flex flex-col items-center py-4">
           <span className="text-lg font-bold text-slate-800">{value}</span>
@@ -174,10 +174,16 @@ export default function CourseSubjectEnrolledPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-10">
 
+      {/* ── MOBILE ─────────────────────────────────────────────── */}
       <div className="lg:hidden">
+
+        {/* Case 1: subject selected via URL */}
         {subjectId && selectedSubject ? (
           <div className="px-4 pt-5">
-            <button onClick={goBackToSubjects} className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 mb-5 text-sm font-semibold transition-colors">
+            <button
+              onClick={goBackToSubjects}
+              className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 mb-5 text-sm font-semibold transition-colors"
+            >
               <ArrowLeft size={16} />
               Back to Subjects
             </button>
@@ -186,6 +192,7 @@ export default function CourseSubjectEnrolledPage() {
               <p className="text-xs text-slate-400 mt-0.5">{videosForSelectedSubject.length} videos available</p>
             </div>
             <VideoList
+              isShowVideoAll={false}
               videos={videosForSelectedSubject}
               currentVideo={null}
               courseId={courseId}
@@ -194,7 +201,34 @@ export default function CourseSubjectEnrolledPage() {
               userId={useAuthStore.getState().user?.id ?? ""}
             />
           </div>
+
+        ) : showVideoAll ? (
+          /* Case 2: view all videos (no subject filter) */
+          <div className="px-4 pt-5">
+            <button
+              onClick={() => setShowVideoAll(false)}
+              className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 mb-5 text-sm font-semibold transition-colors"
+            >
+              <ArrowLeft size={16} />
+              Back to Subjects
+            </button>
+            <div className="mb-5">
+              <h1 className="text-lg font-bold text-slate-800">All Videos</h1>
+              <p className="text-xs text-slate-400 mt-0.5">{videos.length} videos available</p>
+            </div>
+            <VideoList
+              isShowVideoAll={true}
+              videos={videos}
+              currentVideo={null}
+              courseId={courseId}
+              startDate={batch.startDate ?? ""}
+              endDate={batch.endDate ?? ""}
+              userId={useAuthStore.getState().user?.id ?? ""}
+            />
+          </div>
+
         ) : (
+          /* Case 3: subject grid home */
           <>
             <CourseHero heightClass="h-52" />
             <div className="mx-4 -mt-4 relative z-10 bg-white rounded-2xl border border-slate-100 shadow-md">
@@ -206,8 +240,9 @@ export default function CourseSubjectEnrolledPage() {
                   <h2 className="text-base font-bold text-slate-800">Subjects</h2>
                   <p className="text-xs text-slate-400 mt-0.5">{sortedSubjects.length} available</p>
                 </div>
+                {/* FIX: use setShowVideoAll(true) instead of goToVideos() */}
                 <button
-                  onClick={() => goToVideos()}
+                  onClick={() => setShowVideoAll(true)}
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-semibold hover:bg-indigo-100 transition-colors"
                 >
                   <PlayCircle size={13} />
@@ -220,10 +255,16 @@ export default function CourseSubjectEnrolledPage() {
         )}
       </div>
 
+      {/* ── DESKTOP ────────────────────────────────────────────── */}
       <div className="hidden lg:block max-w-6xl mx-auto px-8 py-10">
+
+        {/* Case 1: subject selected via URL */}
         {subjectId && selectedSubject ? (
           <div>
-            <button onClick={goBackToSubjects} className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 mb-6 text-sm font-semibold transition-colors">
+            <button
+              onClick={goBackToSubjects}
+              className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 mb-6 text-sm font-semibold transition-colors"
+            >
               <ArrowLeft size={16} />
               Back to All Subjects
             </button>
@@ -232,6 +273,7 @@ export default function CourseSubjectEnrolledPage() {
               <p className="text-slate-400 text-sm mt-1">{videosForSelectedSubject.length} videos available</p>
             </div>
             <VideoList
+              isShowVideoAll={false}
               videos={videosForSelectedSubject}
               currentVideo={null}
               courseId={courseId}
@@ -240,7 +282,34 @@ export default function CourseSubjectEnrolledPage() {
               userId={useAuthStore.getState().user?.id ?? ""}
             />
           </div>
+
+        ) : showVideoAll ? (
+          /* Case 2: view all videos (no subject filter) */
+          <div>
+            <button
+              onClick={() => setShowVideoAll(false)}
+              className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 mb-6 text-sm font-semibold transition-colors"
+            >
+              <ArrowLeft size={16} />
+              Back to All Subjects
+            </button>
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold text-slate-800">All Videos</h1>
+              <p className="text-slate-400 text-sm mt-1">{videos.length} videos available</p>
+            </div>
+            <VideoList
+              isShowVideoAll={true}
+              videos={videos}
+              currentVideo={null}
+              courseId={courseId}
+              startDate={batch.startDate ?? ""}
+              endDate={batch.endDate ?? ""}
+              userId={useAuthStore.getState().user?.id ?? ""}
+            />
+          </div>
+
         ) : (
+          /* Case 3: subject grid home */
           <>
             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mb-8">
               <CourseHero heightClass="h-64 text-2xl" />
@@ -254,8 +323,9 @@ export default function CourseSubjectEnrolledPage() {
                 <h2 className="text-xl font-bold text-slate-800">All Subjects</h2>
                 <p className="text-sm text-slate-400 mt-0.5">Select a subject to start learning</p>
               </div>
+              {/* FIX: toggle showVideoAll state instead of setShowVideoAll(!showVideoAll) ambiguity */}
               <button
-                onClick={() => goToVideos()}
+                onClick={() => setShowVideoAll(true)}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200"
               >
                 <PlayCircle size={16} />

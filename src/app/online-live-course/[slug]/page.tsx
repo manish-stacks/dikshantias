@@ -232,7 +232,7 @@ const CoursePage = () => {
                 </div>
 
                 {isPurchased && (
-                  <button onClick={() => router.push("/classroom")} className="go-classroom-btn mt-8">
+                  <button onClick={() => router.push(`/my-course?courseId=${course?.id}&unlocked=true`)} className="go-classroom-btn mt-8">
                     <GraduationCap size={18} />
                     Go to Classroom
                     <ArrowRight size={16} />
@@ -337,8 +337,7 @@ const CoursePage = () => {
                       { icon: Book,   text: `${course.subjects?.length || 0} Subjects included` },
                       { icon: Clock,  text: `${course.startDate ? new Date(course.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "TBD"} → ${course.endDate ? new Date(course.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}` },
                       { icon: Globe,  text: "Hindi Medium" },
-                      { icon: Smartphone, text: "Available on mobile app" },
-                      { icon: Infinity,   text: "Unlimited lifetime access" },
+        
                     ].map(({ icon: Icon, text }) => (
                       <div key={text} className="meta-item">
                         <Icon size={13} className="meta-icon" />
@@ -349,7 +348,7 @@ const CoursePage = () => {
 
                   {/* CTA — purchased or not */}
                   {isPurchased ? (
-                    <button onClick={() => router.push("/classroom")} className="cta-classroom">
+                    <button onClick={() => router.push(`/my-course?courseId=${course?.id}&unlocked=true`)} className="cta-classroom">
                       <GraduationCap size={17} />
                       Go to Classroom
                       <ArrowRight size={15} />

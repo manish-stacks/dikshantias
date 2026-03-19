@@ -6,15 +6,15 @@ import { AlertTriangle, Loader2 } from 'lucide-react';
 
 import { useQuizStore } from '@/lib/store/useQuizStore';
 
-import { QuizSkeleton } from './components/QuizSkeleton';
-import { TermsScreen } from './components/TermsScreen';
-import { ResultsScreen } from './components/ResultsScreen';
-import { QuizHeader } from './components/QuizHeader';
-import { QuestionSidebar } from './components/QuestionSidebar';
-import { QuestionCard } from './components/QuestionCard';
-import { QuizFooter } from './components/QuizFooter';
-import { ExitModal, SubmitModal } from './components/QuizModals';
-import { ToastContainer } from './components/Toastcontainer';
+import { QuizSkeleton } from '@/helpers/Quizskeleton';
+import { TermsScreen } from '@/helpers/Termsscreen';
+import { ResultsScreen } from '@/helpers/Resultsscreen';
+import { QuizHeader } from '@/helpers/QuizHeader';
+import { QuestionSidebar } from '@/helpers/Questionsidebar';
+import { QuestionCard } from '@/helpers/Questioncard';
+import { QuizFooter } from '@/helpers/Quizfooter';
+import { ExitModal, SubmitModal } from '@/helpers/Quizmodals';
+import { ToastContainer } from '@/helpers/Toastcontainer';
 import { useToast } from '@/hooks/usetoast';
 import { useAntiCheat } from '@/hooks/useAntiCheat';
 
