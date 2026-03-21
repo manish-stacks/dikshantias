@@ -67,23 +67,23 @@ export default function TestSeriesDetailPage({ id }: { id: string }) {
   }, [currentTime, testSeries, initialPurchased]);
 
 
-    //   const checkPurchases = useCallback(async (items: TestSeriesItem[]) => {
-    //     if (!items.length) return;
-    //     const map: Record<string | number, boolean> = {};
-    //     await Promise.all(
-    //         items.map(async (item) => {
-    //             try {
-    //                 const res = await axiosInstance.get("/orders/already-purchased", {
-    //                     params: { itemId: item.id, type: "test" },
-    //                 });
-    //                 map[item.id] = !!res.data?.purchased;
-    //             } catch {
-    //                 map[item.id] = false;
-    //             }
-    //         })
-    //     );
-    //     setPurchasedMap((prev) => ({ ...prev, ...map }));
-    // }, []);
+  //   const checkPurchases = useCallback(async (items: TestSeriesItem[]) => {
+  //     if (!items.length) return;
+  //     const map: Record<string | number, boolean> = {};
+  //     await Promise.all(
+  //         items.map(async (item) => {
+  //             try {
+  //                 const res = await axiosInstance.get("/orders/already-purchased", {
+  //                     params: { itemId: item.id, type: "test" },
+  //                 });
+  //                 map[item.id] = !!res.data?.purchased;
+  //             } catch {
+  //                 map[item.id] = false;
+  //             }
+  //         })
+  //     );
+  //     setPurchasedMap((prev) => ({ ...prev, ...map }));
+  // }, []);
   const calculateSubmissionTimers = () => {
     const now = currentTime.getTime();
     const start = new Date(testSeries?.AnswerSubmitDateAndTime || "").getTime();
@@ -277,73 +277,73 @@ export default function TestSeriesDetailPage({ id }: { id: string }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-28">
+    <div className="min-h-screen bg-gray-50 pb-28 max-w-7xl mx-auto">
 
       {/* Hero */}
-  {/* Hero */}
-<div className="relative w-full mt-4 aspect-video max-h-[300px] overflow-hidden rounded-2xl">
-  
-  <Image
-    src={testSeries.imageUrl}
-    alt={testSeries.title}
-    fill
-    className="object-cover"
-    priority
-  />
+      {/* Hero */}
+      <div className="relative w-full mt-4 aspect-video max-h-[300px] overflow-hidden rounded-2xl">
 
-  {/* Soft overlay */}
-  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <Image
+          src={testSeries.imageUrl}
+          alt={testSeries.title}
+          fill
+          className="object-cover"
+          priority
+        />
 
-  {/* Top actions */}
-  <div className="absolute top-3 left-3 right-3 flex justify-between items-center">
-    
-    <button
-      onClick={() => router.back()}
-      className="bg-white/90 p-2 rounded-lg shadow-sm"
-    >
-      <ArrowLeft size={16} className="text-gray-800" />
-    </button>
+        {/* Soft overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
-    {!initialPurchased && (
-      <button
-        onClick={initiatePayment}
-        disabled={paying}
-        className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-sm disabled:opacity-70"
-      >
-        {paying ? "..." : "Buy"}
-      </button>
-    )}
-  </div>
+        {/* Top actions */}
+        <div className="absolute top-3 left-3 right-3 flex justify-between items-center">
 
-  {/* Bottom content */}
-  <div className="absolute bottom-0 left-0 right-0 p-4">
-    
-    {/* Badges */}
-    <div className="flex gap-2 mb-2">
-      <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
-        2026
-      </span>
-      <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full">
-        {testSeries.status || "Premium"}
-      </span>
-    </div>
+          <button
+            onClick={() => router.back()}
+            className="bg-white/90 p-2 rounded-lg shadow-sm"
+          >
+            <ArrowLeft size={16} className="text-gray-800" />
+          </button>
 
-    {/* Title */}
-    <h1 className="text-white text-base md:text-lg font-semibold leading-snug line-clamp-2">
-      {testSeries.title}
-    </h1>
+          {!initialPurchased && (
+            <button
+              onClick={initiatePayment}
+              disabled={paying}
+              className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-sm disabled:opacity-70"
+            >
+              {paying ? "..." : "Buy"}
+            </button>
+          )}
+        </div>
 
-    {/* Info */}
-    <div className="flex gap-3 mt-2 text-[11px] text-white/90">
-      <span>{testSeries.timeDurationForTest || "?"} min</span>
-      <span>•</span>
-      <span>{testSeries.type || "Test"}</span>
-      <span>•</span>
-      <span>{validTill}</span>
-    </div>
+        {/* Bottom content */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
 
-  </div>
-</div>
+          {/* Badges */}
+          <div className="flex gap-2 mb-2">
+            <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
+              2026
+            </span>
+            <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full">
+              {testSeries.status || "Premium"}
+            </span>
+          </div>
+
+          {/* Title */}
+          <h1 className="text-white text-base md:text-lg font-semibold leading-snug line-clamp-2">
+            {testSeries.title}
+          </h1>
+
+          {/* Info */}
+          <div className="flex gap-3 mt-2 text-[11px] text-white/90">
+            <span>{testSeries.timeDurationForTest || "?"} min</span>
+            <span>•</span>
+            <span>{testSeries.type || "Test"}</span>
+            <span>•</span>
+            <span>{validTill}</span>
+          </div>
+
+        </div>
+      </div>
 
       {/* Trust strip */}
       <div className="bg-red-50 border-b border-red-100 px-5 py-2.5 flex items-center gap-4 overflow-x-auto no-scrollbar">

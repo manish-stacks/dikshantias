@@ -512,9 +512,9 @@ if (selectedQuiz.isFree || purchased) {
             </div>
 
             {/* Heading */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-snug mb-4">
-              All India Pro Live Tests & <br />
-              Daily <span className="text-green-300">Free</span> Live Quizzes
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-semibold leading-snug mb-4">
+              Evaluate Your Prep with All India Live Quiz & <br />
+              Daily <span className="text-amber-400">FREE</span> Live Quizzes
             </h1>
 
             {/* Divider */}
@@ -562,7 +562,7 @@ if (selectedQuiz.isFree || purchased) {
               </div>
               <div>
                 <div className="font-bold text-lg tracking-tight">DIKSHANT</div>
-                <div className="text-xs text-red-600 font-semibold">Quiz Arena</div>
+                <div className="text-xs text-red-600 font-semibold">QUIZ of the DAY</div>
               </div>
             </div>
 
@@ -570,7 +570,7 @@ if (selectedQuiz.isFree || purchased) {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search quizzes..."
+                placeholder="Search quiz..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-12 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition-all"
@@ -603,7 +603,7 @@ if (selectedQuiz.isFree || purchased) {
                     : "text-slate-600 hover:bg-slate-50"
                   }`}
               >
-                <span>Quizzes</span>
+                <span>Quiz</span>
                 <span className="bg-red-600 text-white text-xs px-2.5 py-0.5 rounded-full">
                   {quizzes.length}
                 </span>
@@ -657,7 +657,7 @@ if (selectedQuiz.isFree || purchased) {
         <main className="flex-1">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-slate-800">
-              {activeSection === "quizzes" ? "Quiz Arena" : "Bundle Packs"}
+              {activeSection === "quizzes" ? "QUIZ of the DAY" : "Bundle Packs"}
             </h1>
             <p className="text-slate-600 mt-1">
               {activeSection === "quizzes"

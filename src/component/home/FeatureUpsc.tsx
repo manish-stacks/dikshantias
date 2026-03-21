@@ -188,9 +188,8 @@ const FeatureUpsc: React.FC = () => {
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`w-7 h-2 md:w-7 md:h-3 rounded-full ${
-                    currentSlide === index ? "bg-[#f43144]" : "bg-gray-300"
-                  }`}
+                  className={`w-7 h-2 md:w-7 md:h-3 rounded-full ${currentSlide === index ? "bg-[#f43144]" : "bg-gray-300"
+                    }`}
                 />
               ))}
             </div>
@@ -255,13 +254,13 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
         </p> */}
 
         <div className="flex items-center justify-between mb-4 text-sm text-[#00072c]">
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1 text-orange-500" />
             <span>
               Start: {new Date(program.startDate || "").toLocaleDateString()}
             </span>
-          </div>
-
+          </div> */}
+          {program?.shortDescription}
           {/* <div className="flex items-center">
                     <Book className="w-4 h-4 mr-1 text-orange-500" />
                     <span>Status - {program.c_status}</span>

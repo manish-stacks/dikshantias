@@ -115,6 +115,8 @@ const Header: React.FC = () => {
   const handleLogout = async () => {
     try { await logout(); window.location.href = "/"; } catch { }
   };
+  const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
 
   return (
     <>
@@ -123,7 +125,7 @@ const Header: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
           <span className="flex items-center gap-2">
             <span className="animate-pulse inline-block w-2 h-2 rounded-full bg-white/80" />
-            Admissions Open for 2025–26 Batch — Limited Seats!
+            Admissions Open for {currentYear}–{nextYear} Batch — Limited Seats!
           </span>
           <div className="flex items-center gap-4">
             <a href="tel:09312511015" className="hover:underline flex items-center gap-1">
@@ -185,7 +187,7 @@ const Header: React.FC = () => {
 
               <NavLink href="/test-series">{t("Test Series") || "Test Series"}</NavLink>
 
-            
+
 
               <NavLink href="/scholarship-programme">{t("scholarship") || "Scholarship"}</NavLink>
               <NavLink href="/blogs">{t("blogs") || "Blogs"}</NavLink>
@@ -233,6 +235,22 @@ const Header: React.FC = () => {
                   </>
                 )}
               </div>
+
+              {loggedIn ? (
+                <div className="flex gap-2 lg:hidden p-2 ">
+                  <Link href="/dashboard" onClick={toggleMobileMenu}
+                    className="flex-1 flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-gray-100 text-sm font-medium text-gray-800">
+                    <User className="w-4 h-4" /> My Profile
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex gap-2 lg:hidden p-2 ">
+                  <button onClick={() => { toggleMobileMenu(); setOpenLogin(true); }}
+                    className="flex-1 gap-1 py-1 px-2 rounded-xl border border-red-500 text-red-600 text-sm font-semibold">
+                    Login
+                  </button>
+                </div>
+              )}
 
               {/* Hamburger */}
               <button onClick={toggleMobileMenu}
@@ -308,9 +326,9 @@ const Header: React.FC = () => {
             <MobileLink href="/quiz" onClick={toggleMobileMenu}>Quiz</MobileLink>
 
             <MobileLink href="/test-series" onClick={toggleMobileMenu}>Test Series</MobileLink>
-           
 
-           
+
+
 
             <MobileLink href="/scholarship-programme" onClick={toggleMobileMenu}>
               {t("scholarship") || "Scholarship"}
@@ -337,7 +355,7 @@ const Header: React.FC = () => {
               <div className="flex gap-2">
                 <Link href="/dashboard" onClick={toggleMobileMenu}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gray-100 text-sm font-medium text-gray-800">
-                  <User className="w-4 h-4" /> Dashboard
+                  <User className="w-4 h-4" /> My Profile
                 </Link>
                 <button onClick={handleLogout}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700">

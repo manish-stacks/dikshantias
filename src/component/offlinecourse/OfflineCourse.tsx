@@ -99,13 +99,13 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
 
         {/* Duration & Lessons */}
         <div className="flex items-center justify-between mb-4 text-sm text-[#00072c]">
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1 text-orange-500" />
             <span>
               Start: {new Date(course.startDate || "").toLocaleDateString()}
             </span>
-          </div>
-
+          </div> */}
+          {course?.shortDescription}
           {/* <div className="flex items-center">
                     <Book className="w-4 h-4 mr-1 text-orange-500" />
                     <span>Status - {course.c_status}</span>

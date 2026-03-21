@@ -58,9 +58,10 @@ interface Quiz {
 }
 
 const TABS = [
-    { id: "all", label: "All", icon: Layers },
-    { id: "bundle", label: "Bundles", icon: Package },
-    { id: "objective", label: "Objective", icon: FileText },
+    { id: "all", label: "All to All Test", icon: Layers },
+    { id: "bundle", label: "Bundles to Package", icon: Package },
+    { id: "objective", label: "Objective to Prelims Tests", icon: FileText },
+    { id: "subjective", label: "Mains Tests", icon: FileText },
     { id: "my", label: "My Tests", icon: Star },
 ];
 
@@ -108,7 +109,7 @@ export default function TestSeriesPage() {
         } finally {
             setBundleLoading(false);
         }
-    }, [checkPurchases]);
+    }, [checkPurchases, activeTab]);
 
     const fetchTestSeries = useCallback(async () => {
         setLoading(true);
@@ -144,6 +145,7 @@ export default function TestSeriesPage() {
     useEffect(() => {
         fetchTestSeries();
         fetchBundles();
+        fetchQuizzes();
     }, [fetchTestSeries, fetchBundles]);
 
     useEffect(() => {
@@ -151,8 +153,22 @@ export default function TestSeriesPage() {
     }, [activeTab, searchQuery, fetchQuizzes]);
 
     const visibleTestSeries = useMemo(() => {
-        if (activeTab === "my") return testSeries.filter((t) => purchasedMap[t.id]);
-        return testSeries;
+
+        let filtered = [...testSeries];
+
+        // My Tests
+        if (activeTab === "my") {
+            return filtered.filter((t) => purchasedMap[t.id]);
+        }
+
+        // Subjective (Mains)
+        if (activeTab === "subjective") {
+            return filtered.filter((t) => t.type === "subjective");
+        }
+        console.log(filtered)
+        // All tab → NO FILTER
+        return filtered;
+
     }, [activeTab, testSeries, purchasedMap]);
 
     const enrolledCount = Object.values(purchasedMap).filter(Boolean).length;
@@ -379,162 +395,248 @@ export default function TestSeriesPage() {
                 )}
 
                 {!loading && !error && (
-                    <>
-                        {activeTab === "bundle" && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {bundles.length === 0 ? (
-                                    <div className="col-span-full py-16 text-center text-gray-400">
-                                        <Package size={40} className="mx-auto mb-3 opacity-40" />
-                                        <p className="text-sm font-medium">No Bundles Available</p>
-                                        <p className="text-xs mt-1">Check back soon for exciting bundle offers!</p>
-                                    </div>
-                                ) : (
-                                    bundles.map(renderBundleCard)
-                                )}
+                    <div>
+                        {(activeTab === "all" || activeTab === "bundle") && (
+                            <div className="py-3">
+                                {activeTab === "all" && <span>Bundle Test Series</span>}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {bundles.length === 0 ? (
+                                        <div className="col-span-full py-16 text-center text-gray-400">
+                                            <Package size={40} className="mx-auto mb-3 opacity-40" />
+                                            <p className="text-sm font-medium">No Bundles Available</p>
+                                            <p className="text-xs mt-1">Check back soon for exciting bundle offers!</p>
+                                        </div>
+                                    ) : (
+                                        bundles.map(renderBundleCard)
+                                    )}
+                                </div>
                             </div>
                         )}
 
-                        {(activeTab === "all" || activeTab === "my") && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {visibleTestSeries.length === 0 ? (
-                                    <div className="col-span-full py-16 text-center text-gray-400">
-                                        <BookOpen size={40} className="mx-auto mb-3 opacity-40" />
-                                        <p className="text-sm font-medium">
-                                            {activeTab === "my" ? "No Enrolled Tests" : "No Test Series Found"}
-                                        </p>
-                                        <p className="text-xs mt-1">
-                                            {activeTab === "my" ? "Enroll in tests to see them here" : "New series coming soon!"}
-                                        </p>
-                                    </div>
-                                ) : (
-                                    visibleTestSeries.map((item) => {
-                                        const isPurchased = !!purchasedMap[item.id];
-                                        return (
+                        {activeTab === "my" && (
+                            <div className="py-3">
+                                {/* {activeTab === "all" && <span>My Test Series</span>} */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {visibleTestSeries.length === 0 ? (
+                                        <div className="col-span-full py-16 text-center text-gray-400">
+                                            <BookOpen size={40} className="mx-auto mb-3 opacity-40" />
+                                            <p className="text-sm font-medium">
+                                                {activeTab === "my" ? "No Enrolled Tests" : "No Test Series Found"}
+                                            </p>
+                                            <p className="text-xs mt-1">
+                                                {activeTab === "my" ? "Enroll in tests to see them here" : "New series coming soon!"}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        visibleTestSeries.map((item) => {
+                                            const isPurchased = !!purchasedMap[item.id];
+                                            return (
+                                                <div
+                                                    key={item.id}
+                                                    onClick={() => router.push(`/test-series/${item.id}?purchased=${isPurchased}`)}
+                                                    className="bg-white rounded-xl border border-gray-200 hover:border-red-300 transition-colors cursor-pointer overflow-hidden"
+                                                >
+                                                    <div className="relative">
+                                                        <div className="relative w-full aspect-[16/9]">
+                                                            <Image
+                                                                src={item.imageUrl}
+                                                                alt={item.title}
+                                                                fill
+                                                                className="object-contain rounded-lg"
+                                                            />
+                                                        </div>
+                                                        <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between">
+                                                            <span className="bg-blue-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
+                                                                Featured
+                                                            </span>
+                                                            {isPurchased && (
+                                                                <span className="bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
+                                                                    <CheckCircle size={10} /> Enrolled
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded flex items-center gap-1">
+                                                            <Clock size={10} />
+                                                            {item.timeDurationForTest || "?"} min
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="p-4">
+                                                        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
+                                                            {item.title}
+                                                        </h3>
+                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.description}</p>
+
+                                                        <div className="mt-4 flex items-center justify-between">
+                                                            <div>
+                                                                {item.discountPrice < item.price && (
+                                                                    <span className="text-[11px] text-gray-400 line-through block">₹{item.price}</span>
+                                                                )}
+                                                                <p className="text-base font-bold text-gray-900">
+                                                                    ₹{item.discountPrice || item.price}
+                                                                </p>
+                                                            </div>
+                                                            <button className="h-9 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors">
+                                                                {isPurchased ? "Continue" : "Enroll"}
+                                                                <ChevronRight size={14} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {(activeTab === "all" || activeTab === "subjective") && (
+                            <div className="py-3">
+                                {activeTab === "all" && <span>Subjective Test Series</span>}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {visibleTestSeries.length === 0 ? (
+                                        <div className="col-span-full py-16 text-center text-gray-400">
+                                            <BookOpen size={40} className="mx-auto mb-3 opacity-40" />
+                                            <p className="text-sm font-medium">
+                                                {activeTab === "my" ? "No Enrolled Tests" : "No Test Series Found"}
+                                            </p>
+                                            <p className="text-xs mt-1">
+                                                {activeTab === "my" ? "Enroll in tests to see them here" : "New series coming soon!"}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        visibleTestSeries.map((item) => {
+                                            const isPurchased = !!purchasedMap[item.id];
+                                            return (
+                                                <div
+                                                    key={item.id}
+                                                    onClick={() => router.push(`/test-series/${item.id}?purchased=${isPurchased}`)}
+                                                    className="bg-white rounded-xl border border-gray-200 hover:border-red-300 transition-colors cursor-pointer overflow-hidden"
+                                                >
+                                                    <div className="relative">
+                                                        <div className="relative w-full aspect-[16/9]">
+                                                            <Image
+                                                                src={item.imageUrl}
+                                                                alt={item.title}
+                                                                fill
+                                                                className="object-contain rounded-lg"
+                                                            />
+                                                        </div>
+                                                        <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between">
+                                                            <span className="bg-blue-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
+                                                                Featured
+                                                            </span>
+                                                            {isPurchased && (
+                                                                <span className="bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
+                                                                    <CheckCircle size={10} /> Enrolled
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded flex items-center gap-1">
+                                                            <Clock size={10} />
+                                                            {item.timeDurationForTest || "?"} min
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="p-4">
+                                                        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
+                                                            {item.title}
+                                                        </h3>
+                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.description}</p>
+
+                                                        <div className="mt-4 flex items-center justify-between">
+                                                            <div>
+                                                                {item.discountPrice < item.price && (
+                                                                    <span className="text-[11px] text-gray-400 line-through block">₹{item.price}</span>
+                                                                )}
+                                                                <p className="text-base font-bold text-gray-900">
+                                                                    ₹{item.discountPrice || item.price}
+                                                                </p>
+                                                            </div>
+                                                            <button className="h-9 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors">
+                                                                {isPurchased ? "Continue" : "Enroll"}
+                                                                <ChevronRight size={14} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {(activeTab === "all" || activeTab === "objective") && (
+                            <div className="py-3">
+                                {activeTab === "all" && <span>Objective Test Series</span>}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {quizzes.length === 0 ? (
+                                        <div className="col-span-full py-16 text-center text-gray-400">
+                                            <FileText size={40} className="mx-auto mb-3 opacity-40" />
+                                            <p className="text-sm font-medium">
+                                                {searchQuery ? "No matching quizzes" : "No Objective Quizzes"}
+                                            </p>
+                                            <p className="text-xs mt-1">{searchQuery ? "Try different keywords" : "Coming soon!"}</p>
+                                        </div>
+                                    ) : (
+                                        quizzes.map((quiz) => (
                                             <div
-                                                key={item.id}
-                                                onClick={() => router.push(`/test-series/${item.id}?purchased=${isPurchased}`)}
+                                                key={quiz.id}
+                                                onClick={() => router.push(`/quiz/${quiz.id}`)}
                                                 className="bg-white rounded-xl border border-gray-200 hover:border-red-300 transition-colors cursor-pointer overflow-hidden"
                                             >
                                                 <div className="relative">
-                                                    <div className="relative w-full aspect-[16/9]">
-                                                        <Image
-                                                            src={item.imageUrl}
-                                                            alt={item.title}
-                                                            fill
-                                                            className="object-contain rounded-lg"
-                                                        />
-                                                    </div>
-                                                    <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between">
-                                                        <span className="bg-blue-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
-                                                            Featured
+                                                    <img
+                                                        src={quiz.image || "https://i.ibb.co/5WvN9fMJ/image.png"}
+                                                        alt={quiz.title}
+                                                        className="w-full h-36 object-cover"
+                                                    />
+                                                    {quiz.isFree ? (
+                                                        <span className="absolute top-2.5 left-2.5 bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
+                                                            Free
                                                         </span>
-                                                        {isPurchased && (
-                                                            <span className="bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
-                                                                <CheckCircle size={10} /> Enrolled
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded flex items-center gap-1">
-                                                        <Clock size={10} />
-                                                        {item.timeDurationForTest || "?"} min
-                                                    </div>
+                                                    ) : (
+                                                        <span className="absolute top-2.5 left-2.5 bg-amber-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
+                                                            <Lock size={9} /> Premium
+                                                        </span>
+                                                    )}
                                                 </div>
 
                                                 <div className="p-4">
                                                     <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
-                                                        {item.title}
+                                                        {quiz.title}
                                                     </h3>
-                                                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.description}</p>
+                                                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{quiz.description}</p>
+
+                                                    <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-gray-500">
+                                                        <span className="flex items-center gap-1">
+                                                            <FileText size={12} /> {quiz.totalQuestions} Qs
+                                                        </span>
+                                                        <span className="flex items-center gap-1">
+                                                            <Clock size={12} /> {quiz.durationMinutes || quiz.duration || "?"} min
+                                                        </span>
+                                                        {!quiz.isFree && (
+                                                            <span className="text-red-600 font-semibold">₹{quiz.price || 0}</span>
+                                                        )}
+                                                    </div>
 
                                                     <div className="mt-4 flex items-center justify-between">
-                                                        <div>
-                                                            {item.discountPrice < item.price && (
-                                                                <span className="text-[11px] text-gray-400 line-through block">₹{item.price}</span>
-                                                            )}
-                                                            <p className="text-base font-bold text-gray-900">
-                                                                ₹{item.discountPrice || item.price}
-                                                            </p>
-                                                        </div>
+                                                        <span className="text-[11px] font-medium px-2.5 py-1 bg-gray-100 text-gray-600 rounded-md">
+                                                            {quiz.level || "Beginner"}
+                                                        </span>
                                                         <button className="h-9 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors">
-                                                            {isPurchased ? "Continue" : "Enroll"}
-                                                            <ChevronRight size={14} />
+                                                            Start Quiz <ChevronRight size={14} />
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
-                                        );
-                                    })
-                                )}
+                                        ))
+                                    )}
+                                </div>
                             </div>
                         )}
-
-                        {activeTab === "objective" && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {quizzes.length === 0 ? (
-                                    <div className="col-span-full py-16 text-center text-gray-400">
-                                        <FileText size={40} className="mx-auto mb-3 opacity-40" />
-                                        <p className="text-sm font-medium">
-                                            {searchQuery ? "No matching quizzes" : "No Objective Quizzes"}
-                                        </p>
-                                        <p className="text-xs mt-1">{searchQuery ? "Try different keywords" : "Coming soon!"}</p>
-                                    </div>
-                                ) : (
-                                    quizzes.map((quiz) => (
-                                        <div
-                                            key={quiz.id}
-                                            onClick={() => router.push(`/quiz/${quiz.id}`)}
-                                            className="bg-white rounded-xl border border-gray-200 hover:border-red-300 transition-colors cursor-pointer overflow-hidden"
-                                        >
-                                            <div className="relative">
-                                                <img
-                                                    src={quiz.image || "https://i.ibb.co/5WvN9fMJ/image.png"}
-                                                    alt={quiz.title}
-                                                    className="w-full h-36 object-cover"
-                                                />
-                                                {quiz.isFree ? (
-                                                    <span className="absolute top-2.5 left-2.5 bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
-                                                        Free
-                                                    </span>
-                                                ) : (
-                                                    <span className="absolute top-2.5 left-2.5 bg-amber-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
-                                                        <Lock size={9} /> Premium
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <div className="p-4">
-                                                <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
-                                                    {quiz.title}
-                                                </h3>
-                                                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{quiz.description}</p>
-
-                                                <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-gray-500">
-                                                    <span className="flex items-center gap-1">
-                                                        <FileText size={12} /> {quiz.totalQuestions} Qs
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <Clock size={12} /> {quiz.durationMinutes || quiz.duration || "?"} min
-                                                    </span>
-                                                    {!quiz.isFree && (
-                                                        <span className="text-red-600 font-semibold">₹{quiz.price || 0}</span>
-                                                    )}
-                                                </div>
-
-                                                <div className="mt-4 flex items-center justify-between">
-                                                    <span className="text-[11px] font-medium px-2.5 py-1 bg-gray-100 text-gray-600 rounded-md">
-                                                        {quiz.level || "Beginner"}
-                                                    </span>
-                                                    <button className="h-9 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors">
-                                                        Start Quiz <ChevronRight size={14} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        )}
-                    </>
+                    </div>
                 )}
             </div>
         </div>
