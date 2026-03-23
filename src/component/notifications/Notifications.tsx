@@ -60,13 +60,13 @@ export default function NotificationsPage() {
   };
 
   /* -------------------- LOADING -------------------- */
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin" />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen">
+  //       <div className="w-8 h-8 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin" />
+  //     </div>
+  //   );
+  // }
 
   /* -------------------- UI -------------------- */
   return (

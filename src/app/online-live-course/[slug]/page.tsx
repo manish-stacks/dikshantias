@@ -201,57 +201,185 @@ const CoursePage = () => {
       <style>{`${fonts}${styles}`}</style>
       <PaymentStatus status={paymentStatus} />
 
-      <div className="course-root">
+      <div className="course-root pt-2">
         {/* ─── HERO BANNER ─── */}
         <div className="hero-banner">
           <div className="hero-noise" />
           <div className="max-w-6xl mx-auto px-5 py-12 relative z-10">
-            <div className="flex flex-col lg:flex-row gap-10 items-center">
-              {/* Text */}
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="badge-category">{course.category}</span>
-                  {course.isFree && <span className="badge-free">FREE</span>}
-                </div>
-                <h1 className="hero-title">{course.name}</h1>
-                <p className="hero-sub">
-                  {course.shortDescription || "A comprehensive preparation course by Dikshant IAS"}
-                </p>
+            {/* only mobile view */}
+            <div className=" lg:hidden xl:hidden md:hidden">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="badge-category">{course.category}</span>
+                {course.isFree && <span className="badge-free">FREE</span>}
+              </div>
 
-                <div className="flex flex-wrap gap-5 mt-6">
+              {/* Video preview */}
+              <button className="video-thumb" onClick={() => setIsVideoModalOpen(true)}>
+                <Image
+                  src={course.imageUrl || "/img/Prelims-Foundation-Course.webp"}
+                  alt={course.name} width={600} height={338}
+                  className="video-thumb-img"
+                />
+                <div className="video-overlay">
+                  <span className="ping-ring" />
+                  <div className="play-btn"><PlayIcon size={22} className="text-white" fill="white" /></div>
+                </div>
+                <div className="video-label">Preview Course</div>
+              </button>
+
+              <h1 className="hero-title pt-3">{course.name}</h1>
+              <p className="hero-sub">
+                {course.shortDescription || "A comprehensive preparation course by Dikshant IAS"}
+              </p>
+              <div className="flex flex-wrap gap-5 mt-6">
+                {[
+                  { icon: Book, text: `${course.subjects?.length || 0} Subjects` },
+                  { icon: Globe, text: "Hindi Medium" },
+                  { icon: Users, text: "1,200+ Enrolled" },
+                ].map(({ icon: Icon, text }) => (
+                  <div key={text} className="hero-pill">
+                    <Icon size={13} />
+                    <span>{text}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-3">
+                {/* Price */}
+                {!isPurchased && (
+                  <div className="price-row">
+                    <span className="price-main !text-white">₹{appliedCoupon ? totalAmount : (course.batchDiscountPrice || course.batchPrice)}</span>
+                    {course.batchPrice && course.batchDiscountPrice && (
+                      <del className="price-original ">₹{course.batchPrice}</del>
+                    )}
+                    {discountPct > 0 && (
+                      <span className="price-save">{discountPct}% off</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Meta info */}
+                <div className="meta-list ">
                   {[
-                    { icon: Book, text: `${course.subjects?.length || 0} Subjects` },
+                    { icon: Book, text: `${course.subjects?.length || 0} Subjects included` },
+                    // { icon: Clock, text: `${course.startDate ? new Date(course.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "TBD"} → ${course.endDate ? new Date(course.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}` },
                     { icon: Globe, text: "Hindi Medium" },
-                    { icon: Users, text: "1,200+ Enrolled" },
-                    { icon: ShieldCheck, text: "Verified Course" },
+
                   ].map(({ icon: Icon, text }) => (
-                    <div key={text} className="hero-pill">
-                      <Icon size={13} />
-                      <span>{text}</span>
+                    <div key={text} className="meta-item">
+                      <Icon size={13} className="meta-icon" />
+                      <span className="text-gray-200">{text}</span>
                     </div>
                   ))}
                 </div>
 
-                {isPurchased && (
-                  <button onClick={() => router.push(`/my-course?courseId=${course?.id}&unlocked=true`)} className="go-classroom-btn mt-8">
-                    <GraduationCap size={18} />
+                {/* CTA — purchased or not */}
+                {isPurchased ? (
+                  <button onClick={() => router.push(`/my-course?courseId=${course?.id}&unlocked=true`)} className="cta-classroom">
+                    <GraduationCap size={17} />
                     Go to Classroom
-                    <ArrowRight size={16} />
+                    <ArrowRight size={15} />
                   </button>
+                ) : (
+                  <>
+                    {/* Coupon */}
+                    <div className="coupon-wrap">
+                      <div className="coupon-row">
+                        <Tag size={13} className="text-[#64748b]" />
+                        <input
+                          type="text"
+                          placeholder="Enter coupon code"
+                          value={couponCode}
+                          onChange={e => { setCouponCode(e.target.value); setCouponError(""); setAppliedCoupon(null); }}
+                          className="coupon-input"
+                        />
+                        <button onClick={applyCoupon} className="coupon-apply-btn">Apply</button>
+                      </div>
+                      {couponError && <p className="text-[11px] text-red-500 mt-1.5 pl-1">{couponError}</p>}
+                      {appliedCoupon && (
+                        <p className="text-[11px] text-green-600 mt-1.5 pl-1 flex items-center gap-1">
+                          <CheckCircle size={10} /> Coupon applied — saved ₹{Math.round(discount)}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Summary */}
+                    {appliedCoupon && (
+                      <div className="price-summary">
+                        <div className="summary-row"><span>Subtotal</span><span>₹{originalPrice}</span></div>
+                        <div className="summary-row text-green-600"><span>Discount</span><span>−₹{Math.round(discount)}</span></div>
+                        <div className="summary-row font-semibold text-[#0f172a] border-t border-[#f1f5f9] pt-2 mt-1">
+                          <span>Total</span><span>₹{totalAmount}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleBuyNow}
+                      disabled={paymentLoading}
+                      className={`cta-buy my-2 ${paymentLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+                    >
+                      {paymentLoading ? <><Loader2 size={16} className="animate-spin" /> Processing…</> : <>Buy Now  <ArrowRight size={15} /></>}
+                    </button>
+
+
+                  </>
                 )}
               </div>
+            </div>
 
-              {/* Hero image */}
-              <div className="hero-image-wrap">
-                <div className="hero-image-glow" />
-                <Image
-                  src={course.imageUrl || "/img/Prelims-Foundation-Course.webp"}
-                  alt={course.name} width={500} height={500}
-                  className="hero-image"
-                />
-                {discountPct > 0 && !isPurchased && (
-                  <div className="discount-badge">{discountPct}% OFF</div>
-                )}
+
+            {/* Desktop and tablet view */}
+            <div className="hidden lg:block xl:block md:block">
+              <div className="flex flex-col lg:flex-row gap-10 items-center">
+                {/* Text */}
+
+
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="badge-category">{course.category}</span>
+                    {course.isFree && <span className="badge-free">FREE</span>}
+                  </div>
+                  <h1 className="hero-title">{course.name}</h1>
+                  <p className="hero-sub">
+                    {course.shortDescription || "A comprehensive preparation course by Dikshant IAS"}
+                  </p>
+
+                  <div className="flex flex-wrap gap-5 mt-6">
+                    {[
+                      { icon: Book, text: `${course.subjects?.length || 0} Subjects` },
+                      { icon: Globe, text: "Hindi Medium" },
+                      { icon: Users, text: "1,200+ Enrolled" },
+                      { icon: ShieldCheck, text: "Verified Course" },
+                    ].map(({ icon: Icon, text }) => (
+                      <div key={text} className="hero-pill">
+                        <Icon size={13} />
+                        <span>{text}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {isPurchased && (
+                    <button onClick={() => router.push(`/my-course?courseId=${course?.id}&unlocked=true`)} className="go-classroom-btn mt-8">
+                      <GraduationCap size={18} />
+                      Go to Classroom
+                      <ArrowRight size={16} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Hero image */}
+                <div className="hero-image-wrap">
+                  <div className="hero-image-glow" />
+                  <Image
+                    src={course.imageUrl || "/img/Prelims-Foundation-Course.webp"}
+                    alt={course.name} width={500} height={500}
+                    className="hero-image"
+                  />
+                  {discountPct > 0 && !isPurchased && (
+                    <div className="discount-badge">{discountPct}% OFF</div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -289,159 +417,159 @@ const CoursePage = () => {
                 // </div>
               )}
 
-                  {/* Features row */}
-                  <div className="features-row mt-5">
+              {/* Features row */}
+              <div className="features-row mt-5">
+                {[
+                  { icon: Infinity, label: "24 X 7 Class Access", desc: "Study at your own pace, forever" },
+                  { icon: Smartphone, label: "Android Mobile App & Tablets", desc: "Available on all devices" },
+                  { icon: Zap, label: "Instant Enrollment", desc: "Start learning right away" },
+                ].map(({ icon: Icon, label, desc }) => (
+                  <div key={label} className="feature-card">
+                    <div className="feature-icon"><Icon size={16} /></div>
+                    <p className="feature-label text-sm ">{label}</p>
+                    <p className="feature-desc">{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── RIGHT: Sticky Sidebar ── */}
+            <div className="sidebar-sticky hidden lg:block xl:block md:block">
+              <div className="sidebar-card">
+
+                {/* Video preview */}
+                <button className="video-thumb" onClick={() => setIsVideoModalOpen(true)}>
+                  <Image
+                    src={course.imageUrl || "/img/Prelims-Foundation-Course.webp"}
+                    alt={course.name} width={600} height={338}
+                    className="video-thumb-img"
+                  />
+                  <div className="video-overlay">
+                    <span className="ping-ring" />
+                    <div className="play-btn"><PlayIcon size={22} className="text-white" fill="white" /></div>
+                  </div>
+                  <div className="video-label">Preview Course</div>
+                </button>
+
+                <div className="p-5">
+                  {/* Price */}
+                  {!isPurchased && (
+                    <div className="price-row">
+                      <span className="price-main">₹{appliedCoupon ? totalAmount : (course.batchDiscountPrice || course.batchPrice)}</span>
+                      {course.batchPrice && course.batchDiscountPrice && (
+                        <del className="price-original">₹{course.batchPrice}</del>
+                      )}
+                      {discountPct > 0 && (
+                        <span className="price-save">{discountPct}% off</span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Meta info */}
+                  <div className="meta-list">
                     {[
-                      { icon: Infinity, label: "24 X 7 Class Access", desc: "Study at your own pace, forever" },
-                      { icon: Smartphone, label: "Android Mobile App & Tablets", desc: "Available on all devices" },
-                      { icon: Zap, label: "Instant Enrollment", desc: "Start learning right away" },
-                    ].map(({ icon: Icon, label, desc }) => (
-                      <div key={label} className="feature-card">
-                        <div className="feature-icon"><Icon size={16} /></div>
-                        <p className="feature-label">{label}</p>
-                        <p className="feature-desc">{desc}</p>
+                      { icon: Book, text: `${course.subjects?.length || 0} Subjects included` },
+                      // { icon: Clock, text: `${course.startDate ? new Date(course.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "TBD"} → ${course.endDate ? new Date(course.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}` },
+                      { icon: Globe, text: "Hindi Medium" },
+
+                    ].map(({ icon: Icon, text }) => (
+                      <div key={text} className="meta-item">
+                        <Icon size={13} className="meta-icon" />
+                        <span>{text}</span>
                       </div>
                     ))}
                   </div>
-                </div>
 
-                {/* ── RIGHT: Sticky Sidebar ── */}
-                <div className="sidebar-sticky">
-                  <div className="sidebar-card">
-
-                    {/* Video preview */}
-                    <button className="video-thumb" onClick={() => setIsVideoModalOpen(true)}>
-                      <Image
-                        src={course.imageUrl || "/img/Prelims-Foundation-Course.webp"}
-                        alt={course.name} width={600} height={338}
-                        className="video-thumb-img"
-                      />
-                      <div className="video-overlay">
-                        <span className="ping-ring" />
-                        <div className="play-btn"><PlayIcon size={22} className="text-white" fill="white" /></div>
-                      </div>
-                      <div className="video-label">Preview Course</div>
+                  {/* CTA — purchased or not */}
+                  {isPurchased ? (
+                    <button onClick={() => router.push(`/my-course?courseId=${course?.id}&unlocked=true`)} className="cta-classroom">
+                      <GraduationCap size={17} />
+                      Go to Classroom
+                      <ArrowRight size={15} />
                     </button>
+                  ) : (
+                    <>
+                      {/* Coupon */}
+                      <div className="coupon-wrap">
+                        <div className="coupon-row">
+                          <Tag size={13} className="text-[#64748b]" />
+                          <input
+                            type="text"
+                            placeholder="Enter coupon code"
+                            value={couponCode}
+                            onChange={e => { setCouponCode(e.target.value); setCouponError(""); setAppliedCoupon(null); }}
+                            className="coupon-input"
+                          />
+                          <button onClick={applyCoupon} className="coupon-apply-btn">Apply</button>
+                        </div>
+                        {couponError && <p className="text-[11px] text-red-500 mt-1.5 pl-1">{couponError}</p>}
+                        {appliedCoupon && (
+                          <p className="text-[11px] text-green-600 mt-1.5 pl-1 flex items-center gap-1">
+                            <CheckCircle size={10} /> Coupon applied — saved ₹{Math.round(discount)}
+                          </p>
+                        )}
+                      </div>
 
-                    <div className="p-5">
-                      {/* Price */}
-                      {!isPurchased && (
-                        <div className="price-row">
-                          <span className="price-main">₹{appliedCoupon ? totalAmount : (course.batchDiscountPrice || course.batchPrice)}</span>
-                          {course.batchPrice && course.batchDiscountPrice && (
-                            <del className="price-original">₹{course.batchPrice}</del>
-                          )}
-                          {discountPct > 0 && (
-                            <span className="price-save">{discountPct}% off</span>
-                          )}
+                      {/* Summary */}
+                      {appliedCoupon && (
+                        <div className="price-summary">
+                          <div className="summary-row"><span>Subtotal</span><span>₹{originalPrice}</span></div>
+                          <div className="summary-row text-green-600"><span>Discount</span><span>−₹{Math.round(discount)}</span></div>
+                          <div className="summary-row font-semibold text-[#0f172a] border-t border-[#f1f5f9] pt-2 mt-1">
+                            <span>Total</span><span>₹{totalAmount}</span>
+                          </div>
                         </div>
                       )}
 
-                      {/* Meta info */}
-                      <div className="meta-list">
-                        {[
-                          { icon: Book, text: `${course.subjects?.length || 0} Subjects included` },
-                          // { icon: Clock, text: `${course.startDate ? new Date(course.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "TBD"} → ${course.endDate ? new Date(course.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}` },
-                          { icon: Globe, text: "Hindi Medium" },
+                      <button
+                        onClick={handleBuyNow}
+                        disabled={paymentLoading}
+                        className={`cta-buy my-2 ${paymentLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+                      >
+                        {paymentLoading ? <><Loader2 size={16} className="animate-spin" /> Processing…</> : <>Buy Now  <ArrowRight size={15} /></>}
+                      </button>
 
-                        ].map(({ icon: Icon, text }) => (
-                          <div key={text} className="meta-item">
-                            <Icon size={13} className="meta-icon" />
-                            <span>{text}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* CTA — purchased or not */}
-                      {isPurchased ? (
-                        <button onClick={() => router.push(`/my-course?courseId=${course?.id}&unlocked=true`)} className="cta-classroom">
-                          <GraduationCap size={17} />
-                          Go to Classroom
-                          <ArrowRight size={15} />
-                        </button>
-                      ) : (
-                        <>
-                          {/* Coupon */}
-                          <div className="coupon-wrap">
-                            <div className="coupon-row">
-                              <Tag size={13} className="text-[#64748b]" />
-                              <input
-                                type="text"
-                                placeholder="Enter coupon code"
-                                value={couponCode}
-                                onChange={e => { setCouponCode(e.target.value); setCouponError(""); setAppliedCoupon(null); }}
-                                className="coupon-input"
-                              />
-                              <button onClick={applyCoupon} className="coupon-apply-btn">Apply</button>
-                            </div>
-                            {couponError && <p className="text-[11px] text-red-500 mt-1.5 pl-1">{couponError}</p>}
-                            {appliedCoupon && (
-                              <p className="text-[11px] text-green-600 mt-1.5 pl-1 flex items-center gap-1">
-                                <CheckCircle size={10} /> Coupon applied — saved ₹{Math.round(discount)}
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Summary */}
-                          {appliedCoupon && (
-                            <div className="price-summary">
-                              <div className="summary-row"><span>Subtotal</span><span>₹{originalPrice}</span></div>
-                              <div className="summary-row text-green-600"><span>Discount</span><span>−₹{Math.round(discount)}</span></div>
-                              <div className="summary-row font-semibold text-[#0f172a] border-t border-[#f1f5f9] pt-2 mt-1">
-                                <span>Total</span><span>₹{totalAmount}</span>
-                              </div>
-                            </div>
-                          )}
-
-                          <button
-                            onClick={handleBuyNow}
-                            disabled={paymentLoading}
-                            className={`cta-buy my-2 ${paymentLoading ? "opacity-60 cursor-not-allowed" : ""}`}
-                          >
-                            {paymentLoading ? <><Loader2 size={16} className="animate-spin" /> Processing…</> : <>Buy Now  <ArrowRight size={15} /></>}
-                          </button>
-
-                          <p className="text-[10.5px] text-center text-[#94a3b8] mt-3">
-                            Secure payment via Razorpay · 30-day money-back guarantee
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </div>
+                      <p className="text-[10.5px] text-center text-[#94a3b8] mt-3">
+                        Secure payment via Razorpay · 30-day money-back guarantee
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Auth modal */}
-          <DikshantAuthModal open={openLogin} onClose={() => setOpenLogin(false)} />
+      {/* Auth modal */}
+      <DikshantAuthModal open={openLogin} onClose={() => setOpenLogin(false)} />
 
-          {/* Video modal */}
-          {isVideoModalOpen && (
-            <div className="modal-backdrop" onClick={() => setIsVideoModalOpen(false)}>
-              <div className="modal-box" onClick={e => e.stopPropagation()}>
-                <button className="modal-close" onClick={() => setIsVideoModalOpen(false)}>✕</button>
-                <div className="aspect-video w-full bg-black rounded-xl overflow-hidden">
-                  <Image src={course.imageUrl || "/img/Prelims-Foundation-Course.webp"} alt="" width={800} height={450} className="w-full h-full object-cover" />
-                </div>
-              </div>
+      {/* Video modal */}
+      {isVideoModalOpen && (
+        <div className="modal-backdrop" onClick={() => setIsVideoModalOpen(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setIsVideoModalOpen(false)}>✕</button>
+            <div className="aspect-video w-full bg-black rounded-xl overflow-hidden">
+              <Image src={course.imageUrl || "/img/Prelims-Foundation-Course.webp"} alt="" width={800} height={450} className="w-full h-full object-cover" />
             </div>
-          )}
-        </>
-        );
+          </div>
+        </div>
+      )}
+    </>
+  );
 };
 
-        export default CoursePage;
+export default CoursePage;
 
-        /* ─────────────────── Fonts ─────────────────── */
-        const fonts = `
+/* ─────────────────── Fonts ─────────────────── */
+const fonts = `
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&family=DM+Sans:wght@300;400;500;600&display=swap');
         .course-root {font - family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
         .course-root h1, .hero-title {font - family: 'Fraunces', serif; }
         `;
 
-        /* ─────────────────── Styles ─────────────────── */
-        const styles = `
+/* ─────────────────── Styles ─────────────────── */
+const styles = `
         @keyframes slideIn {from {opacity:0; transform:translateY(-10px); } to {opacity:1; transform:translateY(0); } }
         @keyframes fadeUp  {from {opacity:0; transform:translateY(12px); } to {opacity:1; transform:translateY(0); } }
 
