@@ -203,12 +203,13 @@ const CoursePage = () => {
 
       <div className="course-root pt-2">
         {/* ─── HERO BANNER ─── */}
-        <div className="hero-banner">
+
+        {/* only mobile view */}
+        <div className="lg:hidden xl:hidden md:hidden">
           <div className="hero-noise" />
-          <div className="max-w-6xl mx-auto px-5 py-12 relative z-10">
-            {/* only mobile view */}
-            <div className=" lg:hidden xl:hidden md:hidden">
-              <div className="flex items-center gap-2 mb-4">
+          <div className="max-w-6xl mx-auto px-5  relative z-10">
+            <div className="">
+              <div className="flex items-center gap-2 mb-4 ">
                 <span className="badge-category">{course.category}</span>
                 {course.isFree && <span className="badge-free">FREE</span>}
               </div>
@@ -227,8 +228,8 @@ const CoursePage = () => {
                 <div className="video-label">Preview Course</div>
               </button>
 
-              <h1 className="hero-title pt-3">{course.name}</h1>
-              <p className="hero-sub">
+              <h1 className="hero-title pt-3 text-[#1a2f6b]!">{course.name}</h1>
+              <p className="hero-sub text-[#1a2f6b]!">
                 {course.shortDescription || "A comprehensive preparation course by Dikshant IAS"}
               </p>
               <div className="flex flex-wrap gap-5 mt-6">
@@ -237,7 +238,7 @@ const CoursePage = () => {
                   { icon: Globe, text: "Hindi Medium" },
                   { icon: Users, text: "1,200+ Enrolled" },
                 ].map(({ icon: Icon, text }) => (
-                  <div key={text} className="hero-pill">
+                  <div key={text} className="hero-pill text-[#1a2f6b]!">
                     <Icon size={13} />
                     <span>{text}</span>
                   </div>
@@ -248,10 +249,10 @@ const CoursePage = () => {
                 {/* Price */}
                 {!isPurchased && (
                   <div className="price-row">
-                    <span className="price-main !text-white">₹{appliedCoupon ? totalAmount : (course.batchDiscountPrice || course.batchPrice)}</span>
                     {course.batchPrice && course.batchDiscountPrice && (
-                      <del className="price-original ">₹{course.batchPrice}</del>
+                      <del className="price-original px-2">₹&nbsp;{course.batchPrice}</del>
                     )}
+                    <span className="price-main text-[#1a2f6b]! px-2 text-xl">₹&nbsp;{appliedCoupon ? totalAmount : (course.batchDiscountPrice || course.batchPrice)}</span>
                     {discountPct > 0 && (
                       <span className="price-save">{discountPct}% off</span>
                     )}
@@ -268,7 +269,7 @@ const CoursePage = () => {
                   ].map(({ icon: Icon, text }) => (
                     <div key={text} className="meta-item">
                       <Icon size={13} className="meta-icon" />
-                      <span className="text-gray-200">{text}</span>
+                      <span className="text-[#1a2f6b]">{text}</span>
                     </div>
                   ))}
                 </div>
@@ -327,10 +328,14 @@ const CoursePage = () => {
                 )}
               </div>
             </div>
+          </div>
+        </div>
 
-
+        <div className="hero-banner hidden lg:block xl:block md:block">
+          <div className="hero-noise" />
+          <div className="max-w-6xl mx-auto px-5 py-12 relative z-10">
             {/* Desktop and tablet view */}
-            <div className="hidden lg:block xl:block md:block">
+            <div>
               <div className="flex flex-col lg:flex-row gap-10 items-center">
                 {/* Text */}
 
@@ -392,7 +397,7 @@ const CoursePage = () => {
             {/* ── LEFT: Description ── */}
             <div className="flex-1 min-w-0">
               <div className="section-card">
-                <h2 className="section-title">Course Overview</h2>
+                <h2 className="section-title text-red-500! text-2xl">Course Overview</h2>
                 <div className="prose-content">
                   {parse(course.longDescription || "<p>Course details coming soon.</p>")}
                 </div>
