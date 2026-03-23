@@ -228,14 +228,45 @@ const CoursePage = () => {
                 <div className="video-label">Preview Course</div>
               </button>
 
-              <h1 className="hero-title pt-3 text-[#1a2f6b]!">{course.name}</h1>
-              <p className="hero-sub text-[#1a2f6b]!">
-                {course.shortDescription || "A comprehensive preparation course by Dikshant IAS"}
-              </p>
+              <h1 className="hero-title text-2xl pt-3 text-[#1a2f6b]!">{course.name}</h1>
+
+              {course?.fee_one_time && (
+                <p className="hero-sub text-[#1a2f6b]!">
+                  Fee: One Time - {course?.fee_one_time}
+                </p>
+              )}
+
+              {course?.fee_inst && (
+                <p className="hero-sub text-[#1a2f6b]!">
+                  Fee: In Installment - {course?.fee_inst}
+                </p>
+              )}
+              {course?.note && (
+                <p className="hero-sub text-[#1a2f6b]!">
+                  Note:- {course?.note}
+                </p>
+              )}
+
+
+            {(!course?.note || !course?.fee_one_time || !course?.fee_inst) && (
+  <p className="hero-sub text-[#1a2f6b]!">
+     {course?.shortDescription}
+  </p>
+)}
+
+{/* Offer text with badge red  */}
+{course?.offerText && (
+  <div className="mt-2">
+    <span className="inline-block bg-red-100 text-red-600 text-xs font-semibold px-3 py-1 rounded-full">
+      {course.offerText}
+    </span>
+  </div>
+)}
+
               <div className="flex flex-wrap gap-5 mt-6">
                 {[
-                  { icon: Book, text: `${course.subjects?.length || 0} Subjects` },
-                  { icon: Globe, text: "Hindi Medium" },
+                  { icon: Book, text: `${course.subjects?.length || 0} Subjects / Topics` },
+                  { icon: Globe, text: course?.medium || "" },
                   { icon: Users, text: "1,200+ Enrolled" },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="hero-pill text-[#1a2f6b]!">
@@ -250,29 +281,15 @@ const CoursePage = () => {
                 {!isPurchased && (
                   <div className="price-row">
                     {course.batchPrice && course.batchDiscountPrice && (
-                      <del className="price-original px-2">₹&nbsp;{course.batchPrice}</del>
+                      <del className="price-original font-bold px-2 text-xl">₹&nbsp;{course.batchPrice}</del>
                     )}
-                    <span className="price-main text-[#1a2f6b]! px-2 text-xl">₹&nbsp;{appliedCoupon ? totalAmount : (course.batchDiscountPrice || course.batchPrice)}</span>
+                    <span className="price-main text-[#1a2f6b]! px-2 text-2xl">₹&nbsp;{appliedCoupon ? totalAmount : (course.batchDiscountPrice || course.batchPrice)}</span>
                     {discountPct > 0 && (
-                      <span className="price-save">{discountPct}% off</span>
+                      <span className="price-save ml-5">{discountPct}% off</span>
                     )}
                   </div>
                 )}
 
-                {/* Meta info */}
-                <div className="meta-list ">
-                  {[
-                    { icon: Book, text: `${course.subjects?.length || 0} Subjects included` },
-                    // { icon: Clock, text: `${course.startDate ? new Date(course.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "TBD"} → ${course.endDate ? new Date(course.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}` },
-                    { icon: Globe, text: "Hindi Medium" },
-
-                  ].map(({ icon: Icon, text }) => (
-                    <div key={text} className="meta-item">
-                      <Icon size={13} className="meta-icon" />
-                      <span className="text-[#1a2f6b]">{text}</span>
-                    </div>
-                  ))}
-                </div>
 
                 {/* CTA — purchased or not */}
                 {isPurchased ? (
@@ -352,8 +369,8 @@ const CoursePage = () => {
 
                   <div className="flex flex-wrap gap-5 mt-6">
                     {[
-                      { icon: Book, text: `${course.subjects?.length || 0} Subjects` },
-                      { icon: Globe, text: "Hindi Medium" },
+                      { icon: Book, text: `${course.subjects?.length || 0} Subjects / Topics` },
+                      { icon: Globe, text: course?.medium || "" },
                       { icon: Users, text: "1,200+ Enrolled" },
                       { icon: ShieldCheck, text: "Verified Course" },
                     ].map(({ icon: Icon, text }) => (
@@ -397,7 +414,7 @@ const CoursePage = () => {
             {/* ── LEFT: Description ── */}
             <div className="flex-1 min-w-0">
               <div className="section-card">
-                <h2 className="section-title text-red-500! text-2xl">Course Overview</h2>
+                <h2 className="section-title text-red-500! font-bold text-2xl">Course Overview</h2>
                 <div className="prose-content">
                   {parse(course.longDescription || "<p>Course details coming soon.</p>")}
                 </div>
@@ -465,17 +482,23 @@ const CoursePage = () => {
                         <del className="price-original">₹{course.batchPrice}</del>
                       )}
                       {discountPct > 0 && (
-                        <span className="price-save">{discountPct}% off</span>
+                        <span className="price-save"> {discountPct}% off</span>
                       )}
                     </div>
                   )}
-
+{course?.offerText && (
+  <div className="mb-2">
+    <span className="inline-block bg-red-100 text-red-600 text-xs font-semibold px-3 py-1 rounded-full">
+      {course.offerText}
+    </span>
+  </div>
+)}
                   {/* Meta info */}
                   <div className="meta-list">
                     {[
-                      { icon: Book, text: `${course.subjects?.length || 0} Subjects included` },
+                      { icon: Book, text: `${course.subjects?.length || 0} Subjects / Topics` },
                       // { icon: Clock, text: `${course.startDate ? new Date(course.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "TBD"} → ${course.endDate ? new Date(course.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}` },
-                      { icon: Globe, text: "Hindi Medium" },
+                      { icon: Globe, text: course.medium || "" },
 
                     ].map(({ icon: Icon, text }) => (
                       <div key={text} className="meta-item">
@@ -534,9 +557,7 @@ const CoursePage = () => {
                         {paymentLoading ? <><Loader2 size={16} className="animate-spin" /> Processing…</> : <>Buy Now  <ArrowRight size={15} /></>}
                       </button>
 
-                      <p className="text-[10.5px] text-center text-[#94a3b8] mt-3">
-                        Secure payment via Razorpay · 30-day money-back guarantee
-                      </p>
+                   
                     </>
                   )}
                 </div>

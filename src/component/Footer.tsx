@@ -351,13 +351,13 @@ const Footer: React.FC = () => {
                 <Image
                   src={settings.image.url}
                   alt="Logo"
-                  width={160}
-                  height={100}
+                  width={120}
+                  height={90}
                   className="mx-auto md:mx-0"
                 />
-                <div className="text-md font-medium text-blue-950 mt-2 text-center md:text-left">
-                  Empowering minds for a brighter future.
-                </div>
+           <div className="text-md italic font-medium text-blue-950 mt-2 text-center md:text-left">
+  Empowering minds for a brighter future.
+</div>
               </div>
             </div>
 
