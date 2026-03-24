@@ -84,8 +84,8 @@ const CourseCard: React.FC<{ course: CourseWithPurchase }> = ({ course }) => {
       </div>
 
       {/* Card Content */}
-      <div className="p-6 mt-2 md:mt-2">
-        <h3 className="text-[18px] font-bold text-[#00072c] mb-2 line-clamp-2">
+      <div className="p-4 ">
+        <h3 className="text-[20px] font-bold text-[#00072c] mb-2 line-clamp-3">
           {course.name}
         </h3>
 

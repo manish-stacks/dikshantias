@@ -228,19 +228,19 @@ const CoursePage = () => {
                 <div className="video-label">Preview Course</div>
               </button>
 
-              <h1 className="hero-title text-2xl pt-3 text-[#1a2f6b]!">{course.name}</h1>
-
-              {course?.fee_one_time && (
-                <p className="hero-sub text-[#1a2f6b]!">
-                  Fee: One Time - {course?.fee_one_time}
-                </p>
-              )}
-
+              <h1 className="hero-title text-[20px] pt-3 text-[#1a2f6b]!">{course.name}</h1>
               {course?.fee_inst && (
                 <p className="hero-sub text-[#1a2f6b]!">
-                  Fee: In Installment - {course?.fee_inst}
+                  {course?.fee_inst}
                 </p>
               )}
+              {course?.fee_one_time && (
+                <p className="hero-sub text-[#1a2f6b]!">
+                  {course?.fee_one_time}
+                </p>
+              )}
+
+
               {course?.note && (
                 <p className="hero-sub text-[#1a2f6b]!">
                   Note:- {course?.note}
@@ -248,20 +248,20 @@ const CoursePage = () => {
               )}
 
 
-            {(!course?.note || !course?.fee_one_time || !course?.fee_inst) && (
-  <p className="hero-sub text-[#1a2f6b]!">
-     {course?.shortDescription}
-  </p>
-)}
+              {(!course?.note || !course?.fee_one_time || !course?.fee_inst) && (
+                <p className="hero-sub text-[#1a2f6b]!">
+                  {course?.shortDescription}
+                </p>
+              )}
 
-{/* Offer text with badge red  */}
-{course?.offerText && (
-  <div className="mt-2">
-    <span className="inline-block bg-red-100 text-red-600 text-xs font-semibold px-3 py-1 rounded-full">
-      {course.offerText}
-    </span>
-  </div>
-)}
+              {/* Offer text with badge red  */}
+              {course?.offerText && (
+                <div className="mt-2">
+                  <span className="inline-block bg-red-100 text-red-600 text-[16px] font-semibold px-3 py-1 rounded-full">
+                    {course.offerText}
+                  </span>
+                </div>
+              )}
 
               <div className="flex flex-wrap gap-5 mt-6">
                 {[
@@ -414,7 +414,7 @@ const CoursePage = () => {
             {/* ── LEFT: Description ── */}
             <div className="flex-1 min-w-0">
               <div className="section-card">
-                <h2 className="section-title text-red-500! font-bold text-2xl">Course Overview</h2>
+                <h2 className="section-title text-red-500! font-bold text-[17px]">Course Overview</h2>
                 <div className="prose-content">
                   {parse(course.longDescription || "<p>Course details coming soon.</p>")}
                 </div>
@@ -486,13 +486,13 @@ const CoursePage = () => {
                       )}
                     </div>
                   )}
-{course?.offerText && (
-  <div className="mb-2">
-    <span className="inline-block bg-red-100 text-red-600 text-xs font-semibold px-3 py-1 rounded-full">
-      {course.offerText}
-    </span>
-  </div>
-)}
+                  {course?.offerText && (
+                    <div className="mb-2">
+                      <span className="inline-block bg-red-100 text-red-600 text-xs font-semibold px-3 py-1 rounded-full">
+                        {course.offerText}
+                      </span>
+                    </div>
+                  )}
                   {/* Meta info */}
                   <div className="meta-list">
                     {[
@@ -557,7 +557,7 @@ const CoursePage = () => {
                         {paymentLoading ? <><Loader2 size={16} className="animate-spin" /> Processing…</> : <>Buy Now  <ArrowRight size={15} /></>}
                       </button>
 
-                   
+
                     </>
                   )}
                 </div>

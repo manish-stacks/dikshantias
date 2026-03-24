@@ -299,43 +299,43 @@ const Footer: React.FC = () => {
 
   const socialMedia = settings
     ? [
-        {
-          icon: Facebook,
-          href: settings.facebook,
-          label: "Facebook",
-          backgroundColor: "bg-[#3b579d]",
-        },
-        {
-          icon: Instagram,
-          href: settings.instagram,
-          label: "Instagram",
-          backgroundColor: "bg-[#a408f3]",
-        },
-        {
-          icon: Youtube,
-          href: settings.youtube,
-          label: "YouTube",
-          backgroundColor: "bg-red-600",
-        },
-        {
-          icon: Linkedin,
-          href: settings.linkedin,
-          label: "LinkedIn",
-          backgroundColor: "bg-[#0274b3]",
-        },
-        {
-          icon: Twitter,
-          href: settings.twitter,
-          label: "Twitter",
-          backgroundColor: "bg-[#1d9bf0]",
-        },
-        {
-          icon: Send,
-          href: settings.telegram,
-          label: "Telegram",
-          backgroundColor: "bg-[#29a9eb]",
-        },
-      ]
+      {
+        icon: Facebook,
+        href: settings.facebook,
+        label: "Facebook",
+        backgroundColor: "bg-[#3b579d]",
+      },
+      {
+        icon: Instagram,
+        href: settings.instagram,
+        label: "Instagram",
+        backgroundColor: "bg-[#a408f3]",
+      },
+      {
+        icon: Youtube,
+        href: settings.youtube,
+        label: "YouTube",
+        backgroundColor: "bg-red-600",
+      },
+      {
+        icon: Linkedin,
+        href: settings.linkedin,
+        label: "LinkedIn",
+        backgroundColor: "bg-[#0274b3]",
+      },
+      {
+        icon: Twitter,
+        href: settings.twitter,
+        label: "Twitter",
+        backgroundColor: "bg-[#1d9bf0]",
+      },
+      {
+        icon: Send,
+        href: settings.telegram,
+        label: "Telegram",
+        backgroundColor: "bg-[#29a9eb]",
+      },
+    ]
     : [];
 
   if (!settings) return null;
@@ -355,9 +355,9 @@ const Footer: React.FC = () => {
                   height={90}
                   className="mx-auto md:mx-0"
                 />
-           <div className="text-md italic font-medium text-blue-950 mt-2 text-center md:text-left">
-  Empowering minds for a brighter future.
-</div>
+                <div className="text-md italic font-medium text-[#a50309] mt-2 text-center md:text-left">
+                  Empowering minds for a brighter future.
+                </div>
               </div>
             </div>
 
