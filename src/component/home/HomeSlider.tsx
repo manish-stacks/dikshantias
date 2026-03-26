@@ -120,7 +120,7 @@ export default function HomeSlider({
                   md:bottom-5 md:right-14
                 "
               >
-                <a href="/holi-offer">
+                <a href="/summer-offer">
                   <button
                     className="
                     bg-red-600 hover:bg-red-700 text-white 

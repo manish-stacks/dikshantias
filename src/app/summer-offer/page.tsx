@@ -23,6 +23,11 @@ const HoliOfferPage = () => {
   }, []);
 
   const demoCourses = [
+        {
+      title: t("coursesDemo.gs_upsc_hindi"),
+      demo1: " https://www.youtube.com/live/b7_gwnwlOQ0?si=i365Orbxict1RhbK",
+      demo2: "https://youtube.com/live/U4K6au34Kso",
+    },
     {
       title: t("coursesDemo.gs_ncert"),
       demo1: "https://youtube.com/live/FZCrsdcFXAU",
@@ -53,6 +58,11 @@ const HoliOfferPage = () => {
       demo1: "https://youtube.com/live/b7_gwnwlOQ0",
       demo2: "https://youtu.be/hh8FvwQMKgM",
     },
+      {
+      title: t("coursesDemo.sociology_ugc"),
+      demo1: "https://youtube.com/live/q-kYad9XgpA",
+      demo2: "https://youtube.com/live/aMmosC52lCA",
+    },
   ];
   return (
     <div className="min-h-screen bg-white-50 pt-0 md:pt-0">
@@ -60,8 +70,8 @@ const HoliOfferPage = () => {
         {/* LEFT SIDE - IMAGE */}
         <div className="relative bg-[#FFFF] pt-1 flex items-center justify-center p-3">
           <Image
-            src="/img/holi-dhamaka.png"
-            alt={t("holiOffer.alt")}
+            src="/img/Summer Special Offer-Fee.png"
+            alt={t("summeroffer.alt")}
             width={900}
             height={1200}
             className="w-full h-auto object-contain"
@@ -74,7 +84,7 @@ const HoliOfferPage = () => {
         <div className="flex flex-col p-6 md:p-10 bg-[#F8FAFC] space-y-10">
           {/* ================= DEMO SECTION ================= */}
           <div>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#1E3A8A] mb-6 text-center md:text-left">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E3A8A] mb-6 text-center md:text-left">
               {t("demoSection.watch")}{" "}
               <span className="text-[#FB2C36]">{t("demoSection.demo")}</span>
             </h2>

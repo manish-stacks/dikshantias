@@ -313,10 +313,10 @@
     ]
   },
   "holiOffer": {
-    "badge": "Limited Time Holi Scholarship",
-    "title": "Celebrate Holi with a",
-    "highlight": "95% Scholarship",
-    "description": "This Holi, take a confident step toward your UPSC dream. Unlock exclusive scholarship benefits available for a short time only.",
+    "badge": "LIMITED TIME SUMMER SPECIAL OFFER",
+    "title": "BEAT HEAT WITH SUMMER ",
+    "highlight": "90% Scholarship",
+    "description": "Don't let the sun stall your prep! Grab 90% off with our Summer Scholarship.",
     "button": "Download App & Claim Offer",
     "note": "Seats are limited. Offer valid for a short duration."
   },
@@ -327,11 +327,14 @@
     "demo2": "Demo - 2"
   },
   "coursesDemo": {
+    "gs_upsc_hindi": "GS - UPSC (Hindi Med.)",
     "gs_ncert": "GS - NCERT",
     "gs_bpsc": "GS - BPSC",
     "csat_hindi": "CSAT (Hindi Med.)",
     "csat_english": "CSAT (English Med.)",
     "gs_upsc": "GS - UPSC (English Med.)",
-    "sociology": "SOCIOLOGY (Optional)"
+    "sociology": "SOCIOLOGY (Optional)",
+    "sociology_ugc": "Sociology (UGC/NET/SET)"
+
   }
 }

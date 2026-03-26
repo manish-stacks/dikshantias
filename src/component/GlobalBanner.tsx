@@ -10,12 +10,12 @@ export default function GlobalBanner() {
 
   return (
     <div className="w-full bg-white relative">
-      <div className="max-w-7xl mx-auto py-3">
-        <Link href="/holi-offer" className="block w-full">
+      <div className="max-w-7xl px-3 mx-auto py-1">
+        <Link href="/summer-offer" className="block w-full">
           {/* Mobile */}
           <div className="block sm:hidden relative w-full">
             <Image
-              src="/img/holinew.png"
+              src="/img/mobpa.png"
               alt="Mobile Banner"
               width={800}
               height={400}
@@ -27,7 +27,7 @@ export default function GlobalBanner() {
           {/* Desktop */}
           <div className="hidden sm:block relative w-full">
             <Image
-              src="/img/holi1.png"
+              src="/img/webPatti.png"
               alt="Desktop Banner"
               width={1600}
               height={500}
