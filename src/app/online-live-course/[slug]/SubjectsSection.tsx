@@ -12,7 +12,7 @@ const SubjectsSection = ({ course }) => {
     <>
       {course.subjects && course.subjects.length > 0 && (
         <div className="section-card mt-5">
-          <h2 className="pb-5 font-bold text-red-500 text-2xl">Subjects Covered</h2>
+          <h2 className="pb-5 font-bold text-red-500 text-[17px]">Subjects / Topic Covered</h2>
 
           <div className="subjects-grid">
             {visibleSubjects.map((sub, i) => (

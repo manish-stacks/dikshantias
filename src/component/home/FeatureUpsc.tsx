@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import parse from "html-react-parser";
 
 interface Program {
   id: number;
@@ -253,14 +254,16 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
           {program.description}
         </p> */}
 
-        <div className="flex items-center justify-between mb-4 text-sm text-[#00072c]">
+        <div className="mb-2  text-sm text-[#00072c]">
           {/* <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1 text-orange-500" />
             <span>
               Start: {new Date(program.startDate || "").toLocaleDateString()}
             </span>
           </div> */}
-          {program?.shortDescription}
+                                      {parse(program.shortDescription || "<p>Course details coming soon.</p>")}
+          
+
           {/* <div className="flex items-center">
                     <Book className="w-4 h-4 mr-1 text-orange-500" />
                     <span>Status - {program.c_status}</span>

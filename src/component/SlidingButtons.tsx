@@ -74,7 +74,7 @@ export default function SlidingButtons({
   const nextSlide = () => setCurrentSlide((p) => (p + 1) % buttons.length);
 
   return (
-    <div className={`w-full max-w-7xl mx-auto pt-2 md:pt-3 ${className}`}>
+    <div className={`w-full max-w-7xl mb-3 mx-auto pt-2 md:pt-3 ${className}`}>
       {/* Desktop View - All buttons */}
       <div className="hidden md:flex md:justify-between items-center gap-6">
         {buttons.map((btn) => {
@@ -83,7 +83,7 @@ export default function SlidingButtons({
             <button
               key={`btn-${btn.id}-${btn.textKey}`}
               onClick={btn.action}
-              className={`${btn.bgColor} ${btn.textColor} px-6 py-2 w-full rounded-lg flex items-center gap-3 font-semibold text-[10px] md:text-sm hover:scale-101 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2`}
+              className={`${btn.bgColor} ${btn.textColor} px-4 py-2 w-[350px] rounded-lg flex items-center gap-3 font-semibold text-[10px] md:text-sm hover:scale-101 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2`}
               type="button"
               aria-label={t(btn.textKey)}
             >

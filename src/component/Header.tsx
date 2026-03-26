@@ -153,14 +153,16 @@ const Header: React.FC = () => {
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
               {settings?.image?.url ? (
-                <Image src={settings.image.url} alt={settings.name} width={150} height={44} className="h-10 w-auto object-contain" />
+                <Image src={settings.image.url} alt={settings.name} width={120} height={44} className="h-8 w-auto object-contain" />
               ) : (
-                <Image src="/img/dikshant-logo.png" alt="Logo" width={150} height={44} className="h-10 w-auto object-contain" />
+                <Image src="/img/dikshant-logo.png" alt="Logo" width={120} height={44} className="h-8 w-auto object-contain" />
               )}
             </Link>
 
             {/* ── Desktop nav ───────────────────────────── */}
             <nav className="hidden lg:flex items-center gap-0.5">
+              <NavLink href="/">{t("home") || "Home"}</NavLink>
+
               <NavLink href="/about-us">{t("about") || "About"}</NavLink>
 
               <DropdownMenu label={t("courses") || "Courses"} menuKey="courses"
@@ -294,7 +296,7 @@ const Header: React.FC = () => {
           {/* Drawer header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
             <Link href="/" onClick={toggleMobileMenu}>
-              <Image src="/img/dikshant-logo.png" alt="Logo" width={120} height={36} className="h-9 w-auto" />
+              <Image src="/img/dikshant-logo.png" alt="Logo" width={100} height={36} className="h-8 w-auto" />
             </Link>
             <button onClick={toggleMobileMenu} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100">
               <X className="w-5 h-5" />
@@ -303,7 +305,7 @@ const Header: React.FC = () => {
 
           {/* Nav links */}
           <div className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
-            <MobileLink href="/about-us" onClick={toggleMobileMenu}>Home</MobileLink>
+            <MobileLink href="/" onClick={toggleMobileMenu}>Home</MobileLink>
 
             <MobileLink href="/about-us" onClick={toggleMobileMenu}>About Dikshant</MobileLink>
             <MobileLink href="/about-upsc" onClick={toggleMobileMenu}>About UPSC</MobileLink>

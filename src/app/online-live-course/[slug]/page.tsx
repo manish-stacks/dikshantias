@@ -247,7 +247,7 @@ const CoursePage = () => {
 
               {(!course?.note || !course?.fee_one_time || !course?.fee_inst) && (
                 <p className="hero-sub text-[#1a2f6b]!">
-                  {course?.shortDescription}
+                  {parse(course.shortDescription || "<p>Course details coming soon.</p>")}
                 </p>
               )}
 
@@ -361,7 +361,8 @@ const CoursePage = () => {
                   </div>
                   <h1 className="hero-title">{course.name}</h1>
                   <p className="hero-sub">
-                    {course.shortDescription || "A comprehensive preparation course by Dikshant IAS"}
+                    {parse(course.shortDescription || "<p>Course details coming soon.</p>")}
+
                   </p>
 
                   <div className="flex flex-wrap gap-5 mt-6">

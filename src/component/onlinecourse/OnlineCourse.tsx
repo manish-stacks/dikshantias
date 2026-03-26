@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import axiosInstance from "@/lib/axios";
+import parse from "html-react-parser";
 
 interface Course {
   id: number;
@@ -46,7 +47,7 @@ interface CourseWithPurchase extends Course {
 
 const CourseCard: React.FC<{ course: CourseWithPurchase }> = ({ course }) => {
   const router = useRouter();
-
+  console.log(course)
   const handleAction = () => {
     if (course.isPurchased) {
       router.push(`/my-course?courseId=${course.id}&unlocked=true`);
@@ -89,14 +90,9 @@ const CourseCard: React.FC<{ course: CourseWithPurchase }> = ({ course }) => {
           {course.name}
         </h3>
 
-        <div className="flex items-center justify-between mb-4 text-sm text-[#00072c]">
-          {course?.shortDescription}
-          {/* <div className="flex items-center">
-            <Clock className="w-4 h-4 mr-1 text-orange-500" />
-            <span>
-              Start: {course.startDate ? new Date(course.startDate).toLocaleDateString() : "TBA"}
-            </span>
-          </div> */}
+        <div className=" mb-2  text-sm text-[#00072c]">
+   
+         {parse(course.shortDescription || "<p>Course details coming soon.</p>")}
         </div>
 
         <button

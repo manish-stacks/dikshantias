@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import parse from "html-react-parser";
 
 interface Course {
   id: number;
@@ -98,14 +99,14 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
         </h3>
 
         {/* Duration & Lessons */}
-        <div className="flex items-center justify-between mb-4 text-sm text-[#00072c]">
+        <div className="text-sm  mb-2  text-[#00072c]">
           {/* <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1 text-orange-500" />
             <span>
               Start: {new Date(course.startDate || "").toLocaleDateString()}
             </span>
           </div> */}
-          {course?.shortDescription}
+                            {parse(course.shortDescription || "<p>Course details coming soon.</p>")}
           {/* <div className="flex items-center">
                     <Book className="w-4 h-4 mr-1 text-orange-500" />
                     <span>Status - {course.c_status}</span>

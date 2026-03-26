@@ -25,11 +25,11 @@ interface CourseCardProps {
 }
 
 const courses: Course[] = [
-  { id: 'online', bgColor: 'bg-red-100', circleColor: 'bg-red-300', icon: <Monitor className="w-8 h-8 text-red-600" />, link: '/online-course' },
-  { id: 'distance', bgColor: 'bg-purple-300', circleColor: 'bg-purple-500', icon: <Building2 className="w-8 h-8 text-purple-700" /> },
-  { id: 'test', bgColor: 'bg-yellow-200', circleColor: 'bg-yellow-500', icon: <BookOpen className="w-8 h-8 text-yellow-500" /> },
-  { id: 'scholarship', bgColor: 'bg-rose-200', circleColor: 'bg-rose-300', icon: <FileText className="w-8 h-8 text-rose-700" /> },
-  { id: 'study', bgColor: 'bg-blue-200', circleColor: 'bg-blue-400', icon: <BookOpen className="w-8 h-8 text-blue-500" /> }
+  { id: 'online', bgColor: 'bg-red-100', circleColor: 'bg-red-300', icon: <Monitor className="w-8 h-8 text-red-600" />, link: '/online-live-course' },
+  { id: 'distance', bgColor: 'bg-purple-300', circleColor: 'bg-purple-500', icon: <Building2 className="w-8 h-8 text-purple-700" /> , link: '/' },
+  { id: 'test', bgColor: 'bg-yellow-200', circleColor: 'bg-yellow-500', icon: <BookOpen className="w-8 h-8 text-yellow-500" /> ,link: '/test-series' },
+  { id: 'scholarship', bgColor: 'bg-rose-200', circleColor: 'bg-rose-300', icon: <FileText className="w-8 h-8 text-rose-700" />, link: '/scholarship-programme'},
+  { id: 'Quiz', bgColor: 'bg-blue-200', circleColor: 'bg-blue-400', icon: <BookOpen className="w-8 h-8 text-blue-500" /> ,link: '/quiz' }
 ];
 
 const BestIasCoaching: React.FC = () => {
