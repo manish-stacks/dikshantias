@@ -303,6 +303,8 @@ const Header: React.FC = () => {
 
           {/* Nav links */}
           <div className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
+            <MobileLink href="/about-us" onClick={toggleMobileMenu}>Home</MobileLink>
+
             <MobileLink href="/about-us" onClick={toggleMobileMenu}>About Dikshant</MobileLink>
             <MobileLink href="/about-upsc" onClick={toggleMobileMenu}>About UPSC</MobileLink>
 

@@ -54,7 +54,7 @@ const DailyBlog = () => {
         <div className="grid lg:grid-cols-1">
           <div>
             <div className="bg-red-100 rounded-2xl p-6 shadow-md">
-              <h3 className="text-[18px] md:text-3xl font-bold text-[#00072c] mb-6">
+              <h3 className="text-[18px] md:text-3xl font-bold text-[#a50309] mb-6">
                 Daily Blog
               </h3>
 
@@ -71,7 +71,7 @@ const DailyBlog = () => {
                       </div>
 
                       <div className="flex-1">
-                        <h4 className="font-semibold text-[#00072c] group-hover:text-pink-600 transition-colors duration-300">
+                        <h4 className="font-semibold text-[#00072c] group-hover:text-[#a50309] transition-colors duration-300">
                           {blog.title[lang]}
                         </h4>
                         <p className="text-sm text-[#081347] mt-1">

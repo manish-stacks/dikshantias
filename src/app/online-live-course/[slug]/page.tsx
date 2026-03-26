@@ -221,10 +221,7 @@ const CoursePage = () => {
                   alt={course.name} width={600} height={338}
                   className="video-thumb-img"
                 />
-                <div className="video-overlay">
-                  <span className="ping-ring" />
-                  <div className="play-btn"><PlayIcon size={22} className="text-white" fill="white" /></div>
-                </div>
+
                 <div className="video-label">Preview Course</div>
               </button>
 
@@ -265,7 +262,7 @@ const CoursePage = () => {
 
               <div className="flex flex-wrap gap-5 mt-6">
                 {[
-                  { icon: Book, text: `${course.subjects?.length || 0} Subjects / Topics` },
+                  { icon: Book, text: `Subjects / Topics - ${course.subjects?.length || 0} ` },
                   { icon: Globe, text: course?.medium || "" },
                   { icon: Users, text: "1,200+ Enrolled" },
                 ].map(({ icon: Icon, text }) => (
@@ -369,7 +366,7 @@ const CoursePage = () => {
 
                   <div className="flex flex-wrap gap-5 mt-6">
                     {[
-                      { icon: Book, text: `${course.subjects?.length || 0} Subjects / Topics` },
+                      { icon: Book, text: `Subjects / Topics - ${course.subjects?.length || 0} ` },
                       { icon: Globe, text: course?.medium || "" },
                       { icon: Users, text: "1,200+ Enrolled" },
                       { icon: ShieldCheck, text: "Verified Course" },
@@ -496,7 +493,7 @@ const CoursePage = () => {
                   {/* Meta info */}
                   <div className="meta-list">
                     {[
-                      { icon: Book, text: `${course.subjects?.length || 0} Subjects / Topics` },
+                      { icon: Book, text: `Subjects / Topics - ${course.subjects?.length || 0} ` },
                       // { icon: Clock, text: `${course.startDate ? new Date(course.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "TBD"} → ${course.endDate ? new Date(course.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}` },
                       { icon: Globe, text: course.medium || "" },
 
