@@ -71,8 +71,7 @@ export default function NotificationsPage() {
   /* -------------------- UI -------------------- */
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-2xl mx-auto px-4 py-8">
-
+      <div className="max-w-7xl mx-auto px-4 py-8 ">
         {/* HEADER */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -107,11 +106,10 @@ export default function NotificationsPage() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`px-3 py-1.5 text-xs rounded-full transition ${
-                activeTab === tab.key
+              className={`px-3 py-1.5 text-xs rounded-full transition ${activeTab === tab.key
                   ? "bg-indigo-600 text-white"
                   : "bg-gray-200 text-gray-600"
-              }`}
+                }`}
             >
               {tab.label}
             </button>
@@ -134,9 +132,8 @@ export default function NotificationsPage() {
               return (
                 <div
                   key={notif.id}
-                  className={`flex gap-3 p-4 hover:bg-gray-50 transition ${
-                    !notif.isRead && "bg-indigo-50/40"
-                  }`}
+                  className={`flex gap-3 p-4 hover:bg-gray-50 transition ${!notif.isRead && "bg-indigo-50/40"
+                    }`}
                 >
                   {/* ICON */}
                   <div

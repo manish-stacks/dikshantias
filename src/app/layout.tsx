@@ -49,9 +49,9 @@ export default function RootLayout({
       </head>
 
       <body>
-        <AuthInitializer/>
-       
-      
+        <AuthInitializer />
+
+
         <Providers>
           <Suspense fallback={<div>Loading...</div>}>
             <ClientLayoutWrapper>

@@ -66,11 +66,11 @@ const HoliOfferPage = () => {
   ];
   return (
     <div className="min-h-screen bg-white-50 pt-0 md:pt-0">
-      <div className="w-full max-w-6xl mx-auto bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden grid md:grid-cols-2">
+      <div className="w-full max-w-7xl mx-auto bg-white rounded-md overflow-hidden grid md:grid-cols-2">
         {/* LEFT SIDE - IMAGE */}
         <div className="relative bg-[#FFFF] pt-1 flex items-center justify-center p-3">
           <Image
-            src="/img/Summer Special Offer-Fee.png"
+            src="/img/Summer-Special-Offer.png"
             alt={t("summeroffer.alt")}
             width={900}
             height={1200}

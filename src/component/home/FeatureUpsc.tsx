@@ -147,7 +147,7 @@ const FeatureUpsc: React.FC = () => {
         <div className="relative">
           <div ref={sliderRef} className="overflow-hidden rounded-lg">
             <div
-              className="flex transition-transform duration-500 ease-out"
+              className="flex transition-transform duration-500 ease-out "
               style={{
                 transform: `translateX(-${(currentSlide * 100) / slidesToShow}%)`,
               }}
@@ -261,8 +261,8 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
               Start: {new Date(program.startDate || "").toLocaleDateString()}
             </span>
           </div> */}
-                                      {parse(program.shortDescription || "<p>Course details coming soon.</p>")}
-          
+          {parse(program.shortDescription || "<p>Course details coming soon.</p>")}
+
 
           {/* <div className="flex items-center">
                     <Book className="w-4 h-4 mr-1 text-orange-500" />

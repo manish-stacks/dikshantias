@@ -10,7 +10,7 @@ export default function GlobalBanner() {
 
   return (
     <div className="w-full bg-white relative">
-      <div className="max-w-7xl px-3 mx-auto py-1">
+      <div className="max-w-7xl mx-auto py-1">
         <Link href="/summer-offer" className="block w-full">
           {/* Mobile */}
           <div className="block sm:hidden relative w-full">
