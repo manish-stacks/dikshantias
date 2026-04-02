@@ -32,7 +32,7 @@ interface SectionContent {
 }
 
 export default function OurProudAchivement() {
-   const { t, i18n } = useTranslation("common")
+  const { t, i18n } = useTranslation("common")
   const [section, setSection] = useState<SectionContent | null>(null)
   const [toppers, setToppers] = useState<Topper[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -91,33 +91,33 @@ export default function OurProudAchivement() {
     return () => clearInterval(interval)
   }, [toppers, currentIndex, itemsPerView])
 
-          return (
-            <div className="py-5 px-2 md:px-4 mb-4" style={{ backgroundColor: "#fff" }}>
-              <div className="max-w-7xl md:mx-auto mt-7">
-                <div className="bg-[#ecf4fc] backdrop-blur-sm rounded-3xl p-6 md:p-8 lg:p-12">
-                <h2 className="text-xl md:text-3xl lg:text-4xl font-bold text-[#040c33] mb-2">
-          {loading ? (
-            <Skeleton width={200} />
-          ) : (
-            <>
-              {t("ourResults")}
-              
-              <span className="block text-sm md:text-base lg:text-lg font-normal text-gray-600 mt-1">
-                {t("ourResultsSubtitle")}
-              </span>
-            </>
-          )}
-        </h2>
+  return (
+    <div className="py-5 px-2 md:px-4 mb-4" style={{ backgroundColor: "#fff" }}>
+      <div className="max-w-7xl md:mx-auto mt-7">
+        <div className="bg-[#ecf4fc] backdrop-blur-sm rounded-3xl p-6 md:p-8 lg:p-12">
+          <h2 className="text-xl md:text-3xl lg:text-4xl font-bold text-[#722f37] mb-2">
+            {loading ? (
+              <Skeleton width={200} />
+            ) : (
+              <>
+                {t("ourResults")}
+
+                <span className="block text-sm md:text-base lg:text-lg font-normal text-gray-600 mt-1">
+                  {t("ourResultsSubtitle")}
+                </span>
+              </>
+            )}
+          </h2>
 
 
           {/* Description */}
-         <p className="text-blue-950 mb-4 md:mb-10">
-  {loading ? (
-    <Skeleton count={3} />
-  ) : (
-    <span dangerouslySetInnerHTML={{ __html: section?.description?.[i18n.language] || "" }} />
-  )}
-</p>
+          <p className="text-blue-950 mb-4 md:mb-10">
+            {loading ? (
+              <Skeleton count={3} />
+            ) : (
+              <span dangerouslySetInnerHTML={{ __html: section?.description?.[i18n.language] || "" }} />
+            )}
+          </p>
 
 
           <div className="relative">
@@ -137,17 +137,17 @@ export default function OurProudAchivement() {
               <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${(currentIndex * 100) / itemsPerView}%)` }}>
                 {loading
                   ? Array.from({ length: itemsPerView }).map((_, idx) => (
-                      <div key={idx} className="flex-shrink-0 px-3" style={{ width: `${100 / itemsPerView}%` }}>
-                        <div className="text-center bg-[#040c33] py-8 rounded-2xl">
-                          <Skeleton circle width={112} height={112} className="mx-auto mb-4" />
-                          <Skeleton width={80} height={20} className="mx-auto mb-2" />
-                          <Skeleton width={60} height={16} className="mx-auto mb-1" />
-                          <Skeleton width={40} height={14} className="mx-auto" />
-                        </div>
+                    <div key={idx} className="flex-shrink-0 px-3" style={{ width: `${100 / itemsPerView}%` }}>
+                      <div className="text-center bg-[#040c33] py-8 rounded-2xl">
+                        <Skeleton circle width={112} height={112} className="mx-auto mb-4" />
+                        <Skeleton width={80} height={20} className="mx-auto mb-2" />
+                        <Skeleton width={60} height={16} className="mx-auto mb-1" />
+                        <Skeleton width={40} height={14} className="mx-auto" />
                       </div>
-                    ))
+                    </div>
+                  ))
                   : toppers.map((topper) => (
-                     <div key={topper._id} className="flex-shrink-0 px-3" style={{ width: `${100 / itemsPerView}%` }}>
+                    <div key={topper._id} className="flex-shrink-0 px-3" style={{ width: `${100 / itemsPerView}%` }}>
                       <div className="text-center bg-[#040c33] border border-[#000622] py-8 rounded-2xl">
                         <div className="relative inline-block mb-4">
                           <div className="w-25 h-25 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 md:border-3 border-orange-400">
@@ -172,7 +172,7 @@ export default function OurProudAchivement() {
                         <p className="text-orange-300 text-sm">{topper.year}</p>
                       </div>
                     </div>
-                    ))}
+                  ))}
               </div>
             </div>
           </div>
@@ -182,11 +182,11 @@ export default function OurProudAchivement() {
               <Skeleton width={150} height={40} />
             ) : (
               <Link
-  href={section?.buttonLink || "/"}
-  className="px-4 py-2 bg-[#a50309] text-white rounded-md"
->
-  {section?.buttonText?.[i18n.language] || "View All Results"}
-</Link>
+                href={section?.buttonLink || "/"}
+                className="px-4 py-2 bg-[#a50309] text-white rounded-md"
+              >
+                {section?.buttonText?.[i18n.language] || "View All Results"}
+              </Link>
 
             )}
           </div>
