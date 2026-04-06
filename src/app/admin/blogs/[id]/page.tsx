@@ -6,7 +6,9 @@ import AdminLayout from "@/component/admin/AdminLayout";
 import ImageUpload from "@/component/admin/ImageUpload";
 import { CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+// import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+import JoditEditor from "jodit-react";
+import { useRef } from "react";
 
 interface Category {
   _id: string;
@@ -15,6 +17,7 @@ interface Category {
 }
 
 export default function EditBlogPage() {
+      const editor = useRef(null);
   const router = useRouter();
 const params = useParams<{ id: string }>();
 const id = params ? (Array.isArray(params.id) ? params.id[0] : params.id) : null;
@@ -259,391 +262,401 @@ const handleSubmit = async (e: React.FormEvent) => {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-xl max-w-6xl mx-auto space-y-8"
       >
-              {/* Basic Info */}
-                <div>
-                    <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b border-gray-300-b pb-2">
-                        Basic Information
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
+        {/* Basic Info */}
+        <div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b border-gray-300-b pb-2">
+            Basic Information
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Title English */}
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Title (English)
+              </label>
+              <input
+                type="text"
+                value={titleEn}
+                onChange={(e) => setTitleEn(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
+                required
+              />
+            </div>
+            {/* Title Hindi */}
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Title (Hindi)
+              </label>
+              <input
+                type="text"
+                value={titleHi}
+                onChange={(e) => setTitleHi(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
+              />
+            </div>
 
-                         {/* Title English */}
-                            <div>
-                            <label className="block font-medium text-gray-700 mb-1">
-                                Title (English)
-                            </label>
-                            <input
-                                type="text"
-                                value={titleEn}
-                                onChange={(e) => setTitleEn(e.target.value)}
-                                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
-                                required
-                            />
-                            </div>
-                            {/* Title Hindi */}
-                            <div>
-                            <label className="block font-medium text-gray-700 mb-1">
-                                Title (Hindi)
-                            </label>
-                            <input
-                                type="text"
-                                value={titleHi}
-                                onChange={(e) => setTitleHi(e.target.value)}
-                                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
-                            />
-                            </div>
+            <div>
+              <label className="block  font-medium text-gray-700 mb-1">
+                Slug
+              </label>
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+                required
+              />
+            </div>
+            <div className="w-full">
+              <label className="block font-medium text-gray-700 mb-1">
+                Category
+              </label>
 
-                        <div>
-                            <label className="block  font-medium text-gray-700 mb-1">
-                                Slug
-                            </label>
-                            <input
-                                type="text"
-                                value={slug}
-                                onChange={(e) => setSlug(e.target.value)}
-                                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
-                                required
-                            />
-                        </div>
-                        <div className="w-full">
-                        <label className="block font-medium text-gray-700 mb-1">
-                            Category
-                        </label>
+              <div className="relative">
+                <select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="w-full border border-gray-300 px-4 py-2.5 pr-10 rounded-lg appearance-none focus:ring-2 focus:ring-[#e94e4e]/40 focus:border-[#e94e4e] transition outline-none"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat._id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
 
-                        <div className="relative">
-                            <select
-                            value={categoryId}
-                            onChange={(e) => setCategoryId(e.target.value)}
-                            className="w-full border border-gray-300 px-4 py-2.5 pr-10 rounded-lg appearance-none focus:ring-2 focus:ring-[#e94e4e]/40 focus:border-[#e94e4e] transition outline-none"
-                            required
-                            >
-                            <option value="">Select Category</option>
-                            {categories.map((cat) => (
-                                <option key={cat._id} value={cat._id}>
-                                {cat.name}
-                                </option>
-                            ))}
-                            </select>
+                {/* Custom dropdown arrow */}
+                <svg
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
 
-                            {/* Custom dropdown arrow */}
-                            <svg
-                            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                            >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                        </div>
+            {/* Posted By */}
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Posted By (English)
+              </label>
+              <input
+                type="text"
+                value={postedByEn}
+                onChange={(e) => setPostedByEn(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Posted By (Hindi)
+              </label>
+              <input
+                type="text"
+                value={postedByHi}
+                onChange={(e) => setPostedByHi(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
 
-                       {/* Posted By */}
-                        <div>
-                        <label className="block font-medium text-gray-700 mb-1">Posted By (English)</label>
-                        <input
-                            type="text"
-                            value={postedByEn}
-                            onChange={(e) => setPostedByEn(e.target.value)}
-                            className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
-                        />
-                        </div>
-                        <div>
-                        <label className="block font-medium text-gray-700 mb-1">Posted By (Hindi)</label>
-                        <input
-                            type="text"
-                            value={postedByHi}
-                            onChange={(e) => setPostedByHi(e.target.value)}
-                            className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
-                        />
-                        </div>
-                    </div>
-                </div>
+        {/* Content Section */}
+        <div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">Content</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Short Content */}
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Short Content (English)
+              </label>
+              <textarea
+                value={shortContentEn}
+                onChange={(e) => setShortContentEn(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
+                rows={3}
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Short Content (Hindi)
+              </label>
+              <textarea
+                value={shortContentHi}
+                onChange={(e) => setShortContentHi(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
+                rows={3}
+              />
+            </div>
+          </div>
 
-                {/* Content Section */}
-                    <div>
-                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Content</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Short Content */}
-                        <div>
-                        <label className="block font-medium text-gray-700 mb-1">Short Content (English)</label>
-                        <textarea
-                            value={shortContentEn}
-                            onChange={(e) => setShortContentEn(e.target.value)}
-                            className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
-                            rows={3}
-                        />
-                        </div>
-                        <div>
-                        <label className="block font-medium text-gray-700 mb-1">Short Content (Hindi)</label>
-                        <textarea
-                            value={shortContentHi}
-                            onChange={(e) => setShortContentHi(e.target.value)}
-                            className="w-full border border-gray-300 px-4 py-2.5 rounded-lg"
-                            rows={3}
-                        />
-                        </div>
-                    </div>
+          {/* Full Content */}
+          <div className="grid grid-cols-1 gap-6 mt-4">
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Full Content (English)
+              </label>
+              <JoditEditor
+                ref={editor}
+                value={contentEn}
+                onChange={(newContent) => setContentEn(newContent)}
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Full Content (Hindi)
+              </label>
+              <JoditEditor
+                value={contentHi}
+                onChange={(newContent) => setContentHi(newContent)}
+              />
+            </div>
+          </div>
+        </div>
 
-                    {/* Full Content */}
-                    <div className="grid grid-cols-1 gap-6 mt-4">
-                        <div>
-                        <label className="block font-medium text-gray-700 mb-1">Full Content (English)</label>
-                        <SimpleEditor value={contentEn} onChange={setContentEn} />
-                        </div>
-                        <div>
-                        <label className="block font-medium text-gray-700 mb-1">Full Content (Hindi)</label>
-                        <SimpleEditor value={contentHi} onChange={setContentHi} />
-                        </div>
-                    </div>
-                    </div>
+        {/* Tags */}
+        <div>
+          <h2 className="block font-medium text-gray-700 mb-1  pb-2">Tags</h2>
+          <div className="flex gap-3 mb-3">
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              className="border border-gray-300 px-4 py-2.5 rounded-lg flex-1 focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+              placeholder="Add tag"
+            />
 
+            <button
+              type="button"
+              onClick={addTag}
+              className="flex items-center gap-2 px-5 py-2 bg-[#e94e4e] text-white rounded-lg shadow-md hover:bg-red-600 transition"
+            >
+              <CheckCircle size={18} className="text-white" />
+              Add
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="bg-lime-100 px-3 py-1.5 rounded flex items-center gap-2 text-smborder border-gray-300"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  className="text-red-500 font-bold hover:text-red-700"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
 
-                {/* Tags */}
-                <div>
-                    <h2 className="block font-medium text-gray-700 mb-1  pb-2">
-                        Tags
-                    </h2>
-                    <div className="flex gap-3 mb-3">
-                        <input
-                            type="text"
-                            value={tagInput}
-                            onChange={(e) => setTagInput(e.target.value)}
-                            className="border border-gray-300 px-4 py-2.5 rounded-lg flex-1 focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
-                            placeholder="Add tag"
-                        />
+        {/* Image Upload */}
+        <div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b border-gray-300-b pb-2">
+            Image
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <ImageUpload
+                onImageSelect={(file) => setImageFile(file)}
+                isLoading={false}
+                initialImage={imageUrl}
+              />
+            </div>
 
-                        <button
-                            type="button"
-                            onClick={addTag}
-                            className="flex items-center gap-2 px-5 py-2 bg-[#e94e4e] text-white rounded-lg shadow-md hover:bg-red-600 transition"
-                        >
-                            <CheckCircle size={18} className="text-white" />
-                            Add
-                        </button>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Image Alt Text
+              </label>
+              <input
+                type="text"
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+              />
+            </div>
+          </div>
+        </div>
 
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {tags.map((tag) => (
-                            <span
-                                key={tag}
-                                className="bg-lime-100 px-3 py-1.5 rounded flex items-center gap-2 text-smborder border-gray-300"
-                            >
-                                {tag}
-                                <button
-                                    type="button"
-                                    onClick={() => removeTag(tag)}
-                                    className="text-red-500 font-bold hover:text-red-700"
-                                >
-                                    ×
-                                </button>
-                            </span>
-                        ))}
-                    </div>
-                </div>
+        {/* SEO / Meta Fields */}
+        <div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b border-gray-300-b pb-2">
+            SEO / Meta Information
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block font-medium text-gray-700 mb-2">
+                Meta Title
+              </label>
+              <input
+                type="text"
+                value={metaTitle}
+                onChange={(e) => setMetaTitle(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                Canonical URL
+              </label>
+              <input
+                type="text"
+                value={canonicalUrl}
+                onChange={(e) => setCanonicalUrl(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+              />
+            </div>
+          </div>
 
-                {/* Image Upload */}
-                <div>
-                    <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b border-gray-300-b pb-2">
-                        Image
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                           <ImageUpload
-                                onImageSelect={(file) => setImageFile(file)}
-                                isLoading={false}
-                                initialImage={imageUrl}
-                                />
-                        </div>
+          <div>
+            <label className="block font-medium text-gray-700 mb-1 mt-2">
+              Meta Description
+            </label>
+            <textarea
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+              className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none "
+              rows={2}
+            />
+          </div>
 
-                        <div>
-                            <label className="block font-medium text-gray-700 mb-1">
-                                Image Alt Text
-                            </label>
-                            <input
-                                type="text"
-                                value={imageAlt}
-                                onChange={(e) => setImageAlt(e.target.value)}
-                                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
-                            />
-                        </div>
-                    </div>
-                </div>
+          {/* Meta Keywords */}
+          <div className="mt-2">
+            <label className="block font-medium text-gray-700 mb-1">
+              Meta Keywords
+            </label>
+            <div className="flex gap-3 mb-3">
+              <input
+                type="text"
+                value={metaKeywordInput}
+                onChange={(e) => setMetaKeywordInput(e.target.value)}
+                className="border border-gray-300 px-4 py-2.5 rounded-lg flex-1 focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+                placeholder="Add keyword"
+              />
 
+              <button
+                type="button"
+                onClick={addMetaKeyword}
+                className="flex items-center gap-2 px-5 py-2 bg-[#e94e4e] text-white rounded-lg shadow-md hover:bg-red-600 transition"
+              >
+                <CheckCircle size={18} className="text-white" />
+                Add
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {metaKeywords.map((k) => (
+                <span
+                  key={k}
+                  className="bg-lime-100 px-3 py-1.5 rounded flex items-center gap-2 text-smborder border-gray-300"
+                >
+                  {k}
+                  <button
+                    type="button"
+                    onClick={() => removeMetaKeyword(k)}
+                    className="text-red-500 font-bold hover:text-red-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
 
-                {/* SEO / Meta Fields */}
-                <div>
-                    <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b border-gray-300-b pb-2">
-                        SEO / Meta Information
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block font-medium text-gray-700 mb-2">
-                                Meta Title
-                            </label>
-                            <input
-                                type="text"
-                                value={metaTitle}
-                                onChange={(e) => setMetaTitle(e.target.value)}
-                                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block font-medium text-gray-700 mb-1">
-                                Canonical URL
-                            </label>
-                            <input
-                                type="text"
-                                value={canonicalUrl}
-                                onChange={(e) => setCanonicalUrl(e.target.value)}
-                                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
-                            />
-                        </div>
-                    </div>
+          {/* OG Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-2">
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                OG Title
+              </label>
+              <input
+                type="text"
+                value={ogTitle}
+                onChange={(e) => setOgTitle(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                OG Description
+              </label>
+              <textarea
+                value={ogDescription}
+                onChange={(e) => setOgDescription(e.target.value)}
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
+                rows={2}
+              />
+            </div>
+          </div>
+        </div>
 
-                    <div>
-                        <label className="block font-medium text-gray-700 mb-1 mt-2">
-                            Meta Description
-                        </label>
-                        <textarea
-                            value={metaDescription}
-                            onChange={(e) => setMetaDescription(e.target.value)}
-                            className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none "
-                            rows={2}
-                        />
-                    </div>
+        {/* SEO / Meta Fields */}
+        <div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b border-gray-300 pb-2">
+            Visibility & Status
+          </h2>
 
-                    {/* Meta Keywords */}
-                    <div className="mt-2">
-                        <label className="block font-medium text-gray-700 mb-1">
-                            Meta Keywords
-                        </label>
-                        <div className="flex gap-3 mb-3">
-                            <input
-                                type="text"
-                                value={metaKeywordInput}
-                                onChange={(e) => setMetaKeywordInput(e.target.value)}
-                                className="border border-gray-300 px-4 py-2.5 rounded-lg flex-1 focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
-                                placeholder="Add keyword"
-                            />
-
-
-                            <button
-                                type="button"
-                                onClick={addMetaKeyword}
-                                className="flex items-center gap-2 px-5 py-2 bg-[#e94e4e] text-white rounded-lg shadow-md hover:bg-red-600 transition"
-                            >
-                                <CheckCircle size={18} className="text-white" />
-                                Add
-                            </button>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            {metaKeywords.map((k) => (
-                                <span
-                                    key={k}
-                                    className="bg-lime-100 px-3 py-1.5 rounded flex items-center gap-2 text-smborder border-gray-300"
-                                >
-                                    {k}
-                                    <button
-                                        type="button"
-                                        onClick={() => removeMetaKeyword(k)}
-                                        className="text-red-500 font-bold hover:text-red-700"
-                                    >
-                                        ×
-                                    </button>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* OG Fields */}
-                    <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-2">
-                        <div>
-                            <label className="block font-medium text-gray-700 mb-1">
-                                OG Title
-                            </label>
-                            <input
-                                type="text"
-                                value={ogTitle}
-                                onChange={(e) => setOgTitle(e.target.value)}
-                                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block font-medium text-gray-700 mb-1">
-                                OG Description
-                            </label>
-                            <textarea
-                                value={ogDescription}
-                                onChange={(e) => setOgDescription(e.target.value)}
-                                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
-                                rows={2}
-                            />
-                        </div>
-                    </div>
-
-
-
-                </div>
-
-
-                {/* SEO / Meta Fields */}
-                <div>
-                    <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b border-gray-300 pb-2">
-                        Visibility & Status
-                    </h2>
-
-                    <div className="flex items-center gap-10">
-                        {/* Index Toggle */}
-                        <div className="flex items-center gap-3">
-                            <span className="text-gray-700 font-medium">Index</span>
-                            <button
-                                type="button"
-                                onClick={() => setIndex(!index)}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition
+          <div className="flex items-center gap-10">
+            {/* Index Toggle */}
+            <div className="flex items-center gap-3">
+              <span className="text-gray-700 font-medium">Index</span>
+              <button
+                type="button"
+                onClick={() => setIndex(!index)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition
                                     ${index ? "bg-[#00C950]" : "bg-gray-300"}`}
-                            >
-                                <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition
                                     ${index ? "translate-x-6" : "translate-x-1"}`}
-                                />
-                            </button>
-                        </div>
+                />
+              </button>
+            </div>
 
-                        {/* Follow Toggle */}
-                        <div className="flex items-center gap-3">
-                            <span className="text-gray-700 font-medium">Follow</span>
-                            <button
-                                type="button"
-                                onClick={() => setFollow(!follow)}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition
+            {/* Follow Toggle */}
+            <div className="flex items-center gap-3">
+              <span className="text-gray-700 font-medium">Follow</span>
+              <button
+                type="button"
+                onClick={() => setFollow(!follow)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition
                             ${follow ? "bg-[#00C950]" : "bg-gray-300"}`}
-                            >
-                                <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition
                                 ${follow ? "translate-x-6" : "translate-x-1"}`}
-                                />
-                            </button>
-                        </div>
+                />
+              </button>
+            </div>
 
-                        {/* Active Toggle */}
-                        <div className="flex items-center gap-3">
-                            <span className="text-gray-700 font-medium">Active</span>
-                            <button
-                                type="button"
-                                onClick={() => setActive(!active)}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition
+            {/* Active Toggle */}
+            <div className="flex items-center gap-3">
+              <span className="text-gray-700 font-medium">Active</span>
+              <button
+                type="button"
+                onClick={() => setActive(!active)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition
                                 ${active ? "bg-green-500" : "bg-gray-300"}`}
-                                 >
-                                <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition
                                     ${active ? "translate-x-6" : "translate-x-1"}`}
-                                />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
+                />
+              </button>
+            </div>
+          </div>
+        </div>
 
         <div className="flex justify-end gap-3 mt-6">
           <button

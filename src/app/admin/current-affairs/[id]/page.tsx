@@ -6,7 +6,10 @@ import AdminLayout from "@/component/admin/AdminLayout";
 import ImageUpload from "@/component/admin/ImageUpload";
 import { CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+// import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+
+import JoditEditor from "jodit-react";
+import { useRef } from "react";
 
 interface Category {
   _id: string;
@@ -22,6 +25,7 @@ interface SubCategory {
 }
 
 export default function AddCurrentAffairsPage() {
+  const editor = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -417,18 +421,29 @@ export default function AddCurrentAffairsPage() {
               <label className="block font-medium text-gray-700 mb-1">
                 Full Content (English)
               </label>
-              <SimpleEditor
+              <JoditEditor
+                ref={editor}
                 value={content.en}
-                onChange={(val) => setContent({ ...content, en: val })}
+                onChange={(newContent) =>
+                  setContent({
+                    ...content,
+                    en: newContent,
+                  })
+                }
               />
             </div>
             <div>
               <label className="block font-medium text-gray-700 mb-1">
                 Full Content (Hindi)
               </label>
-              <SimpleEditor
+              <JoditEditor
                 value={content.hi}
-                onChange={(val) => setContent({ ...content, hi: val })}
+                onChange={(newContent) =>
+                  setContent({
+                    ...content,
+                    hi: newContent,
+                  })
+                }
               />
             </div>
           </div>

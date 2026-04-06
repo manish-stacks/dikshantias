@@ -6,9 +6,12 @@ import AdminLayout from "@/component/admin/AdminLayout";
 import ImageUpload from "@/component/admin/ImageUpload";
 import { CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+//import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+import JoditEditor from "jodit-react";
+import { useRef } from "react";
 
 export default function AddEditPage() {
+    const editor = useRef(null);
     const router = useRouter();
     const params = useParams(); // get [id] from URL
     const pageId = params?.id as string | undefined;
@@ -245,8 +248,12 @@ export default function AddEditPage() {
                     <label className="block font-medium text-gray-700 mb-1">
                         Full Content
                     </label>
-                    <SimpleEditor value={content} onChange={setContent} />
-                </div>
+                     <JoditEditor
+                    ref={editor}
+                    value={content}
+                    onChange={newContent => setContent(newContent)}
+                />
+                    </div>
                 {/* Image + Alt Text side by side */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Image */}
