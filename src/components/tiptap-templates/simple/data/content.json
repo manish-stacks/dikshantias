@@ -89,7 +89,7 @@
               "attrs": {
                 "href": "https://tiptap.dev/docs/ui-components/templates/simple-editor",
                 "target": "_blank",
-                "rel": "noopener noreferrer nofollow",
+                "rel": "noopener noreferrer dofollow",
                 "class": null
               }
             }
@@ -374,7 +374,7 @@
               "attrs": {
                 "href": "https://tiptap.dev/docs/ui-components/templates/simple-editor#features",
                 "target": "_blank",
-                "rel": "noopener noreferrer nofollow",
+                "rel": "noopener noreferrer dofollow",
                 "class": null
               }
             }
@@ -454,7 +454,7 @@
                       "attrs": {
                         "href": "https://tiptap.dev/docs/ui-components/templates/simple-editor",
                         "target": "_blank",
-                        "rel": "noopener noreferrer nofollow",
+                        "rel": "noopener noreferrer dofollow",
                         "class": null
                       }
                     }

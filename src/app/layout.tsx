@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 import GlobalBanner from "@/component/GlobalBanner";
 import AuthInitializer from "@/lib/AuthProvider";
+
 export const metadata: Metadata = {
   title: "Best IAS Coaching Centre in Delhi | Dikshant IAS",
   description:
@@ -31,12 +32,22 @@ export default function RootLayout({
           content="c7FgyR8QTNRAU7VO6riBBz8M8JYhKXKQa11Q8Bn5CN4"
         />
 
+        {/* ✅ Google Tag Manager */}
+        <Script id="gtm-script" strategy="beforeInteractive">
+          {`
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-TPMDKLV');
+          `}
+        </Script>
+
+        {/* Google Analytics */}
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-ZB3WCMNJ4D"
         />
-        <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
-
 
         <Script id="google-analytics">
           {`
@@ -46,11 +57,24 @@ export default function RootLayout({
             gtag('config', 'G-ZB3WCMNJ4D');
           `}
         </Script>
+
+        {/* Razorpay */}
+        <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
       </head>
 
       <body>
-        <AuthInitializer />
 
+        {/* ✅ Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-TPMDKLV"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
+
+        <AuthInitializer />
 
         <Providers>
           <Suspense fallback={<div>Loading...</div>}>
@@ -60,7 +84,6 @@ export default function RootLayout({
             </ClientLayoutWrapper>
           </Suspense>
 
-          {/* ✅ Toast Notifications */}
           <Toaster position="top-center" reverseOrder={false} />
         </Providers>
       </body>
