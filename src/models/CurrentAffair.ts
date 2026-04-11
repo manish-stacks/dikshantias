@@ -18,6 +18,16 @@ export interface ICurrentAffairs extends Document {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string[];
+  faq?: {
+    question: {
+      en: string;
+      hi: string;
+    };
+    answer: {
+      en: string;
+      hi: string;
+    };
+  }[];
   canonicalUrl?: string;
   ogTitle?: string;
   ogDescription?: string;
@@ -64,10 +74,24 @@ const CurrentAffairsSchema: Schema = new Schema(
     metaTitle: { type: String },
     metaDescription: { type: String },
     metaKeywords: [{ type: String }],
+
+    faq: [
+      {
+        question: {
+          en: { type: String },
+          hi: { type: String },
+        },
+
+        answer: {
+          en: { type: String },
+          hi: { type: String },
+        },
+      },
+    ],
     canonicalUrl: { type: String },
     ogTitle: { type: String },
     ogDescription: { type: String },
-    index: { type: Boolean, default: true },
+    index: { type: Boolean, default: true },  
     follow: { type: Boolean, default: true },
   },
   { timestamps: true },

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AdminLayout from "@/component/admin/AdminLayout";
 import ImageUpload from "@/component/admin/ImageUpload";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, PlusCircle } from "lucide-react";
 import toast from "react-hot-toast";
 // import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 import JoditEditor from "jodit-react";
@@ -50,6 +50,13 @@ export default function AddCurrentAffairsPage() {
   const [ogTitle, setOgTitle] = useState("");
   const [ogDescription, setOgDescription] = useState("");
 
+  const [faq, setFaq] = useState([
+    {
+      question: { en: "", hi: "" },
+      answer: { en: "", hi: "" },
+    },
+  ]);
+
   // 📌 Media
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageAlt, setImageAlt] = useState("");
@@ -57,6 +64,39 @@ export default function AddCurrentAffairsPage() {
   // Loading / Submitting
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+
+const addFaq = () => {
+  setFaq([
+    ...faq,
+    {
+      question: { en: "", hi: "" },
+      answer: { en: "", hi: "" },
+    },
+  ]);
+};
+
+const removeFaq = (index: number) => {
+  const updated = [...faq];
+
+  updated.splice(index, 1);
+
+  setFaq(updated);
+};
+
+const updateFaq = (
+  index: number,
+  field: "question" | "answer",
+  lang: "en" | "hi",
+  value: string,
+) => {
+  const updated = [...faq];
+
+  updated[index][field][lang] = value;
+
+  setFaq(updated);
+};
+
 
   // Add keyword
   const addMetaKeyword = () => {
@@ -155,6 +195,11 @@ export default function AddCurrentAffairsPage() {
       if (canonicalUrl) formData.append("canonicalUrl", canonicalUrl);
       if (ogTitle) formData.append("ogTitle", ogTitle);
       if (ogDescription) formData.append("ogDescription", ogDescription);
+
+      /* ADD THIS */
+      if (faq.length > 0) {
+        formData.append("faq", JSON.stringify(faq));
+      }
 
       if (metaKeywords.length > 0) {
         formData.append("metaKeywords", JSON.stringify(metaKeywords));
@@ -495,6 +540,185 @@ export default function AddCurrentAffairsPage() {
                 onChange={(e) => setImageAlt(e.target.value)}
                 className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
+            Frequently Asked Questions (FAQ)
+          </h2>
+
+          <div className="space-y-6">
+            {faq.map((item, index) => (
+              <div
+                key={index}
+                className="
+                  bg-white
+                  border
+                  border-gray-200
+                  rounded-2xl
+                  shadow-sm
+                  overflow-hidden
+                  "
+              >
+                {/* header */}
+
+                <div
+                  className="
+                    flex
+                    justify-between
+                    items-center
+                    px-5
+                    py-3
+                    bg-gradient-to-r
+                    from-indigo-50
+                    to-blue-50
+                    border-b
+                    "
+                >
+                  <h3 className="text-sm font-semibold text-dark-700">
+                    FAQ {index + 1}
+                  </h3>
+
+                  {faq.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeFaq(index)}
+                      className="
+                        text-xs
+                        text-red-500
+                        hover:text-red-600
+                        font-medium
+                        "
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="p-5 space-y-5">
+                  {/* Question */}
+
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                      Question
+                    </h4>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <input
+                        type="text"
+                        placeholder="Question (English)"
+                        value={item.question.en}
+                        onChange={(e) =>
+                          updateFaq(index, "question", "en", e.target.value)
+                        }
+                        className="
+                          w-full
+                          border
+                          border-gray-300
+                          px-3 py-2
+                          rounded-lg
+                          focus:ring-1
+                          focus:ring-indigo-500
+                          "
+                      />
+
+                      <input
+                        type="text"
+                        placeholder="प्रश्न (Hindi)"
+                        value={item.question.hi}
+                        onChange={(e) =>
+                          updateFaq(index, "question", "hi", e.target.value)
+                        }
+                        className="
+                            w-full
+                            border
+                            border-gray-300
+                            px-3 py-2
+                            rounded-lg
+                            focus:ring-1
+                            focus:ring-indigo-500
+                            "
+                      />
+                    </div>
+                  </div>
+
+                  {/* Answer */}
+
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                      Answer
+                    </h4>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <textarea
+                        rows={3}
+                        placeholder="Answer (English)"
+                        value={item.answer.en}
+                        onChange={(e) =>
+                          updateFaq(index, "answer", "en", e.target.value)
+                        }
+                        className="
+                        w-full
+                        border
+                        border-gray-300
+                        px-3 py-2
+                        rounded-lg
+                        focus:ring-1
+                        focus:ring-indigo-500
+                        "
+                      />
+
+                      <textarea
+                        rows={3}
+                        placeholder="उत्तर (Hindi)"
+                        value={item.answer.hi}
+                        onChange={(e) =>
+                          updateFaq(index, "answer", "hi", e.target.value)
+                        }
+                        className="
+                        w-full
+                        border
+                        border-gray-300
+                        px-3 py-2
+                        rounded-lg
+                        focus:ring-1
+                        focus:ring-indigo-500
+                        "
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* add button */}
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={addFaq}
+                className="
+                    flex
+                    items-center
+                    gap-2
+                    px-5
+                    py-2
+                    text-sm
+                    font-medium
+                    bg-[#e94e4e]
+                    text-white
+                    rounded-lg
+                    shadow-md
+                    hover:bg-red-600
+                    transition
+                    "
+              >
+                <PlusCircle size={18} /> Add FAQ
+              </button>
             </div>
           </div>
         </div>

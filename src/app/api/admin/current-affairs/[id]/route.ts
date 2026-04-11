@@ -51,95 +51,6 @@ export async function GET(
   }
 }
 
-//  UPDATE Current Affair
-// export async function PUT(
-//   request: Request,
-//   context: RouteContext<{ id: string }>,
-// ) {
-//   try {
-//     await connectToDB();
-//     const { id } = context.params;
-
-//     const formData = await request.formData();
-//     const affair = await CurrentAffairs.findById(id);
-
-//     if (!affair) {
-//       return NextResponse.json({ error: "Not found" }, { status: 404 });
-//     }
-
-//     // ✅ Parse bilingual fields
-//     const titleRaw = formData.get("title")?.toString();
-//     if (titleRaw) affair.title = JSON.parse(titleRaw);
-
-//     const shortContentRaw = formData.get("shortContent")?.toString();
-//     if (shortContentRaw) affair.shortContent = JSON.parse(shortContentRaw);
-
-//     const contentRaw = formData.get("content")?.toString();
-//     if (contentRaw) affair.content = JSON.parse(contentRaw);
-
-//     // ✅ Other fields
-//     const slug = formData.get("slug")?.toString();
-//     if (slug) affair.slug = slug;
-
-//     const categoryId = formData.get("category")?.toString();
-//     if (categoryId) affair.category = categoryId;
-
-//     const subCategoryId = formData.get("subCategory")?.toString();
-//     affair.subCategory = subCategoryId || undefined;
-
-//     affair.active = formData.get("active") === "true";
-
-//     const affairDate = formData.get("affairDate")?.toString();
-//     if (affairDate) affair.affairDate = new Date(affairDate);
-
-//     // ✅ Handle image upload with S3
-//     const imageFile = formData.get("image");
-//     if (
-//       imageFile &&
-//       typeof imageFile !== "string" &&
-//       "arrayBuffer" in imageFile
-//     ) {
-//       if (affair.image?.key) {
-//         await deleteFromS3(affair.image.key);
-//       }
-
-//       const buffer = Buffer.from(await imageFile.arrayBuffer());
-//       const uploadedImage = await uploadToS3(
-//         buffer,
-//         (imageFile as File).name,
-//         (imageFile as File).type,
-//         "current_affairs",
-//       );
-
-//       affair.image = {
-//         key: uploadedImage.key,
-//         url: uploadedImage.url,
-//       };
-//     }
-
-//     const imageAlt = formData.get("imageAlt")?.toString();
-//     if (imageAlt) affair.imageAlt = imageAlt;
-
-//     await affair.save();
-
-//     const populated = await affair.populate([
-//       { path: "category", select: "name" },
-//       { path: "subCategory", select: "name" },
-//     ]);
-
-//     return NextResponse.json(populated, { status: 200 });
-//   } catch (error: unknown) {
-//     return NextResponse.json(
-//       {
-//         error:
-//           error instanceof Error
-//             ? error.message
-//             : "Failed to update current affair",
-//       },
-//       { status: 500 },
-//     );
-//   }
-// }
 
 export async function PUT(
   request: Request,
@@ -201,6 +112,24 @@ export async function PUT(
     const metaKeywordsRaw = formData.get("metaKeywords")?.toString();
     if (metaKeywordsRaw) {
       affair.metaKeywords = JSON.parse(metaKeywordsRaw);
+    }
+
+    /* ADD FAQ */
+    const faqRaw = formData.get("faq")?.toString();
+
+    if (faqRaw) {
+      try {
+        let faq = JSON.parse(faqRaw);
+
+        faq = faq.filter(
+          (f: any) =>
+            f.question?.en || f.question?.hi || f.answer?.en || f.answer?.hi,
+        );
+
+        affair.faq = faq;
+      } catch (e) {
+        console.log("Invalid FAQ JSON");
+      }
     }
 
     // Image Upload

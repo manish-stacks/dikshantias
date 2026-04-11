@@ -69,6 +69,14 @@ export default function AddCurrentAffairsPage() {
   const [ogTitle, setOgTitle] = useState("");
   const [ogDescription, setOgDescription] = useState("");
 
+  const [faq, setFaq] = useState([
+    {
+      question: { en: "", hi: "" },
+      answer: { en: "", hi: "" },
+    },
+  ]);
+
+
   // 📌 Media
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [existingImage, setExistingImage] = useState<string | null>(null);
@@ -89,6 +97,35 @@ export default function AddCurrentAffairsPage() {
 
     setMetaKeywordInput("");
   };
+
+
+  const addFaq = () => {
+    setFaq([
+      ...faq,
+      {
+        question: { en: "", hi: "" },
+        answer: { en: "", hi: "" },
+      },
+    ]);
+  };
+
+  const removeFaq = (index: number) => {
+    setFaq(faq.filter((_, i) => i !== index));
+  };
+
+  const updateFaq = (
+    index: number,
+    field: "question" | "answer",
+    lang: "en" | "hi",
+    value: string,
+  ) => {
+    const updated = [...faq];
+
+    updated[index][field][lang] = value;
+
+    setFaq(updated);
+  };
+
 
   // Remove keyword
   const removeMetaKeyword = (keyword: string) => {
@@ -144,6 +181,18 @@ export default function AddCurrentAffairsPage() {
             hi: data.shortContent.hi,
           });
           setContent({ en: data.content.en, hi: data.content.hi });
+
+          /* ADD FAQ PREFILL */
+          setFaq(
+            data.faq && data.faq.length > 0
+              ? data.faq
+              : [
+                  {
+                    question: { en: "", hi: "" },
+                    answer: { en: "", hi: "" },
+                  },
+                ],
+          );
           setCategory(data.category._id?.toString());
           setSubCategory(data.subCategory?._id?.toString() || "");
           setActive(data.active);
@@ -172,7 +221,6 @@ export default function AddCurrentAffairsPage() {
       sub.category?._id === category,
   );
 
-  // Submit
   // Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,6 +253,9 @@ export default function AddCurrentAffairsPage() {
 
       if (metaKeywords.length > 0) {
         formData.append("metaKeywords", JSON.stringify(metaKeywords));
+      }
+      if (faq.length > 0) {
+        formData.append("faq", JSON.stringify(faq));
       }
 
       if (imageFile) formData.append("image", imageFile);
@@ -588,6 +639,127 @@ export default function AddCurrentAffairsPage() {
                 className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-1 focus:ring-[#e94e4e] transition outline-none"
               />
             </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+
+        <div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">
+            FAQ (Frequently Asked Questions)
+          </h2>
+
+          <div className="space-y-5">
+            {faq.map((item, index) => {
+              const colors = [
+                "bg-blue-50 border-blue-200",
+
+                "bg-emerald-50 border-emerald-200",
+
+                "bg-amber-50 border-amber-200",
+
+                "bg-rose-50 border-rose-200",
+
+                "bg-indigo-50 border-indigo-200",
+              ];
+
+              const colorClass = colors[index % colors.length];
+
+              return (
+                <div
+                  key={index}
+                  className={`
+${colorClass}
+border
+rounded-xl
+p-5
+shadow-sm
+`}
+                >
+                  <div className="flex justify-between mb-4">
+                    <h3 className="font-semibold text-gray-700">
+                      FAQ {index + 1}
+                    </h3>
+
+                    {faq.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeFaq(index)}
+                        className="text-red-500 text-sm font-medium hover:underline"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <input
+                      placeholder="Question (English)"
+                      value={item.question.en}
+                      onChange={(e) =>
+                        updateFaq(index, "question", "en", e.target.value)
+                      }
+                      className="border px-3 py-2 rounded-lg"
+                    />
+
+                    <input
+                      placeholder="Question (Hindi)"
+                      value={item.question.hi}
+                      onChange={(e) =>
+                        updateFaq(index, "question", "hi", e.target.value)
+                      }
+                      className="border px-3 py-2 rounded-lg"
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4 mt-3">
+                    <textarea
+                      placeholder="Answer (English)"
+                      value={item.answer.en}
+                      onChange={(e) =>
+                        updateFaq(index, "answer", "en", e.target.value)
+                      }
+                      rows={2}
+                      className="border px-3 py-2 rounded-lg"
+                    />
+
+                    <textarea
+                      placeholder="Answer (Hindi)"
+                      value={item.answer.hi}
+                      onChange={(e) =>
+                        updateFaq(index, "answer", "hi", e.target.value)
+                      }
+                      rows={2}
+                      className="border px-3 py-2 rounded-lg"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+
+            <button
+              type="button"
+              onClick={addFaq}
+              className="
+
+px-4 py-2
+
+bg-[#e94e4e]
+
+text-white
+
+rounded-lg
+
+shadow
+
+hover:bg-red-600
+
+transition
+
+"
+            >
+              + Add FAQ
+            </button>
           </div>
         </div>
 
