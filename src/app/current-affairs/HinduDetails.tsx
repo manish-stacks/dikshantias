@@ -189,7 +189,6 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag, index) => {
                     const colorClass = tagColors[index % tagColors.length];
-
                     return (
                       <span
                         key={index}
@@ -222,8 +221,7 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
                       border-l-4 border-rose-500 
                       p-4 md:p-5 
                       rounded-xl 
-                      shadow-sm
-                    "
+                      shadow-sm"
               >
                 <div
                   className="
@@ -233,8 +231,7 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
                         text-justify
                         [&>p]:mb-4
                         [&>p]:leading-7
-                        [&>p]:text-justify
-    "
+                        [&>p]:text-justify"
                   dangerouslySetInnerHTML={{
                     __html: `<p>${shortContent}</p>`,
                   }}
@@ -303,64 +300,60 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
             </div>
 
             {/*  Frequently Asked Questions (FAQs) */}
-            <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
-              <div className="space-y-3">
-                {/* FAQ */}
+            {/* FAQ */}
 
-                {faq.length > 0 && (
-                  <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
-                    <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-6">
-                      Frequently Asked Questions (FAQs)
-                    </h2>
+            {faq?.length > 0 && (
+              <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
+                <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-6">
+                  Frequently Asked Questions (FAQs)
+                </h2>
 
-                    <div className="space-y-3">
-                      {faq.map((item, index) => {
-                        const colors = [
-                          "bg-blue-50 border-blue-200",
-                          "bg-emerald-50 border-emerald-200",
-                          "bg-amber-50 border-amber-200",
-                          "bg-rose-50 border-rose-200",
-                          "bg-indigo-50 border-indigo-200",
-                          "bg-purple-50 border-purple-200",
-                        ];
+                <div className="space-y-3">
+                  {faq.map((item, index) => {
+                    const colors = [
+                      "bg-blue-50 border-blue-200",
+                      "bg-emerald-50 border-emerald-200",
+                      "bg-amber-50 border-amber-200",
+                      "bg-rose-50 border-rose-200",
+                      "bg-indigo-50 border-indigo-200",
+                      "bg-purple-50 border-purple-200",
+                    ];
 
-                        const colorClass = colors[index % colors.length];
+                    const colorClass = colors[index % colors.length];
 
-                        return (
-                          <div
-                            key={index}
-                            className={`${colorClass} rounded-xl border overflow-hidden`}
-                          >
-                            <button
-                              onClick={() =>
-                                setOpenFAQ(openFAQ === index ? null : index)
-                              }
-                              className="w-full flex justify-between items-center text-left p-4 md:p-5"
-                            >
-                              <span className="font-semibold text-slate-800">
-                                {item.question?.[lang]}
-                              </span>
+                    return (
+                      <div
+                        key={index}
+                        className={`${colorClass} rounded-xl border overflow-hidden`}
+                      >
+                        <button
+                          onClick={() =>
+                            setOpenFAQ(openFAQ === index ? null : index)
+                          }
+                          className="w-full flex justify-between items-center text-left p-4 md:p-5"
+                        >
+                          <span className="font-semibold text-slate-800">
+                            {item.question?.[lang]}
+                          </span>
 
-                              <span className="text-lg font-bold text-slate-500">
-                                {openFAQ === index ? "−" : "+"}
-                              </span>
-                            </button>
+                          <span className="text-lg font-bold text-slate-500">
+                            {openFAQ === index ? "−" : "+"}
+                          </span>
+                        </button>
 
-                            {openFAQ === index && (
-                              <div className="px-4 md:px-5 pb-4 md:pb-5">
-                                <p className="text-slate-600 text-sm leading-relaxed">
-                                  {item.answer?.[lang]}
-                                </p>
-                              </div>
-                            )}
+                        {openFAQ === index && (
+                          <div className="px-4 md:px-5 pb-4 md:pb-5">
+                            <p className="text-slate-600 text-sm leading-relaxed">
+                              {item.answer?.[lang]}
+                            </p>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Related Articles Slider */}
             <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
@@ -411,7 +404,7 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
                     return (
                       <Link
                         key={index}
-                        href={`/current-affairs/${item.slug}`}
+                        href={`/current-affairs/view/${item.slug}`}
                         className="w-full md:w-1/3 p-2 flex-shrink-0 group"
                       >
                         <div
@@ -557,7 +550,7 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
                 {factsOfTheDay?.map((fact: any) => (
                   <Link
                     key={fact.slug}
-                    href={`/current-affairs/${fact.slug}`}
+                    href={`/current-affairs/view/${fact.slug}`}
                     className="block w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-all border-l-4 border-blue-300 group"
                   >
                     <h4 className="text-sm font-semibold text-slate-800 group-hover:text-blue-700 transition-colors line-clamp-2">
@@ -579,7 +572,7 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
                 {dailyCurrentAffairs?.map((item: any) => (
                   <Link
                     key={item.slug}
-                    href={`/current-affairs/${item.slug}`}
+                    href={`/current-affairs/view/${item.slug}`}
                     className="block w-full text-left p-3 rounded-lg hover:bg-emerald-50 transition-all border-l-4 border-emerald-300 group"
                   >
                     <h4 className="text-sm font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors line-clamp-2">
@@ -598,7 +591,7 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
                 {editorialAnalysis?.map((news: any) => (
                   <Link
                     key={news.slug}
-                    href={`/current-affairs/${news.slug}`}
+                    href={`/current-affairs/view/${news.slug}`}
                     className="block w-full text-left p-3 rounded-lg hover:bg-red-50 transition-all border-l-4 border-red-300 group"
                   >
                     <h4 className="text-sm font-semibold text-slate-800 group-hover:text-red-700 transition-colors line-clamp-2">

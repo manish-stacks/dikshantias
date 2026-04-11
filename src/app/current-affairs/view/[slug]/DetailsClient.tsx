@@ -51,7 +51,6 @@ export default function DetailsClient({ slug }: { slug: string }) {
         setLoading(false);
       }
     }
-
     if (slug) {
       fetchAffair();
     }
@@ -146,7 +145,6 @@ if (loading) {
     </div>
   );
 }
-
   // Error State
   if (error || !item) {
     return (
@@ -172,7 +170,6 @@ if (loading) {
       </div>
     );
   }
-
   // Main Content
   return (
     <div className="overflow-x-hidden">
