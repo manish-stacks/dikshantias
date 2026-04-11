@@ -144,17 +144,17 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
         {/* Header with Close Button */}
         <div className="flex justify-between items-start mb-8 md:mb-10">
           <div className="flex-1 pr-4 md:pr-8">
-            <h1
+            <h3
               className={`
               ${titleColor}
-              text-xl sm:text-2xl md:text-3xl lg:text-4xl
+              text-xl sm:text-2xl md:text-3xl lg:text-2xl
               font-bold
               leading-snug
               tracking-tight
             `}
             >
               {title}
-            </h1>
+            </h3>
 
             <div
               className={`
