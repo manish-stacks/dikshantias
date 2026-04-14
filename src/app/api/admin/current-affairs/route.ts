@@ -6,27 +6,82 @@ import BlogCategoryModel from "@/models/BlogCategoryModel";
 import SubCategoryModel from "@/models/SubCategoryModel";
 import { uploadToS3 } from "@/lib/s3";
 
+// // ------------------ GET ALL ------------------
+// export async function GET() {
+//   try {
+//     await connectToDB();
 
-// ------------------ GET ALL ------------------
-export async function GET() {
+//     const currentAffairs = await CurrentAffairs.find()
+//       .populate({ path: "category", model: BlogCategoryModel })
+//       .populate({ path: "subCategory", model: SubCategoryModel })
+//       .sort({ createdAt: -1 }); // Latest first
+
+//     return NextResponse.json(currentAffairs);
+//   } catch (err) {
+//     console.error(err);
+//     return NextResponse.json(
+//       { error: "Failed to fetch current affairs" },
+//       { status: 500 },
+//     );
+//   }
+// }
+
+
+export async function GET(req: Request) {
   try {
     await connectToDB();
 
-    const currentAffairs = await CurrentAffairs.find()
-      .populate({ path: "category", model: BlogCategoryModel })
-      .populate({ path: "subCategory", model: SubCategoryModel })
-      .sort({ createdAt: -1 }); // Latest first
+    const { searchParams } = new URL(req.url);
 
-    return NextResponse.json(currentAffairs);
-  } catch (err) {
-    console.error(err);
+    const subCategoryId = searchParams.get("subCategory");
+
+    const page = Number(searchParams.get("page") || 1);
+
+    const limit = 12;
+
+    const skip = (page - 1) * limit;
+
+    const filter: any = {};
+
+    if (subCategoryId) {
+      filter.subCategory = subCategoryId;
+    }
+
+    const data = await CurrentAffairs.find(filter)
+
+      .select("title slug affairDate image imageAlt subCategory")
+
+      .populate({
+        path: "subCategory",
+        model: SubCategoryModel,
+        select: "name slug",
+      })
+
+      .sort({ affairDate: -1 })
+
+      .skip(skip)
+
+      .limit(limit)
+
+      .lean(); // faster
+
+    const total = await CurrentAffairs.countDocuments(filter);
+
+    return NextResponse.json({
+      data,
+      total,
+      page,
+      limit,
+    });
+  } catch (error) {
+    console.log(error);
+
     return NextResponse.json(
       { error: "Failed to fetch current affairs" },
       { status: 500 },
     );
   }
 }
-
 
 
 

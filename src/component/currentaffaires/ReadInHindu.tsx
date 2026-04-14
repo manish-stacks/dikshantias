@@ -68,8 +68,8 @@ const ReadInHindu: React.FC = () => {
   const [activeCard, setActiveCard] = useState<Card | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const cardsPerPage = 12;
 
   const bgColors = [
     "bg-[#DBEAFE]",
@@ -89,95 +89,78 @@ const ReadInHindu: React.FC = () => {
     "bg-[#FCA5A5]",
   ];
 
-  useEffect(() => {
-    const fetchCards = async () => {
-      try {
-        setLoading(true);
+useEffect(() => {
+  const fetchCards = async () => {
+    try {
+      setLoading(true);
 
-        // get subcategories
-        const subRes = await fetch("/api/admin/sub-categories");
+      // get subcategory id
+      const subRes = await fetch("/api/admin/sub-categories");
 
-        const subcategories: SubCategory[] = await subRes.json();
+      const subcategories: SubCategory[] = await subRes.json();
 
-        const subCategory = subcategories.find(
-          (sub) => sub.slug === subCategorySlug,
-        );
+      const subCategory = subcategories.find(
+        (sub) => sub.slug === subCategorySlug,
+      );
 
-        if (!subCategory) {
-          setCards([]);
+      if (!subCategory) {
+        setCards([]);
 
-          return;
-        }
-
-        // get current affairs
-        const res = await fetch("/api/admin/current-affairs");
-
-        const data: CurrentAffairItem[] = await res.json();
-
-        // filter by subcategory
-        const filtered = data.filter((item) => {
-          const subId =
-            typeof item.subCategory === "string"
-              ? item.subCategory
-              : item.subCategory?._id;
-
-          return subId === subCategory._id;
-        });
-
-        // format cards
-        const formatted: Card[] = filtered.map((item, index) => {
-          const date = new Date(item.affairDate);
-
-          return {
-            _id: item._id,
-
-            title: item.title,
-
-            slug: item.slug,
-
-            content: item.content || { en: "", hi: "" },
-
-            date: date.getDate().toString(),
-
-            month: date.toLocaleString("default", { month: "short" }),
-
-            year: date.getFullYear().toString(),
-
-            bgColor: bgColors[index % bgColors.length],
-
-            dateColor: dateColors[index % dateColors.length],
-
-            imageUrl: item.image?.url || "",
-
-            imageAlt: item.imageAlt || item.title?.en || "",
-          };
-        });
-
-        // sort latest first
-        formatted.sort(
-          (a, b) =>
-            new Date(`${b.month} ${b.date}, ${b.year}`).getTime() -
-            new Date(`${a.month} ${a.date}, ${a.year}`).getTime(),
-        );
-
-        setCards(formatted);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
+        return;
       }
-    };
 
-    if (subCategorySlug) fetchCards();
-  }, [subCategorySlug]);
+      // fetch paginated data
+      const res = await fetch(
+        `/api/admin/current-affairs?subCategory=${subCategory._id}&page=${currentPage}`,
+      );
+      const result = await res.json();
 
-  const indexOfLast = currentPage * cardsPerPage;
+      const data: CurrentAffairItem[] = result.data;
 
-  const indexOfFirst = indexOfLast - cardsPerPage;
+      // set total pages
+      setTotalPages(Math.ceil(result.total / result.limit));
 
-  const currentCards = cards.slice(indexOfFirst, indexOfLast);
+      // format cards
+      const formatted: Card[] = data.map((item, index) => {
+        const date = new Date(item.affairDate);
 
-  const totalPages = Math.ceil(cards.length / cardsPerPage);
+        return {
+          _id: item._id,
+
+          title: item.title,
+
+          slug: item.slug,
+
+          content: item.content || { en: "", hi: "" },
+
+          date: date.getDate().toString(),
+
+          month: date.toLocaleString("default", { month: "short" }),
+
+          year: date.getFullYear().toString(),
+
+          bgColor: bgColors[index % bgColors.length],
+
+          dateColor: dateColors[index % dateColors.length],
+
+          imageUrl: item.image?.url || "",
+
+          imageAlt: item.imageAlt || item.title?.en || "",
+        };
+      });
+
+      setCards(formatted);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (subCategorySlug) {
+    fetchCards();
+  }
+}, [subCategorySlug, currentPage]);
 
   const handlePrev = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
@@ -239,7 +222,7 @@ const ReadInHindu: React.FC = () => {
       <div className="bg-white p-4 md:p-6 lg:p-8 mb-5">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {currentCards.map((card) => (
+            {cards.map((card) => (
               <div
                 key={card._id}
                 className={`${card.bgColor} rounded-lg border border-gray-200 overflow-hidden`}
@@ -286,15 +269,13 @@ const ReadInHindu: React.FC = () => {
 
           {/* pagination */}
 
-          {cards.length > cardsPerPage && (
+          {totalPages > 1 && (
             <div className="flex justify-center mt-10 gap-2">
               <button onClick={handlePrev} className="px-3 py-1 border rounded">
                 Prev
               </button>
 
-              {Array.from({
-                length: totalPages,
-              }).map((_, i) => (
+              {Array.from({ length: totalPages }).map((_, i) => (
                 <button
                   key={i}
                   onClick={() => handlePageClick(i + 1)}
