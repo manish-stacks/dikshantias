@@ -6,6 +6,7 @@ import BlogCategoryModel from "@/models/BlogCategoryModel";
 import SubCategoryModel from "@/models/SubCategoryModel";
 import { uploadToS3 } from "@/lib/s3";
 
+
 // ------------------ GET ALL ------------------
 export async function GET() {
   try {
@@ -25,6 +26,7 @@ export async function GET() {
     );
   }
 }
+
 
 
 
