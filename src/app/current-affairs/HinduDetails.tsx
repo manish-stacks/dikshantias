@@ -95,21 +95,25 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
 
   const visibleCards = 3;
 
-  useEffect(() => {
-    async function loadSidebar() {
-      try {
-        const res = await fetch("/api/admin/current-affairs/sidebar");
-        const data = await res.json();
-        setFacts(data.facts || []);
-        setDaily(data.daily || []);
-        setEditorial(data.editorial || []);
-      } catch (err) {
-        console.error("Sidebar error", err);
-      }
-    }
+useEffect(() => {
+  async function loadSidebar() {
+    try {
+      const res = await fetch("/api/admin/current-affairs/sidebar", {
+        cache: "force-cache",
+      });
 
-    loadSidebar();
-  }, []);
+      const data = await res.json();
+
+      setFacts(data.facts || []);
+      setDaily(data.daily || []);
+      setEditorial(data.editorial || []);
+    } catch (err) {
+      console.error("Sidebar error", err);
+    }
+  }
+
+  loadSidebar();
+}, []);
 
   const titleColors = [
     "text-blue-700",
@@ -246,15 +250,10 @@ const HinduDetailsComplete: React.FC<HinduDetailsProps> = ({
                   src={imageUrl}
                   alt={title}
                   className="
-                    w-full
-                    h-[180px]
-                    sm:h-[220px]
-                    md:h-[280px]
-                    lg:h-[340px]
-                    xl:h-[380px]
-                    object-cover
-                  "
-                />
+                      w-full
+                      h-auto
+                      object-cover
+                    "/>
               </div>
             )}
 

@@ -1,4 +1,5 @@
 export const runtime = "nodejs";
+export const revalidate = 300; // cache 5 minutes
 
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
@@ -10,21 +11,19 @@ export async function GET() {
   try {
     await connectToDB();
 
-    const data = await CurrentAffairs.find({ active: true })
-      .populate({
-        path: "category",
-        model: BlogCategoryModel,
-        select: "name",
-      })
+    const data = await CurrentAffairs.find(
+      { active: true },
+      { title: 1, slug: 1, subCategory: 1, affairDate: 1 }, // only needed fields
+    )
       .populate({
         path: "subCategory",
         model: SubCategoryModel,
         select: "name",
       })
       .sort({ affairDate: -1 })
-      .limit(50);
+      .limit(30) // reduce records
+      .lean(); // faster plain JS object
 
-    // helper → only title + slug
     const onlyTitleSlug = (arr: any[]) =>
       arr.map((item) => ({
         title: item.title,
@@ -49,11 +48,14 @@ export async function GET() {
         .slice(0, 5),
     );
 
-    return NextResponse.json({
-      facts,
-      daily,
-      editorial,
-    });
+    return NextResponse.json(
+      { facts, daily, editorial },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        },
+      },
+    );
   } catch (error) {
     console.error("Sidebar API error", error);
 
