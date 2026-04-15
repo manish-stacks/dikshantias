@@ -32,41 +32,50 @@ interface CurrentAffair {
 export default function CurrentAffairsPage() {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
-  const [currentAffairs, setCurrentAffairs] = useState<CurrentAffair[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+const [currentAffairs, setCurrentAffairs] = useState<CurrentAffair[]>([]);
+const [currentPage, setCurrentPage] = useState(1);
+const [total, setTotal] = useState(0);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMessage, setConfirmMessage] = useState("");
   const [confirmBtnText, setConfirmBtnText] = useState("Confirm");
-  const itemsPerPage = 50;
+ 
 
   const [filterCategory, setFilterCategory] = useState<string>("");
   const [filterSubCategory, setFilterSubCategory] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [searchTitle, setSearchTitle] = useState<string>("");
 
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) window.location.href = "/admin/login";
-    else {
-      setAuthorized(true);
-      fetchCurrentAffairs();
-    }
-  }, []);
 
-  const fetchCurrentAffairs = async () => {
-    try {
-      const res = await fetch("/api/admin/current-affairs");
-      if (!res.ok) throw new Error("Failed to fetch Current Affairs");
-      const data = await res.json();
-      setCurrentAffairs(data || []); // Update state
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch Current Affairs");
-    }
-  };
+
+useEffect(() => {
+  const token = localStorage.getItem("adminToken");
+
+  if (!token) {
+    window.location.href = "/admin/login";
+  } else {
+    setAuthorized(true);
+    fetchCurrentAffairs(currentPage);
+  }
+}, [currentPage]);
+
+const fetchCurrentAffairs = async (page = 1) => {
+  try {
+    const res = await fetch(`/api/admin/current-affairs?page=${page}`);
+
+    if (!res.ok) throw new Error("Failed to fetch");
+
+    const json = await res.json();
+
+    setCurrentAffairs(json.data || []);
+    setTotal(json.total || 0);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to load data");
+  }
+};
 
   const handleDelete = (id: string) => {
     setConfirmTitle("Are you sure you want to delete this Current Affair?");
@@ -157,11 +166,9 @@ export default function CurrentAffairsPage() {
     );
   });
 
-  const totalPages = Math.ceil(filteredAffairs.length / itemsPerPage);
-  const paginatedData = filteredAffairs.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+const itemsPerPage = 40;
+const totalPages = Math.ceil(total / itemsPerPage);
+ const paginatedData = filteredAffairs;
 
   if (!authorized)
     return (

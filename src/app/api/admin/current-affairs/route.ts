@@ -47,23 +47,26 @@ export async function GET(req: Request) {
       filter.subCategory = subCategoryId;
     }
 
-    const data = await CurrentAffairs.find(filter)
+   const data = await CurrentAffairs.find(filter)
 
-      .select("title slug affairDate image imageAlt subCategory")
+     .select("title slug affairDate image imageAlt subCategory category active")
 
-      .populate({
-        path: "subCategory",
-        model: SubCategoryModel,
-        select: "name slug",
-      })
+     .populate({
+       path: "subCategory",
+       model: SubCategoryModel,
+       select: "name slug",
+     })
 
-      .sort({ affairDate: -1 })
+     .populate({
+       path: "category",
+       model: BlogCategoryModel,
+       select: "name slug",
+     })
 
-      .skip(skip)
-
-      .limit(limit)
-
-      .lean(); // faster
+     .sort({ affairDate: -1 })
+     .skip(skip)
+     .limit(limit)
+     .lean();
 
     const total = await CurrentAffairs.countDocuments(filter);
 
