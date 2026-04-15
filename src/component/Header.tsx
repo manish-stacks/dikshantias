@@ -230,10 +230,10 @@ const Header: React.FC = () => {
                       className="px-4 py-1.5 rounded-lg border border-red-500 text-red-600 text-sm font-medium hover:bg-red-50 transition">
                       {t("login") || "Login"}
                     </button>
-                    <Link href="/register"
+                    {/* <Link href="/register"
                       className="px-4 py-1.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition shadow-sm">
                       Sign Up Free
-                    </Link>
+                    </Link> */}
                   </>
                 )}
               </div>
