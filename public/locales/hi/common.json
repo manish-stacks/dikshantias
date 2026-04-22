@@ -335,5 +335,33 @@
     "csat_english": "सीसैट (अंग्रेज़ी माध्यम)",
     "gs_upsc": "जीएस - यूपीएससी (अंग्रेज़ी माध्यम)",
     "sociology": "समाजशास्त्र (वैकल्पिक)"
+  },
+  "complete_preparation_guide": "पूर्ण तैयारी गाइड",
+  "download_pdf": "PDF डाउनलोड करें",
+  "view_pdf": "PDF देखें",
+
+  "menu": {
+    "about_upsc": "यूपीएससी के बारे में",
+    "dikshant_special": "दीक्षांत स्पेशल",
+
+    "about_upsc_cse": "यूपीएससी (CSE) के बारे में",
+    "syllabus": "पाठ्यक्रम",
+    "pyq": "पिछले वर्ष प्रश्न",
+
+    "about_uppsc": "यूपीपीएससी के बारे में",
+    "about_bpsc": "बीपीएससी के बारे में",
+
+    "kurukshetra": "कुरुक्षेत्र",
+    "down_to_earth": "डाउन टू अर्थ",
+    "economic_survey": "आर्थिक सर्वेक्षण",
+    "ncert": "एनसीईआरटी (6–12)",
+    "government_schemes": "सरकारी योजनाएँ",
+    "important_institutions": "महत्वपूर्ण संस्थान",
+    "free_study_material": "निःशुल्क अध्ययन सामग्री",
+
+    "videos": "वीडियो",
+    "video_full_story": "डॉ. एस.एस. पांडे द्वारा पूरी कहानी",
+    "video_current_affairs": "करेंट अफेयर्स",
+    "video_current_insights": "करेंट इनसाइट्स"
   }
 }

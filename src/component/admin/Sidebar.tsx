@@ -80,6 +80,18 @@ export default function Sidebar() {
     },
 
     {
+  label:"About",
+  icon:BookOpen,
+
+  children:[
+    {
+      href:"/admin/page-content",
+      label:"All Pages"
+    }
+  ]
+},
+
+    {
       label: "Settings",
       icon: Settings,
       children: [
@@ -89,6 +101,8 @@ export default function Sidebar() {
       ],
     },
   ];
+
+
 
   return (
     <aside className="fixed top-16 left-0 w-64 h-[calc(100vh-64px)] bg-white shadow-md flex flex-col">
@@ -149,6 +163,7 @@ export default function Sidebar() {
                     })}
                   </div>
                 )}
+
               </div>
             );
           }

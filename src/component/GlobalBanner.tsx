@@ -11,23 +11,26 @@ export default function GlobalBanner() {
   return (
     <div className="w-full bg-white relative">
       <div className="max-w-7xl mx-auto py-1">
-        <Link href="/summer-offer" className="block w-full">
+        <Link
+          href="https://www.dikshantias.com/offline-course/sociology-optional-combo-course-hybrid-batch-1776750872949"
+          className="block w-full"
+        >
           {/* Mobile */}
-          <div className="block sm:hidden relative w-full">
+          {/* <div className="block sm:hidden relative w-full">
             <Image
-              src="/img/mobpa.png"
+              src="/img/webPatti1.png"
               alt="Mobile Banner"
               width={800}
               height={400}
               className="w-full h-auto rounded-lg shadow-md"
               priority
             />
-          </div>
+          </div> */}
 
           {/* Desktop */}
           <div className="hidden sm:block relative w-full">
             <Image
-              src="/img/webPatti.png"
+              src="/img/webPatti1.png"
               alt="Desktop Banner"
               width={1600}
               height={500}

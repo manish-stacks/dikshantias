@@ -335,6 +335,35 @@
     "gs_upsc": "GS - UPSC (English Med.)",
     "sociology": "SOCIOLOGY (Optional)",
     "sociology_ugc": "Sociology (UGC/NET/SET)"
+  },
 
+  "complete_preparation_guide": "COMPLETE PREPARATION GUIDE",
+  "download_pdf": "Download PDF",
+  "view_pdf": "View PDF",
+
+  "menu": {
+    "about_upsc": "About UPSC",
+    "dikshant_special": "Dikshant Special",
+
+    "about_upsc_cse": "About UPSC (CSE)",
+    "syllabus": "Syllabus",
+    "pyq": "PYQ (Pre + Mains)",
+
+    "about_uppsc": "About UPPSC",
+    "about_bpsc": "About BPSC",
+
+    "kurukshetra": "Kurukshetra",
+    "down_to_earth": "Down to Earth",
+    "economic_survey": "Economic Survey",
+    "ncert": "NCERT (6th–12th)",
+    "government_schemes": "Government Schemes",
+    "important_institutions": "Important Institutions",
+    "free_study_material": "Free Study Material",
+
+    "videos": "Videos",
+    "video_full_story": "Full Story by Dr. S.S. Panday",
+    "video_current_affairs": "Current Affairs",
+    "video_current_insights": "Current Insights"
   }
+  
 }
