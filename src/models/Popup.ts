@@ -47,7 +47,7 @@ const PopupSchema: Schema = new Schema(
       link: { type: String },
     },
 
-    active: { type: Boolean, default: true },
+    active: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
