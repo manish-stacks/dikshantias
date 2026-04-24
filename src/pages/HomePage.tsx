@@ -17,7 +17,7 @@ import { onMessage } from "firebase/messaging";
 import { messaging } from "@/lib/firebase";
 import NotificationModal from "@/components/NotificationModal/NotificationModal";
 import GlobalBanner from "@/component/GlobalBanner";
-// import HomePopup from "@/component/HomePopup";
+import HomePopup from "@/component/HomePopup";
 
 
 function HomePage() {
@@ -70,7 +70,7 @@ function HomePage() {
         data={notificationData}
         onClose={() => setOpenModal(false)}
       />
-      {/* <HomePopup/> */}
+      <HomePopup/>
       <GlobalBanner/>
       <HeroSlider />
       <TopperReview />
