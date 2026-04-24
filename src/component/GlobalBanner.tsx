@@ -12,7 +12,7 @@ export default function GlobalBanner() {
     <div className="w-full bg-white relative">
       <div className="max-w-7xl mx-auto py-1  px-4">
         <Link
-          href="https://www.dikshantias.com/offline-course/sociology-optional-combo-course-hybrid-batch-1776929612841"
+          href="https://www.dikshantias.com/offline-course/sociology-optional-combo-course-hybrid-batch-1776952712145"
           className="block w-full"
         >
           {/* Mobile */}
