@@ -768,6 +768,7 @@ const Header: React.FC = () => {
                 >
                   <User className="w-4 h-4" /> My Profile
                 </Link>
+
                 <button
                   onClick={handleLogout}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700"
@@ -776,23 +777,16 @@ const Header: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex">
                 <button
                   onClick={() => {
                     toggleMobileMenu();
                     setOpenLogin(true);
                   }}
-                  className="flex-1 py-2.5 rounded-xl border border-red-500 text-red-600 text-sm font-semibold"
+                  className="w-full py-2.5 rounded-xl border border-red-500 text-red-600 text-sm font-semibold hover:bg-red-50 transition"
                 >
-                  Login
+                  Sign In / Sign Up
                 </button>
-                <Link
-                  href="/register"
-                  onClick={toggleMobileMenu}
-                  className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold text-center"
-                >
-                  Sign Up Free
-                </Link>
               </div>
             )}
 

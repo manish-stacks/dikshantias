@@ -34,7 +34,7 @@ export default function UPSCSyllabusClient() {
       .then((res) => {
         const syllabus = res.find(
           (item: PageContent) =>
-            item.exam === "UPSC" && item.page === "Syllabus",
+            item.exam === "UPPSC" && item.page === "Syllabus",
         );
 
         setData(syllabus);
