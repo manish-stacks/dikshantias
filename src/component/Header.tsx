@@ -259,7 +259,7 @@ const Header: React.FC = () => {
 
           {/* RIGHT SECTION */}
           <div className="flex items-center gap-4">
-            {/* ✅ Scholarship Link (NEW) */}
+            {/* Scholarship Link (NEW) */}
             <Link
               href="/scholarship-programme"
               className="hover:underline font-semibold text-white/90 hover:text-white"
@@ -632,9 +632,31 @@ const Header: React.FC = () => {
             <MobileLink href="/about-us" onClick={toggleMobileMenu}>
               About Dikshant
             </MobileLink>
-            <MobileLink href="/about-upsc" onClick={toggleMobileMenu}>
-              About UPSC
-            </MobileLink>
+
+            <MobileAccordion
+              label={t("menu.about_upsc")}
+              isOpen={openMobileDropdown === "aboutUPSC"}
+              onToggle={() => handleMobileDropdownToggle("aboutUPSC")}
+            >
+              {About_UPSC.map((section) => (
+                <div key={section.title}>
+                  <div className="px-3 py-1 text-xs font-semibold text-gray-400">
+                    {t(section.title)}
+                  </div>
+
+                  {section.links.map((link) => (
+                    <MobileSubLink
+                      key={link.href}
+                      href={link.href}
+                      icon={BookOpen}
+                      onClick={toggleMobileMenu}
+                    >
+                      {t(link.label)}
+                    </MobileSubLink>
+                  ))}
+                </div>
+              ))}
+            </MobileAccordion>
 
             <MobileAccordion
               label={t("courses") || "Courses"}
@@ -676,6 +698,38 @@ const Header: React.FC = () => {
             <MobileLink href="/test-series" onClick={toggleMobileMenu}>
               Test Series
             </MobileLink>
+            <MobileAccordion
+              label={t("menu.dikshant_special")}
+              isOpen={openMobileDropdown === "dikshantSpecial"}
+              onToggle={() => handleMobileDropdownToggle("dikshantSpecial")}
+            >
+              {DIKSHANT_SPECIAL.map((item) => (
+                <MobileSubLink
+                  key={item.href}
+                  href={item.href}
+                  icon={FileText}
+                  onClick={toggleMobileMenu}
+                >
+                  {t(item.label)}
+                </MobileSubLink>
+              ))}
+            </MobileAccordion>
+            <MobileAccordion
+              label={t("menu.videos")}
+              isOpen={openMobileDropdown === "videos"}
+              onToggle={() => handleMobileDropdownToggle("videos")}
+            >
+              {VIDEOS_MENU.map((item) => (
+                <MobileSubLink
+                  key={item.href}
+                  href={item.href}
+                  icon={item.icon}
+                  onClick={toggleMobileMenu}
+                >
+                  {t(item.label)}
+                </MobileSubLink>
+              ))}
+            </MobileAccordion>
 
             <MobileLink
               href="/scholarship-programme"
