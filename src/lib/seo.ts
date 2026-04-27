@@ -175,4 +175,60 @@ export const SEO_DATA: Record<string, { title: string; description: string }> = 
     description:
       "Download BPSC previous year question papers for Prelims and Mains. Practice PYQs to understand exam pattern and improve preparation strategy.",
   },
+  "/kurukshetra": {
+    title: "Kurukshetra Magazine (Monthly) – PDF & Summary",
+    description:
+      "Download Kurukshetra magazine PDF with monthly summaries. Useful for UPSC, BPSC, and other competitive exams. Covers rural development, government schemes, and socio-economic issues in simple language.",
+  },
+
+  "/down-to-earth": {
+    title: "Down to Earth Magazine – PDF & Current Affairs Analysis",
+    description:
+      "Download Down to Earth magazine PDF with environment and current affairs analysis. Important for UPSC, BPSC, and state-level competitive exams preparation.",
+  },
+
+  "/economic-survey": {
+    title: "Economic Survey of India – PDF, Summary & Highlights",
+    description:
+      "Download Economic Survey of India PDF with chapter-wise summary and key highlights. Essential resource for UPSC, BPSC, and other competitive exams.",
+  },
+
+  "/ncert": {
+    title: "NCERT Books (Class 6–12) – PDF Download & Notes",
+    description:
+      "Download NCERT books from Class 6 to 12 in PDF format with notes. Highly important for UPSC, BPSC, and foundational exam preparation.",
+  },
+
+  "/government-schemes": {
+    title: "Government Schemes – Latest Yojana List, Notes & PDF",
+    description:
+      "Explore latest government schemes, yojana lists, notes, and PDFs for UPSC, BPSC, and other competitive exams preparation.",
+  },
+
+  "/important-institutions": {
+    title: "Important Institutions of India – List, Notes & Functions",
+    description:
+      "Learn about important institutions of India including their functions and structure. Useful for UPSC, BPSC, SSC, and other exams.",
+  },
+
+  "/free-study-material": {
+    title: "Free Study Material for UPSC, BPSC – Notes & PDFs",
+    description:
+      "Download free study material including notes, PDFs, current affairs, and practice questions for UPSC, BPSC, and other competitive exams.",
+  },
+  "/videos/full-story-dr-ss-panday": {
+    title: "Full Story by Dr. S.S. Panday – Complete Lecture Series",
+    description:
+      "Watch Full Story by Dr. S.S. Panday with detailed explanations of important topics for UPSC, BPSC, and other competitive exams. Learn concepts with in-depth analysis and clarity.",
+  },
+  "/videos/current-affairs": {
+    title: "Current Affairs – Daily Updates & Exam Analysis",
+    description:
+      "Get daily current affairs updates, important news, and exam-focused analysis for UPSC, BPSC, and other competitive exams preparation.",
+  },
+  "/videos/current-insights": {
+    title: "Current Insights – In-Depth Analysis for Competitive Exams",
+    description:
+      "Explore current insights with detailed analysis of key issues, trends, and topics relevant for UPSC, BPSC, and other competitive exams.",
+  },
 };

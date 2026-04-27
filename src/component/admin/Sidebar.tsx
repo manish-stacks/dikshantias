@@ -80,16 +80,16 @@ export default function Sidebar() {
     },
 
     {
-  label:"About",
-  icon:BookOpen,
+      label: "About",
+      icon: BookOpen,
 
-  children:[
-    {
-      href:"/admin/page-content",
-      label:"All Pages"
-    }
-  ]
-},
+      children: [
+        {
+          href: "/admin/page-content",
+          label: "All Pages",
+        }
+      ],
+    },
 
     {
       label: "Settings",

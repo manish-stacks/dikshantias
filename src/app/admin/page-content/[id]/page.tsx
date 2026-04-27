@@ -25,6 +25,20 @@ const pageOptions: any = {
     { label: "BPSC Syllabus", value: "Syllabus" },
     { label: "BPSC PYQ (Pre + Mains)", value: "PYQ" },
   ],
+  "Dikshant Special": [
+    { label: "Kurukshetra", value: "kurukshetra" },
+    { label: "Down to Earth", value: "down-to-earth" },
+    { label: "Economic Survey", value: "economic-survey" },
+    { label: "NCERT (6th–12th)", value: "ncert" },
+    { label: "Government Schemes", value: "government-schemes" },
+    { label: "Important Institutions", value: "important-institutions" },
+    { label: "Free Study Material", value: "free-study-material" },
+  ],
+  Videos: [
+    { label: "Full Story by Dr. S.S. Panday", value: "full-story" },
+    { label: "Current Affairs", value: "current-affairs" },
+    { label: "Current Insights", value: "current-insights" },
+  ],
 };
 
 export default function EditPageContent() {

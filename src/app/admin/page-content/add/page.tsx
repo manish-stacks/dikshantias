@@ -25,6 +25,20 @@ const pageOptions: any = {
     { label: "BPSC Syllabus", value: "Syllabus" },
     { label: "BPSC PYQ (Pre + Mains)", value: "PYQ" },
   ],
+  "Dikshant Special": [
+    { label: "Kurukshetra", value: "kurukshetra" },
+    { label: "Down to Earth", value: "down-to-earth" },
+    { label: "Economic Survey", value: "economic-survey" },
+    { label: "NCERT (6th–12th)", value: "ncert" },
+    { label: "Government Schemes", value: "government-schemes" },
+    { label: "Important Institutions", value: "important-institutions" },
+    { label: "Free Study Material", value: "free-study-material" },
+  ],
+  Videos: [
+    { label: "Full Story by Dr. S.S. Panday", value: "full-story" },
+    { label: "Current Affairs", value: "current-affairs" },
+    { label: "Current Insights", value: "current-insights" },
+  ],
 };
 
 export default function AddPageContent() {
@@ -129,22 +143,22 @@ export default function AddPageContent() {
 
               <select
                 value={form.exam}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const selectedExam = e.target.value;
+
                   setForm({
                     ...form,
-
-                    exam: e.target.value,
-
-                    page: "About",
-                  })
-                }
+                    exam: selectedExam,
+                    page: pageOptions[selectedExam][0].value,
+                  });
+                }}
                 className="w-full border p-2 rounded-lg"
               >
                 <option>UPSC</option>
-
                 <option>UPPSC</option>
-
                 <option>BPSC</option>
+                <option>Videos</option>
+                <option>Dikshant Special</option>
               </select>
             </div>
 
