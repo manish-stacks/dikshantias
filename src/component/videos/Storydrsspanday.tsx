@@ -3,18 +3,23 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+
+
+
 interface PageContent {
   en?: {
     title?: string;
     shortContent?: string;
     content?: string;
     pdf?: { url?: string };
+    videoUrl?: string;
   };
   hi?: {
     title?: string;
     shortContent?: string;
     content?: string;
     pdf?: { url?: string };
+    videoUrl?: string;
   };
   exam?: string;
   page?: string;
@@ -25,6 +30,10 @@ const UPSCPYQ: React.FC = () => {
   const { i18n, t } = useTranslation("common");
 
   const lang = i18n.language === "hi" ? "hi" : "en";
+  const [playVideo, setPlayVideo] = useState(false);
+  useEffect(() => {
+    setPlayVideo(false);
+  }, [lang]);
 
   const [data, setData] = useState<PageContent | null>(null);
 
@@ -47,6 +56,24 @@ const UPSCPYQ: React.FC = () => {
 
       .finally(() => setLoading(false));
   }, []);
+
+  function getYouTubeId(url: string) {
+    if (!url) return "";
+
+    if (url.includes("embed/")) {
+      return url.split("embed/")[1].split("?")[0];
+    }
+
+    if (url.includes("watch?v=")) {
+      return url.split("v=")[1].split("&")[0];
+    }
+
+    if (url.includes("youtu.be/")) {
+      return url.split("youtu.be/")[1];
+    }
+
+    return "";
+  }
 
   if (loading) {
     return (
@@ -150,23 +177,54 @@ const UPSCPYQ: React.FC = () => {
 
             {/* RIGHT DESIGN BOX */}
 
-            <div className="relative hidden md:block">
-              <div className="bg-gradient-to-br from-red-100 to-red-50 rounded-2xl p-12 border border-red-200 shadow-xl">
-                <div className="space-y-4">
-                  <div className="h-12 bg-red-600 rounded-lg opacity-80" />
+            <div className="relative group aspect-video rounded-2xl overflow-hidden shadow-lg">
+              {!playVideo ? (
+                <>
+                  {/*  Thumbnail Image */}
+                  {data?.[lang]?.videoUrl && (
+                    <img
+                      src={`https://img.youtube.com/vi/${getYouTubeId(
+                        data?.[lang]?.videoUrl,
+                      )}/maxresdefault.jpg`}
+                      onError={(e) => {
+                        e.currentTarget.src = `https://img.youtube.com/vi/${getYouTubeId(
+                          data?.[lang]?.videoUrl,
+                        )}/hqdefault.jpg`;
+                      }}
+                      alt="Video Thumbnail"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
 
-                  <div className="h-12 bg-red-500 rounded-lg opacity-60" />
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-black/40 z-10" />
 
-                  <div className="h-12 bg-red-400 rounded-lg opacity-40" />
-
-                  <div className="space-y-2 mt-6">
-                    <div className="h-3 bg-red-300 rounded opacity-50" />
-
-                    <div className="h-3 bg-red-300 rounded opacity-40 w-5/6" />
+                  {/* Play Button */}
+                  <div
+                    onClick={() => setPlayVideo(true)}
+                    className="absolute inset-0 flex items-center justify-center z-20 cursor-pointer"
+                  >
+                    <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center hover:scale-110 transition">
+                      <svg
+                        className="w-7 h-7 text-white ml-1"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </>
+              ) : (
+                <iframe
+                  src={data?.[lang]?.videoUrl + "?autoplay=1"}
+                  title="YouTube Video"
+                  className="w-full h-full"
+                  allowFullScreen
+                />
+              )}
             </div>
+            
           </div>
         </div>
       </section>

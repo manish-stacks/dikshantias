@@ -41,6 +41,27 @@ const pageOptions: any = {
   ],
 };
 
+function convertToEmbed(url: string) {
+  if (!url) return "";
+
+  // already embed
+  if (url.includes("youtube.com/embed")) return url;
+
+  // watch?v=
+  if (url.includes("watch?v=")) {
+    const id = url.split("v=")[1]?.split("&")[0];
+    return `https://www.youtube.com/embed/${id}`;
+  }
+
+  // youtu.be
+  if (url.includes("youtu.be/")) {
+    const id = url.split("youtu.be/")[1];
+    return `https://www.youtube.com/embed/${id}`;
+  }
+
+  return url;
+}
+
 export default function EditPageContent() {
   const { id } = useParams();
 
@@ -86,6 +107,7 @@ export default function EditPageContent() {
         title: form.en.title,
         shortContent: form.en.shortContent || "",
         content: form.en.content,
+        videoUrl: form.en.videoUrl || "",
       }),
     );
 
@@ -96,6 +118,7 @@ export default function EditPageContent() {
         title: form.hi.title,
         shortContent: form.hi.shortContent || "",
         content: form.hi.content,
+        videoUrl: form.hi.videoUrl || "",
       }),
     );
 
@@ -426,6 +449,72 @@ export default function EditPageContent() {
           </div>
         </div>
 
+        {/* VIDEO URL */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 border-b pb-2">
+            YouTube Video
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* English Video */}
+            <div>
+              <label className="font-medium">English Video</label>
+
+              <input
+                type="text"
+                placeholder="https://www.youtube.com/embed/..."
+                value={form.en.videoUrl || ""}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    en: {
+                      ...form.en,
+                      videoUrl: convertToEmbed(e.target.value),
+                    },
+                  })
+                }
+                className="w-full border p-2 rounded-lg"
+              />
+
+              {/* preview */}
+              {form.en.videoUrl && (
+                <iframe
+                  src={form.en.videoUrl}
+                  className="mt-2 w-full h-40 rounded-lg"
+                />
+              )}
+            </div>
+
+            {/* Hindi Video */}
+            <div>
+              <label className="font-medium">Hindi Video</label>
+
+              <input
+                type="text"
+                placeholder="https://www.youtube.com/embed/..."
+                value={form.hi.videoUrl || ""}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    hi: {
+                      ...form.hi,
+                      videoUrl: convertToEmbed(e.target.value),
+                    },
+                  })
+                }
+                className="w-full border p-2 rounded-lg"
+              />
+
+              {/* preview */}
+              {form.hi.videoUrl && (
+                <iframe
+                  src={form.hi.videoUrl}
+                  className="mt-2 w-full h-40 rounded-lg"
+                />
+              )}
+            </div>
+          </div>
+        </div>
         {/* STATUS */}
 
         <div>

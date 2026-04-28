@@ -104,11 +104,13 @@ export async function POST(req: Request) {
        "en.shortContent": en.shortContent ?? "",
        "en.content": en.content || "",
        "en.pdf": enPdfData,
+       "en.videoUrl": en.videoUrl || "",
 
        "hi.title": hi.title || "",
        "hi.shortContent": hi.shortContent ?? "",
        "hi.content": hi.content || "",
        "hi.pdf": hiPdfData,
+       "hi.videoUrl": hi.videoUrl || "",
      },
      {
        upsert: true,

@@ -58,6 +58,7 @@ export default function AddPageContent() {
       shortContent: "",
       content: "",
       pdf: "",
+      videoUrl: "",
     },
 
     hi: {
@@ -65,6 +66,7 @@ export default function AddPageContent() {
       shortContent: "",
       content: "",
       pdf: "",
+      videoUrl: "",
     },
   });
 
@@ -74,17 +76,15 @@ export default function AddPageContent() {
     const formData = new FormData();
 
     formData.append("exam", form.exam);
-
     formData.append("page", form.page);
-
     formData.append("status", String(form.status));
-
     formData.append(
       "en",
       JSON.stringify({
         title: form.en.title,
-        shortContent:form.en.shortContent,
+        shortContent: form.en.shortContent,
         content: form.en.content,
+        videoUrl: form.en.videoUrl,
       }),
     );
 
@@ -94,6 +94,7 @@ export default function AddPageContent() {
         title: form.hi.title,
         shortContent: form.hi.shortContent,
         content: form.hi.content,
+        videoUrl: form.hi.videoUrl,
       }),
     );
 
@@ -399,6 +400,59 @@ export default function AddPageContent() {
                   {form.hi.pdf.name}
                 </p>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* VIDEO URL */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 border-b pb-2">
+            YouTube Video
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* English Video */}
+            <div>
+              <label className="block font-medium mb-1">
+                English Video
+              </label>
+
+              <input
+                type="text"
+                placeholder="https://www.youtube.com/embed/..."
+                value={form.en.videoUrl}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    en: {
+                      ...form.en,
+                      videoUrl: e.target.value,
+                    },
+                  })
+                }
+                className="w-full border p-2 rounded-lg"
+              />
+            </div>
+
+            {/* Hindi Video */}
+            <div>
+              <label className="block font-medium mb-1">Hindi Video</label>
+
+              <input
+                type="text"
+                placeholder="https://www.youtube.com/embed/..."
+                value={form.hi.videoUrl}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    hi: {
+                      ...form.hi,
+                      videoUrl: e.target.value,
+                    },
+                  })
+                }
+                className="w-full border p-2 rounded-lg"
+              />
             </div>
           </div>
         </div>
