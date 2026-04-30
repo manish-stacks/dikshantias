@@ -952,7 +952,7 @@ const MobileAccordion: React.FC<{
       />
     </button>
     <div
-      className={`overflow-hidden transition-all duration-300 ease-out ${isOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"}`}
+      className={`overflow-hidden transition-all duration-300 ease-out ${isOpen ? "max-h-[70vh] overflow-y-auto opacity-100" : "max-h-0 opacity-0"}`}
     >
       <div className="ml-2 mt-1 space-y-0.5 pb-1">{children}</div>
     </div>
