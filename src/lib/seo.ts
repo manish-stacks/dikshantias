@@ -130,12 +130,17 @@ export const SEO_DATA: Record<string, { title: string; description: string }> = 
       "Complete UPSC syllabus for Prelims and Mains exam with subject wise topics.",
   },
 
-  "/upsc-pyq": {
+  "/upsc-pyq-pre": {
     title: "UPSC Previous Year Questions (Prelims + Mains)",
     description:
       "Download UPSC PYQ for Prelims and Mains. Practice previous year questions to understand exam pattern and improve preparation.",
   },
 
+  "/upsc-pyq-main": {
+    title: "UPSC Mains Previous Year Questions (PYQ)",
+    description:
+      "Download UPSC Mains previous year questions (PYQ) with answers. Practice GS papers and optional subjects to improve answer writing and boost your UPSC Mains preparation.",
+  },
   /* ================= UPPSC ================= */
 
   "/about-uppsc": {
@@ -150,10 +155,15 @@ export const SEO_DATA: Record<string, { title: string; description: string }> = 
       "Complete UPPSC syllabus for Prelims and Mains exams. Check subject-wise syllabus and exam pattern for UPPSC preparation.",
   },
 
-  "/uppsc-pyq": {
+  "/uppsc-pyq-pre": {
     title: "UPPSC Previous Year Questions (Prelims + Mains)",
     description:
       "Download UPPSC previous year question papers for Prelims and Mains. Understand exam pattern and improve preparation strategy.",
+  },
+  "/uppsc-pyq-main": {
+    title: "UPPSC Mains Previous Year Questions (PYQ)",
+    description:
+      "Download UPPSC Mains previous year question papers with answers. Practice GS papers and optional subjects to improve answer writing and boost your UPPSC Mains preparation.",
   },
 
   /* ================= BPSC ================= */
@@ -170,10 +180,15 @@ export const SEO_DATA: Record<string, { title: string; description: string }> = 
       "Complete BPSC syllabus for Prelims and Mains exams. Check subject-wise syllabus, exam pattern, and important topics for BPSC preparation.",
   },
 
-  "/bpsc-pyq": {
+  "/bpsc-pyq-pre": {
     title: "BPSC Previous Year Questions (Prelims + Mains)",
     description:
       "Download BPSC previous year question papers for Prelims and Mains. Practice PYQs to understand exam pattern and improve preparation strategy.",
+  },
+  "/bpsc-pyq-main": {
+    title: "BPSC Mains Previous Year Questions (PYQ)",
+    description:
+      "Download BPSC Mains previous year question papers with answers. Practice GS papers and optional subjects to improve answer writing and boost your BPSC Mains preparation.",
   },
   "/kurukshetra": {
     title: "Kurukshetra Magazine (Monthly) – PDF & Summary",

@@ -347,7 +347,14 @@
 
     "about_upsc_cse": "About UPSC (CSE)",
     "syllabus": "Syllabus",
-    "pyq": "PYQ (Pre + Mains)",
+    "upsc_pyq_pre": "UPSC PYQ (Pre)",
+  "upsc_pyq_mains": "UPSC PYQ (Mains)",
+
+  "uppsc_pyq_pre": "UPPSC PYQ (Pre)",
+  "uppsc_pyq_mains": "UPPSC PYQ (Mains)",
+
+  "bpsc_pyq_pre": "BPSC PYQ (Pre)",
+  "bpsc_pyq_mains": "BPSC PYQ (Mains)",
 
     "about_uppsc": "About UPPSC",
     "about_bpsc": "About BPSC",

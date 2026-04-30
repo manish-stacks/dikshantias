@@ -22,87 +22,42 @@ interface PageContent {
   status?: boolean;
 }
 
-const subjects = [
-  {
-    name: "World History",
-    color: "bg-blue-50 text-blue-700 border-blue-200",
-  },
-  {
-    name: "Science & Technology",
-    color: "bg-purple-50 text-purple-700 border-purple-200",
-  },
-  {
-    name: "Polity",
-    color: "bg-red-50 text-red-700 border-red-200",
-  },
-  {
-    name: "International Relations",
-    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  },
-  {
-    name: "Agriculture",
-    color: "bg-green-50 text-green-700 border-green-200",
-  },
-  {
-    name: "Indian Society",
-    color: "bg-pink-50 text-pink-700 border-pink-200",
-  },
-  {
-    name: "Post Independent India",
-    color: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  },
-  {
-    name: "Environment and Ecology",
-    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-  {
-    name: "Social Justice",
-    color: "bg-orange-50 text-orange-700 border-orange-200",
-  },
-  {
-    name: "Ancient History and Art & Culture",
-    color: "bg-teal-50 text-teal-700 border-teal-200",
-  },
-  {
-    name: "Modern History",
-    color: "bg-cyan-50 text-cyan-700 border-cyan-200",
-  },
-  {
-    name: "Internal Security",
-    color: "bg-rose-50 text-rose-700 border-rose-200",
-  },
-  {
-    name: "Governance",
-    color: "bg-slate-50 text-slate-700 border-slate-200",
-  },
-  {
-    name: "Geography",
-    color: "bg-lime-50 text-lime-700 border-lime-200",
-  },
-  {
-    name: "Ethics (Case Studies)",
-    color: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
-  },
-  {
-    name: "Ethics (Theoretical Questions)",
-    color: "bg-violet-50 text-violet-700 border-violet-200",
-  },
-  {
-    name: "Disaster Management",
-    color: "bg-amber-50 text-amber-700 border-amber-200",
-  },
-  {
-    name: "Economic Development",
-    color: "bg-sky-50 text-sky-700 border-sky-200",
-  },
+
+const colors = [
+  "bg-blue-50 text-blue-700 border-blue-200",
+  "bg-purple-50 text-purple-700 border-purple-200",
+  "bg-red-50 text-red-700 border-red-200",
+  "bg-indigo-50 text-indigo-700 border-indigo-200",
+  "bg-green-50 text-green-700 border-green-200",
 ];
+
+
 const UPSCPYQ: React.FC = () => {
   const { i18n, t } = useTranslation("common");
-  const [selectedSubject, setSelectedSubject] = useState(subjects[0].name);
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState("");
 
   const lang = i18n.language === "hi" ? "hi" : "en";
   const [allData, setAllData] = useState<PageContent[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      const res = await fetch("/api/admin/subjects?exam=UPSC&type=PRE");
+      const data = await res.json();
+
+      const list = data.data || [];
+
+      setSubjects(list);
+
+      if (list.length > 0) {
+        setSelectedSubject(list[0].slug);
+      }
+    };
+
+    fetchSubjects();
+  }, []);
+
 
   useEffect(() => {
     fetch("/api/admin/page-content")
@@ -163,7 +118,7 @@ const UPSCPYQ: React.FC = () => {
               <div className="bg-white rounded-2xl p-4 md:p-5 border shadow-xl">
                 <div className="mb-5">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    UPSC PYQ – Topic-wise Analysis
+                    UPSC PYQ (Pre) – Topic-wise Analysis
                   </h3>
                   <p className="text-sm text-gray-500 mt-1 leading-relaxed">
                     Dive into subject-wise PYQs with curated insights, helping
@@ -172,31 +127,36 @@ const UPSCPYQ: React.FC = () => {
                   </p>
                 </div>
                 {/* Subjects */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-3">
-                  {subjects.map((sub) => (
-                    <div
-                      key={sub.name}
-                      onClick={() => setSelectedSubject(sub.name)}
-                      className={`cursor-pointer group p-3 rounded-xl border transition-all duration-300 flex items-center justify-between
-                          ${
-                            selectedSubject === sub.name
-                              ? "bg-red-600 text-white border-red-600 shadow-md scale-[1.02]"
-                              : sub.color
-                          }`}
-                    >
-                      <span className="text-sm font-medium leading-tight">
-                        {sub.name}
-                      </span>
+                <div className="flex flex-wrap gap-3">
+                  {subjects.map((sub, index) => {
+                    const color = colors[index % colors.length];
+
+                    return (
                       <div
-                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300
+                        key={sub._id}
+                        onClick={() => setSelectedSubject(sub.slug)}
+                        className={`cursor-pointer group px-4 py-2 rounded-md border transition-all duration-300 flex items-center gap-2
                         ${
-                          selectedSubject === sub.name
+                          selectedSubject === sub.slug
+                            ? "bg-red-600 text-white border-red-600 shadow-md scale-[1.02]"
+                            : color
+                        }`}
+                      >
+                        <span className="text-sm font-medium whitespace-nowrap">
+                          {sub.name}
+                        </span>
+
+                        <div
+                          className={`w-2 h-2 rounded-full transition-all duration-300
+                        ${
+                          selectedSubject === sub.slug
                             ? "bg-white"
                             : "bg-gray-300 group-hover:bg-red-400"
                         }`}
-                      />
-                    </div>
-                  ))}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

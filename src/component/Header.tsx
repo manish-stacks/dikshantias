@@ -89,7 +89,8 @@ const About_UPSC = [
     links: [
       { href: "/about-upsc", label: "menu.about_upsc_cse" },
       { href: "/upsc-syllabus", label: "menu.syllabus" },
-      { href: "/upsc-pyq", label: "menu.pyq" },
+      { href: "/upsc-pyq-pre", label: "menu.upsc_pyq_pre" },
+      { href: "/upsc-pyq-main", label: "menu.upsc_pyq_mains" },
     ],
   },
   {
@@ -97,7 +98,8 @@ const About_UPSC = [
     links: [
       { href: "/about-uppsc", label: "menu.about_uppsc" },
       { href: "/uppsc-syllabus", label: "menu.syllabus" },
-      { href: "/uppsc-pyq", label: "menu.pyq" },
+      { href: "/uppsc-pyq-pre", label: "menu.uppsc_pyq_pre" },
+      { href: "/uppsc-pyq-main", label: "menu.uppsc_pyq_mains" },
     ],
   },
   {
@@ -105,7 +107,8 @@ const About_UPSC = [
     links: [
       { href: "/about-bpsc", label: "menu.about_bpsc" },
       { href: "/bpsc-syllabus", label: "menu.syllabus" },
-      { href: "/bpsc-pyq", label: "menu.pyq" },
+      { href: "/bpsc-pyq-pre", label: "menu.bpsc_pyq_pre" },
+      { href: "/bpsc-pyq-main", label: "menu.bpsc_pyq_mains" },
     ],
   },
 ];
@@ -385,6 +388,7 @@ const Header: React.FC = () => {
                   })}
                 </div>
               </DropdownMenu>
+
               <DropdownMenu
                 label={t("courses") || "Courses"}
                 menuKey="courses"

@@ -41,7 +41,7 @@ const UPSCPYQ: React.FC = () => {
 
   useEffect(() => {
     const fetchSubjects = async () => {
-      const res = await fetch("/api/admin/subjects?exam=BPSC&type=PRE");
+      const res = await fetch("/api/admin/subjects?exam=BPSC&type=MAINS");
       const data = await res.json();
 
       const list = data.data || [];
@@ -116,7 +116,7 @@ const UPSCPYQ: React.FC = () => {
               <div className="bg-white rounded-2xl p-4 md:p-5 border shadow-xl">
                 <div className="mb-5">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    BPSC PYQ (Pre) – Topic-wise Analysis
+                    BPSC PYQ (Mains) – Topic-wise Analysis
                   </h3>
                   <p className="text-sm text-gray-500 mt-1 leading-relaxed">
                     Dive into subject-wise PYQs with curated insights, helping

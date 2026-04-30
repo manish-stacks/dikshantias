@@ -30,7 +30,7 @@ const UPSCPYQ: React.FC = () => {
 
   const lang = i18n.language === "hi" ? "hi" : "en";
 
-  // detect from URL
+  // ✅ detect from URL
   const pathname =
     typeof window !== "undefined" ? window.location.pathname : "";
 

@@ -3,9 +3,9 @@ import { SEO_DATA } from "@/lib/seo";
 import UPPSCPYQ from "@/component/uppsc/UPPSCPYQ";
 
 export const metadata: Metadata = {
-  title: SEO_DATA["/uppsc-pyq"]?.title,
+  title: SEO_DATA["/uppsc-pyq-pre"]?.title,
 
-  description: SEO_DATA["/uppsc-pyq"]?.description,
+  description: SEO_DATA["/uppsc-pyq-pre"]?.description,
 };
 
 

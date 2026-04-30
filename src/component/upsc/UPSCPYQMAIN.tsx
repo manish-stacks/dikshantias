@@ -41,7 +41,7 @@ const UPSCPYQ: React.FC = () => {
 
   useEffect(() => {
     const fetchSubjects = async () => {
-      const res = await fetch("/api/admin/subjects?exam=BPSC&type=PRE");
+      const res = await fetch("/api/admin/subjects?exam=UPSC&type=MAINS");
       const data = await res.json();
 
       const list = data.data || [];
@@ -62,7 +62,7 @@ const UPSCPYQ: React.FC = () => {
       .then((res) => {
         const pyqList = res.filter(
           (item: PageContent) =>
-            item.exam === "BPSC" && item.page === "PYQ" && item.status === true,
+            item.exam === "UPSC" && item.page === "PYQ" && item.status === true,
         );
         setAllData(pyqList);
       })
@@ -116,7 +116,7 @@ const UPSCPYQ: React.FC = () => {
               <div className="bg-white rounded-2xl p-4 md:p-5 border shadow-xl">
                 <div className="mb-5">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    BPSC PYQ (Pre) – Topic-wise Analysis
+                    UPSC PYQ (Mains) – Topic-wise Analysis
                   </h3>
                   <p className="text-sm text-gray-500 mt-1 leading-relaxed">
                     Dive into subject-wise PYQs with curated insights, helping
@@ -135,22 +135,20 @@ const UPSCPYQ: React.FC = () => {
                         onClick={() => setSelectedSubject(sub.slug)}
                         className={`cursor-pointer group px-4 py-2 rounded-md border transition-all duration-300 flex items-center gap-2
                             ${
-                              selectedSubject === sub.slug
+                                selectedSubject === sub.slug
                                 ? "bg-red-600 text-white border-red-600 shadow-md scale-[1.02]"
                                 : color
-                            }`}
-                      >
+                            }`}>
                         <span className="text-sm font-medium whitespace-nowrap">
                           {sub.name}
                         </span>
                         <div
                           className={`w-2 h-2 rounded-full transition-all duration-300
                         ${
-                          selectedSubject === sub.slug
+                        selectedSubject === sub.slug
                             ? "bg-white"
                             : "bg-gray-300 group-hover:bg-red-400"
-                        }`}
-                        />
+                        }`} />
                       </div>
                     );
                   })}
