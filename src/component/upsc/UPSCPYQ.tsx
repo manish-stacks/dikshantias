@@ -114,7 +114,7 @@ const UPSCPYQ: React.FC = () => {
           <div className="max-w-7xl mx-auto">
             {/* RIGHT DESIGN BOX */}
 
-            <div className="relative hidden md:block">
+            <div className="relative block">
               <div className="bg-white rounded-2xl p-4 md:p-5 border shadow-xl">
                 <div className="mb-5">
                   <h3 className="text-lg font-semibold text-gray-900">
