@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface PageContent {
+  subject?: string;
   en?: {
     title?: string;
     shortContent?: string;
@@ -21,51 +22,130 @@ interface PageContent {
   status?: boolean;
 }
 
+const subjects = [
+  {
+    name: "World History",
+    color: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  {
+    name: "Science & Technology",
+    color: "bg-purple-50 text-purple-700 border-purple-200",
+  },
+  {
+    name: "Polity",
+    color: "bg-red-50 text-red-700 border-red-200",
+  },
+  {
+    name: "International Relations",
+    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  },
+  {
+    name: "Agriculture",
+    color: "bg-green-50 text-green-700 border-green-200",
+  },
+  {
+    name: "Indian Society",
+    color: "bg-pink-50 text-pink-700 border-pink-200",
+  },
+  {
+    name: "Post Independent India",
+    color: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  },
+  {
+    name: "Environment and Ecology",
+    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  {
+    name: "Social Justice",
+    color: "bg-orange-50 text-orange-700 border-orange-200",
+  },
+  {
+    name: "Ancient History and Art & Culture",
+    color: "bg-teal-50 text-teal-700 border-teal-200",
+  },
+  {
+    name: "Modern History",
+    color: "bg-cyan-50 text-cyan-700 border-cyan-200",
+  },
+  {
+    name: "Internal Security",
+    color: "bg-rose-50 text-rose-700 border-rose-200",
+  },
+  {
+    name: "Governance",
+    color: "bg-slate-50 text-slate-700 border-slate-200",
+  },
+  {
+    name: "Geography",
+    color: "bg-lime-50 text-lime-700 border-lime-200",
+  },
+  {
+    name: "Ethics (Case Studies)",
+    color: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
+  },
+  {
+    name: "Ethics (Theoretical Questions)",
+    color: "bg-violet-50 text-violet-700 border-violet-200",
+  },
+  {
+    name: "Disaster Management",
+    color: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  {
+    name: "Economic Development",
+    color: "bg-sky-50 text-sky-700 border-sky-200",
+  },
+];
 const UPSCPYQ: React.FC = () => {
   const { i18n, t } = useTranslation("common");
+  const [selectedSubject, setSelectedSubject] = useState(subjects[0].name);
 
   const lang = i18n.language === "hi" ? "hi" : "en";
-
-  const [data, setData] = useState<PageContent | null>(null);
-
+  const [allData, setAllData] = useState<PageContent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/admin/page-content")
       .then((res) => res.json())
-
       .then((res) => {
-        const pyq = res.find(
+        const pyqList = res.filter(
           (item: PageContent) =>
             item.exam === "UPSC" && item.page === "PYQ" && item.status === true,
         );
-
-        setData(pyq);
+        setAllData(pyqList);
       })
-
       .finally(() => setLoading(false));
   }, []);
 
+  const normalize = (str: string) =>
+    str.toLowerCase().trim().replace(/\s+/g, " ");
+
+  const data = allData.find(
+    (item) => normalize(item.subject || "") === normalize(selectedSubject),
+  );
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20">
         <div className="animate-pulse space-y-5">
           <div className="h-10 bg-gray-200 rounded w-1/2" />
-
           <div className="h-40 bg-gray-200 rounded" />
         </div>
       </div>
     );
   }
-
-  if (!data) {
-    return (
-      <div className="text-center py-20 text-gray-500">
-        Content not available
+  {
+    !data ? (
+      <div className="text-center text-gray-500 py-10">
+        No content available for this subject
       </div>
+    ) : (
+      <div className="prose max-w-none"
+        dangerouslySetInnerHTML={{
+          __html: data?.[lang]?.content || "",
+        }}
+      />
     );
   }
-
   return (
     <>
       {/* HERO SECTION */}
@@ -75,93 +155,48 @@ const UPSCPYQ: React.FC = () => {
         <div className="absolute top-0 right-0 w-96 h-96 bg-red-100 rounded-full blur-3xl opacity-20" />
         <div className="absolute bottom-0 left-20 w-72 h-72 bg-red-50 rounded-full blur-3xl opacity-30" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            {/* LEFT */}
-            <div>
-              <span className="inline-block px-4 py-2 bg-red-100 text-red-700 text-xs font-bold rounded-full mb-4">
-                {t("complete_preparation_guide")}
-              </span>
-
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-5 leading-snug tracking-tight max-w-2xl">
-                {data?.[lang]?.title}
-              </h1>
-
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-xl">
-                {data?.[lang]?.shortContent}
-              </p>
-
-              {/* buttons */}
-              {data?.[lang]?.pdf?.url && (
-                <div className="flex flex-wrap gap-4">
-                  <a
-                    href={data?.[lang]?.pdf?.url}
-                    download
-                    className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:scale-105 transition-all duration-300"
-                  >
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                      />
-                    </svg>
-                    {t("download_pdf")}
-                  </a>
-
-                  <a
-                    href={data?.[lang]?.pdf?.url}
-                    target="_blank"
-                    className="inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-900 rounded-xl text-sm font-bold hover:border-red-600 hover:text-red-600 hover:bg-red-50 transition-all duration-300"
-                  >
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                    {t("view_pdf")}
-                  </a>
-                </div>
-              )}
-            </div>
-
+        <div className="relative w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+          <div className="max-w-7xl mx-auto">
             {/* RIGHT DESIGN BOX */}
 
             <div className="relative hidden md:block">
-              <div className="bg-gradient-to-br from-red-100 to-red-50 rounded-2xl p-12 border border-red-200 shadow-xl">
-                <div className="space-y-4">
-                  <div className="h-12 bg-red-600 rounded-lg opacity-80" />
-
-                  <div className="h-12 bg-red-500 rounded-lg opacity-60" />
-
-                  <div className="h-12 bg-red-400 rounded-lg opacity-40" />
-
-                  <div className="space-y-2 mt-6">
-                    <div className="h-3 bg-red-300 rounded opacity-50" />
-
-                    <div className="h-3 bg-red-300 rounded opacity-40 w-5/6" />
-                  </div>
+              <div className="bg-white rounded-2xl p-4 md:p-5 border shadow-xl">
+                <div className="mb-5">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    UPSC PYQ – Topic-wise Analysis
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                    Dive into subject-wise PYQs with curated insights, helping
+                    you understand patterns, concepts, and answer-writing
+                    strategies for the UPSC exam.
+                  </p>
+                </div>
+                {/* Subjects */}
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-3">
+                  {subjects.map((sub) => (
+                    <div
+                      key={sub.name}
+                      onClick={() => setSelectedSubject(sub.name)}
+                      className={`cursor-pointer group p-3 rounded-xl border transition-all duration-300 flex items-center justify-between
+                          ${
+                            selectedSubject === sub.name
+                              ? "bg-red-600 text-white border-red-600 shadow-md scale-[1.02]"
+                              : sub.color
+                          }`}
+                    >
+                      <span className="text-sm font-medium leading-tight">
+                        {sub.name}
+                      </span>
+                      <div
+                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300
+                        ${
+                          selectedSubject === sub.name
+                            ? "bg-white"
+                            : "bg-gray-300 group-hover:bg-red-400"
+                        }`}
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -171,14 +206,20 @@ const UPSCPYQ: React.FC = () => {
 
       {/* CONTENT */}
 
-      <section className="max-w-7xl mx-auto px-4 py-16">
+      <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 border">
-          <div
-            className="prose max-w-none"
-            dangerouslySetInnerHTML={{
-              __html: data?.[lang]?.content || "",
-            }}
-          />
+          {!data ? (
+            <div className="text-center text-gray-500 py-10">
+              No content available for this subject
+            </div>
+          ) : (
+            <div
+              className="prose max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: data?.[lang]?.content || "",
+              }}
+            />
+          )}
         </div>
       </section>
     </>

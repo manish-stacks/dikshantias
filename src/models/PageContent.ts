@@ -6,6 +6,7 @@ import mongoose, { Document, Schema, Model } from "mongoose";
 export interface IPageContent extends Document {
   exam: "UPSC" | "UPPSC" | "BPSC";
   page: "About" | "Syllabus" | "PYQ";
+  subject?: string;
   slug?: string;
   status: boolean;
 
@@ -66,6 +67,11 @@ const PageContentSchema: Schema = new Schema(
       type: String,
       enum: ["About", "Syllabus", "PYQ"],
       required: true,
+    },
+
+    subject: {
+      type: String,
+      default: "",
     },
 
     slug: String,
@@ -129,7 +135,7 @@ const PageContentSchema: Schema = new Schema(
 /* =========================
    UNIQUE INDEX
 ========================= */
-PageContentSchema.index({ exam: 1, page: 1 }, { unique: true });
+PageContentSchema.index({ exam: 1, page: 1, subject: 1 }, { unique: true });
 
 /* =========================
    MODEL EXPORT

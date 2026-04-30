@@ -11,6 +11,7 @@ interface PageContent {
   _id: string;
   exam: string;
   page: string;
+  subject?: string;
   slug: string;
   status: boolean;
   en: {
@@ -108,7 +109,11 @@ export default function PageContentList() {
                 <tr key={item._id} className="border-b">
                   <td className="p-3 font-medium">{item.exam}</td>
 
-                  <td className="p-3">{item.page}</td>
+                  <td className="p-3">
+                    {item.page === "PYQ" && item.subject
+                      ? `${item.page} (${item.subject})`
+                      : item.page}
+                  </td>
 
                   <td className="p-3">{item.en?.title}</td>
 

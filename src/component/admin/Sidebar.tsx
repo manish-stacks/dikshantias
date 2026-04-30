@@ -85,9 +85,13 @@ export default function Sidebar() {
 
       children: [
         {
+          href: "/admin/subjects",
+          label: "Subjects",
+        },
+        {
           href: "/admin/page-content",
           label: "All Pages",
-        }
+        },
       ],
     },
 
@@ -101,8 +105,6 @@ export default function Sidebar() {
       ],
     },
   ];
-
-
 
   return (
     <aside className="fixed top-16 left-0 w-64 h-[calc(100vh-64px)] bg-white shadow-md flex flex-col">
@@ -163,7 +165,6 @@ export default function Sidebar() {
                     })}
                   </div>
                 )}
-
               </div>
             );
           }

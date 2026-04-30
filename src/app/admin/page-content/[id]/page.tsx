@@ -7,39 +7,45 @@ import toast from "react-hot-toast";
 import JoditEditor from "jodit-react";
 import { CheckCircle } from "lucide-react";
 
-const pageOptions: any = {
-  UPSC: [
-    { label: "About UPSC (CSE)", value: "About" },
-    { label: "UPSC Syllabus", value: "Syllabus" },
-    { label: "UPSC PYQ (Pre + Mains)", value: "PYQ" },
-  ],
 
-  UPPSC: [
-    { label: "About UPPSC", value: "About" },
-    { label: "UPPSC Syllabus", value: "Syllabus" },
-    { label: "UPPSC PYQ (Pre + Mains)", value: "PYQ" },
-  ],
+  const pageOptions: any = {
+    UPSC: [
+      { label: "About UPSC (CSE)", value: "About" },
+      { label: "UPSC Syllabus", value: "Syllabus" },
+      { label: "UPSC PYQ (Pre)", value: "PYQ_PRE" },
+      { label: "UPSC PYQ (Mains)", value: "PYQ_MAINS" },
+    ],
 
-  BPSC: [
-    { label: "About BPSC", value: "About" },
-    { label: "BPSC Syllabus", value: "Syllabus" },
-    { label: "BPSC PYQ (Pre + Mains)", value: "PYQ" },
-  ],
-  "Dikshant Special": [
-    { label: "Kurukshetra", value: "kurukshetra" },
-    { label: "Down to Earth", value: "down-to-earth" },
-    { label: "Economic Survey", value: "economic-survey" },
-    { label: "NCERT (6th–12th)", value: "ncert" },
-    { label: "Government Schemes", value: "government-schemes" },
-    { label: "Important Institutions", value: "important-institutions" },
-    { label: "Free Study Material", value: "free-study-material" },
-  ],
-  Videos: [
-    { label: "Full Story by Dr. S.S. Panday", value: "full-story" },
-    { label: "Current Affairs", value: "current-affairs" },
-    { label: "Current Insights", value: "current-insights" },
-  ],
-};
+    UPPSC: [
+      { label: "About UPPSC", value: "About" },
+      { label: "UPPSC Syllabus", value: "Syllabus" },
+      { label: "UPPSC PYQ (Pre)", value: "PYQ_PRE" },
+      { label: "UPPSC PYQ (Mains)", value: "PYQ_MAINS" },
+    ],
+
+    BPSC: [
+      { label: "About BPSC", value: "About" },
+      { label: "BPSC Syllabus", value: "Syllabus" },
+      { label: "BPSC PYQ (Pre)", value: "PYQ_PRE" },
+      { label: "BPSC PYQ (Mains)", value: "PYQ_MAINS" },
+    ],
+
+    "Dikshant Special": [
+      { label: "Kurukshetra", value: "kurukshetra" },
+      { label: "Down to Earth", value: "down-to-earth" },
+      { label: "Economic Survey", value: "economic-survey" },
+      { label: "NCERT (6th–12th)", value: "ncert" },
+      { label: "Government Schemes", value: "government-schemes" },
+      { label: "Important Institutions", value: "important-institutions" },
+      { label: "Free Study Material", value: "free-study-material" },
+    ],
+
+    Videos: [
+      { label: "Full Story by Dr. S.S. Panday", value: "full-story" },
+      { label: "Current Affairs", value: "current-affairs" },
+      { label: "Current Insights", value: "current-insights" },
+    ],
+  };
 
 function convertToEmbed(url: string) {
   if (!url) return "";
@@ -62,6 +68,7 @@ function convertToEmbed(url: string) {
   return url;
 }
 
+
 export default function EditPageContent() {
   const { id } = useParams();
 
@@ -70,86 +77,152 @@ export default function EditPageContent() {
   const editor = useRef(null);
 
   const [loading, setLoading] = useState(true);
+  const [subjects, setSubjects] = useState<any[]>([]);
 
   const [form, setForm] = useState<any>(null);
+
+
+ const fetchSubjects = async (exam: string, type: string) => {
+   try {
+     let res = await fetch(
+       `/api/admin/subjects?exam=${exam}&type=${type}&page=PYQ`,
+     );
+     let data = await res.json();
+
+     // fallback
+     if (!data.data || data.data.length === 0) {
+       res = await fetch(`/api/admin/subjects?exam=${exam}&type=${type}`);
+       data = await res.json();
+     }
+
+    const subjectList = data.data || [];
+
+    setSubjects(subjectList);
+
+    // AUTO SELECT FIX
+   if (form?.subject && subjectList.length > 0) {
+     const exists = subjectList.find((s: any) => s.slug === form.subject);
+
+     if (exists) {
+       setForm((prev: any) => ({
+         ...prev,
+         subject: exists.slug,
+       }));
+     }
+   }
+   } catch (err) {
+     console.error(err);
+   }
+ };
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    const res = await fetch("/api/admin/page-content");
+useEffect(() => {
+  if (!form?.exam || !form?.page) return;
 
-    const data = await res.json();
+  let type = "";
 
-    const page = data.find((d: any) => d._id === id);
+  if (form.page === "PYQ_PRE") type = "PRE";
+  if (form.page === "PYQ_MAINS") type = "MAINS";
 
-    setForm(page);
+  console.log("Calling API with:", form.exam, type);
 
-    setLoading(false);
-  };
+  if (type) {
+    fetchSubjects(form.exam, type);
+  } else {
+    setSubjects([]);
+  }
+}, [form?.exam, form?.page]);
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+const fetchData = async () => {
+  const res = await fetch("/api/admin/page-content");
+  const data = await res.json();
 
-    const formData = new FormData();
+  const page = data.find((d: any) => d._id === id);
 
-    formData.append("exam", form.exam);
+  // CONVERT PAGE
+  let pageValue = page.page;
+  if (page.page === "PYQ") {
+    pageValue = "PYQ_PRE"; 
+  }
 
-    formData.append("page", form.page);
+setForm({
+  ...page,
+  page: pageValue,
+  subject: page.subject || "",
+});
+  setLoading(false);
+};
 
-    formData.append("status", String(form.status));
+ const handleSubmit = async (e: any) => {
+   e.preventDefault();
 
-    formData.append(
-      "en",
+   //PYQ check
+   const isPYQ =
+     ["PYQ_PRE", "PYQ_MAINS"].includes(form.page) &&
+     ["UPSC", "UPPSC", "BPSC"].includes(form.exam);
 
-      JSON.stringify({
-        title: form.en.title,
-        shortContent: form.en.shortContent || "",
-        content: form.en.content,
-        videoUrl: form.en.videoUrl || "",
-      }),
-    );
+   // validation
+   if (isPYQ && !form.subject) {
+     toast.error("Please select subject");
+     return;
+   }
 
-    formData.append(
-      "hi",
+   const formData = new FormData();
 
-      JSON.stringify({
-        title: form.hi.title,
-        shortContent: form.hi.shortContent || "",
-        content: form.hi.content,
-        videoUrl: form.hi.videoUrl || "",
-      }),
-    );
+   formData.append("id", id as string); // 🔥 important
+   formData.append("exam", form.exam);
+   formData.append("page", form.page);
+   formData.append("status", String(form.status));
 
-    if (form.en.pdf instanceof File) {
-      formData.append("en_pdf", form.en.pdf);
-    }
+   // ✅ only for PYQ
+   if (isPYQ) {
+     formData.append("subject", form.subject);
+   }
 
-    if (form.hi.pdf instanceof File) {
-      formData.append("hi_pdf", form.hi.pdf);
-    }
+   formData.append(
+     "en",
+     JSON.stringify({
+       title: form.en.title,
+       shortContent: form.en.shortContent || "",
+       content: form.en.content,
+       videoUrl: form.en.videoUrl || "",
+     }),
+   );
 
-    const res = await fetch(
-      "/api/admin/page-content",
+   formData.append(
+     "hi",
+     JSON.stringify({
+       title: form.hi.title,
+       shortContent: form.hi.shortContent || "",
+       content: form.hi.content,
+       videoUrl: form.hi.videoUrl || "",
+     }),
+   );
 
-      {
-        method: "POST",
+   if (form.en.pdf instanceof File) {
+     formData.append("en_pdf", form.en.pdf);
+   }
 
-        body: formData,
-      },
-    );
+   if (form.hi.pdf instanceof File) {
+     formData.append("hi_pdf", form.hi.pdf);
+   }
 
-    if (!res.ok) {
-      toast.error("Update failed");
+   const res = await fetch("/api/admin/page-content", {
+     method: "POST",
+     body: formData,
+   });
 
-      return;
-    }
+   if (!res.ok) {
+     toast.error("Update failed");
+     return;
+   }
 
-    toast.success(`${form.exam} ${form.page} updated successfully`);
-
-    router.push("/admin/page-content");
-  };
+   toast.success(`${form.exam} ${form.page} updated successfully`);
+   router.push("/admin/page-content");
+ };
 
   if (loading) {
     return (
@@ -187,10 +260,25 @@ export default function EditPageContent() {
 
               <select
                 value={form.exam}
-                disabled
-                className="w-full border p-2 rounded-lg bg-gray-100"
+                onChange={(e) => {
+                  const exam = e.target.value;
+
+                  setForm({
+                    ...form,
+                    exam,
+                    page: pageOptions[exam][0].value,
+                    subject: "",
+                  });
+
+                  setSubjects([]);
+                }}
+                className="w-full border p-2 rounded-lg"
               >
-                <option>{form.exam}</option>
+                {Object.keys(pageOptions).map((ex) => (
+                  <option key={ex} value={ex}>
+                    {ex}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -199,8 +287,27 @@ export default function EditPageContent() {
 
               <select
                 value={form.page}
-                disabled
-                className="w-full border p-2 rounded-lg bg-gray-100"
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  let type = "";
+
+                  if (value === "PYQ_PRE") type = "PRE";
+                  if (value === "PYQ_MAINS") type = "MAINS";
+
+                  setForm({
+                    ...form,
+                    page: value,
+                    subject: "",
+                  });
+
+                  if (type) {
+                    fetchSubjects(form.exam, type);
+                  } else {
+                    setSubjects([]);
+                  }
+                }}
+                className="w-full border p-2 rounded-lg"
               >
                 {pageOptions[form.exam]?.map((p: any) => (
                   <option key={p.value} value={p.value}>
@@ -228,6 +335,32 @@ export default function EditPageContent() {
                 className="w-full border p-2 rounded-lg"
               />
             </div>
+
+            {["PYQ_PRE", "PYQ_MAINS"].includes(form.page) &&
+              ["UPSC", "UPPSC", "BPSC"].includes(form.exam) && (
+                <div>
+                  <label className="font-medium">Subject</label>
+
+                  <select
+                    value={form.subject || ""}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        subject: e.target.value,
+                      })
+                    }
+                    className="w-full border p-2 rounded-lg"
+                  >
+                    <option value="">Select Subject</option>
+
+                    {subjects.map((sub: any) => (
+                      <option key={sub._id} value={sub.slug}>
+                        {sub.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
             <div>
               <label className="font-medium">Title (Hindi)</label>

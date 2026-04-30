@@ -1,5 +1,5 @@
 "use client";
-
+import { useEffect } from "react";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import AdminLayout from "@/component/admin/AdminLayout";
@@ -11,20 +11,24 @@ const pageOptions: any = {
   UPSC: [
     { label: "About UPSC (CSE)", value: "About" },
     { label: "UPSC Syllabus", value: "Syllabus" },
-    { label: "UPSC PYQ (Pre + Mains)", value: "PYQ" },
+    { label: "UPSC PYQ (Pre)", value: "PYQ_PRE" },
+    { label: "UPSC PYQ (Mains)", value: "PYQ_MAINS" },
   ],
 
   UPPSC: [
     { label: "About UPPSC", value: "About" },
     { label: "UPPSC Syllabus", value: "Syllabus" },
-    { label: "UPPSC PYQ (Pre + Mains)", value: "PYQ" },
+    { label: "UPPSC PYQ (Pre)", value: "PYQ_PRE" },
+    { label: "UPPSC PYQ (Mains)", value: "PYQ_MAINS" },
   ],
 
   BPSC: [
     { label: "About BPSC", value: "About" },
     { label: "BPSC Syllabus", value: "Syllabus" },
-    { label: "BPSC PYQ (Pre + Mains)", value: "PYQ" },
+    { label: "BPSC PYQ (Pre)", value: "PYQ_PRE" },
+    { label: "BPSC PYQ (Mains)", value: "PYQ_MAINS" },
   ],
+
   "Dikshant Special": [
     { label: "Kurukshetra", value: "kurukshetra" },
     { label: "Down to Earth", value: "down-to-earth" },
@@ -34,6 +38,7 @@ const pageOptions: any = {
     { label: "Important Institutions", value: "important-institutions" },
     { label: "Free Study Material", value: "free-study-material" },
   ],
+
   Videos: [
     { label: "Full Story by Dr. S.S. Panday", value: "full-story" },
     { label: "Current Affairs", value: "current-affairs" },
@@ -43,14 +48,13 @@ const pageOptions: any = {
 
 export default function AddPageContent() {
   const router = useRouter();
-
+  const [subjects, setSubjects] = useState<any[]>([]);
   const editor = useRef(null);
 
   const [form, setForm] = useState({
     exam: "UPSC",
-
     page: "About",
-
+    subject: "",
     status: true,
 
     en: {
@@ -70,14 +74,52 @@ export default function AddPageContent() {
     },
   });
 
+  useEffect(() => {
+    let type = "";
+
+    if (form.page === "PYQ_PRE") type = "PRE";
+    if (form.page === "PYQ_MAINS") type = "MAINS";
+
+    if (type) {
+      fetchSubjects(form.exam, type);
+    }
+  }, [form.page, form.exam]);
+  const fetchSubjects = async (exam: string, type: string) => {
+    try {
+      const res = await fetch(`/api/admin/subjects?exam=${exam}&type=${type}`);
+      const data = await res.json();
+
+      console.log("Subjects API:", data);
+
+      // FIX HERE
+      setSubjects(Array.isArray(data) ? data : data.data || []);
+    } catch (err) {
+      console.error("Error fetching subjects", err);
+    }
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    const isPYQ =
+      ["PYQ_PRE", "PYQ_MAINS"].includes(form.page) &&
+      ["UPSC", "UPPSC", "BPSC"].includes(form.exam);
+
+    if (isPYQ && !form.subject) {
+      toast.error("Please select subject");
+      return;
+    }
 
     const formData = new FormData();
 
     formData.append("exam", form.exam);
     formData.append("page", form.page);
     formData.append("status", String(form.status));
+
+    // ONLY HERE
+    if (isPYQ) {
+      formData.append("subject", form.subject);
+    }
+
     formData.append(
       "en",
       JSON.stringify({
@@ -170,13 +212,27 @@ export default function AddPageContent() {
 
               <select
                 value={form.page}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  let type = "";
+
+                  if (value === "PYQ_PRE") type = "PRE";
+                  if (value === "PYQ_MAINS") type = "MAINS";
+
                   setForm({
                     ...form,
+                    page: value,
+                    subject: "",
+                  });
 
-                    page: e.target.value,
-                  })
-                }
+                  if (type) {
+                    fetchSubjects(form.exam, type);
+                  } else {
+                    setSubjects([]);
+                  }
+                }}
+                className="w-full border p-2 rounded-lg"
                 className="w-full border p-2 rounded-lg"
               >
                 {pageOptions[form.exam].map((p: any) => (
@@ -187,6 +243,32 @@ export default function AddPageContent() {
               </select>
             </div>
 
+            {/* page */}
+            {["PYQ_PRE", "PYQ_MAINS"].includes(form.page) &&
+              ["UPSC", "UPPSC", "BPSC"].includes(form.exam) && (
+                <div>
+                  <label className="font-medium">Subject</label>
+
+                  <select
+                    value={form.subject}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        subject: e.target.value,
+                      })
+                    }
+                    className="w-full border p-2 rounded-lg"
+                  >
+                    <option value="">Select Subject</option>
+
+                    {subjects.map((sub: any) => (
+                      <option key={sub._id} value={sub.slug}>
+                        {sub.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             {/* title en */}
 
             <div>
@@ -413,9 +495,7 @@ export default function AddPageContent() {
           <div className="grid md:grid-cols-2 gap-6">
             {/* English Video */}
             <div>
-              <label className="block font-medium mb-1">
-                English Video
-              </label>
+              <label className="block font-medium mb-1">English Video</label>
 
               <input
                 type="text"
@@ -473,13 +553,11 @@ export default function AddPageContent() {
             }
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition
 
-${form.status ? "bg-green-500" : "bg-gray-300"}`}
-          >
+              ${form.status ? "bg-green-500" : "bg-gray-300"}`} >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition
 
-${form.status ? "translate-x-6" : "translate-x-1"}`}
-            />
+              ${form.status ? "translate-x-6" : "translate-x-1"}`} />
           </button>
         </div>
 
