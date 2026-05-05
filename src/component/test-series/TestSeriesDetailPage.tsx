@@ -84,6 +84,7 @@ export default function TestSeriesDetailPage({ id }: { id: string }) {
   //     );
   //     setPurchasedMap((prev) => ({ ...prev, ...map }));
   // }, []);
+
   const calculateSubmissionTimers = () => {
     const now = currentTime.getTime();
     const start = new Date(testSeries?.AnswerSubmitDateAndTime || "").getTime();
