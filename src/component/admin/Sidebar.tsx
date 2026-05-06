@@ -40,6 +40,7 @@ export default function Sidebar() {
           icon: MessageSquare,
         },
         { href: "/admin/settings/popup", label: "Popup" },
+          { href: "/admin/global-banner", label: "Banner" },
       ],
     },
 
