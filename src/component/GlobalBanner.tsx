@@ -12,7 +12,7 @@ export default function GlobalBanner() {
     <div className="w-full bg-white relative">
       <div className="max-w-7xl mx-auto py-1  px-4">
         <Link
-          href="https://www.dikshantias.com/offline-course/sociology-optional-combo-course-hybrid-batch-1776952712145"
+          href="https://www.dikshantias.com/online-live-course/sociology-ugc-net-jrf-set-course-hindi-med-online-live-1777970579879"
           className="block w-full"
         >
           {/* Mobile */}
@@ -30,7 +30,7 @@ export default function GlobalBanner() {
           {/* Desktop */}
           <div className="hidden sm:block relative w-full">
             <Image
-              src="/img/webPatti1.png"
+              src="/img/ugcneetjrf.png"
               alt="Desktop Banner"
               width={1600}
               height={500}
