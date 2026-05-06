@@ -92,6 +92,10 @@ export default function Sidebar() {
           href: "/admin/page-content",
           label: "All Pages",
         },
+        {
+          href: "/admin/ncert-books",
+          label: "NCERT Books",
+        },
       ],
     },
 
