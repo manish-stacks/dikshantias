@@ -38,7 +38,7 @@ const NCERTSubjects = () => {
   };
 
   return (
-    <section className="relative py-14 overflow-hidden bg-gradient-to-b from-[#f8fafc] via-white to-[#f9fafb]">
+    <section className="relative py-5 pb-10 overflow-hidden bg-gradient-to-b from-[#f8fafc] via-white to-[#f9fafb]">
       {/* Premium Background Effects */}
       <div className="absolute top-0 right-0 w-[320px] h-[320px] bg-red-100/40 blur-3xl rounded-full" />
       <div className="absolute bottom-0 left-0 w-[260px] h-[260px] bg-yellow-100/30 blur-3xl rounded-full" />
@@ -57,7 +57,7 @@ const NCERTSubjects = () => {
           {/* Grid Pattern */}
           <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:24px_24px]" />
 
-          <div className="relative px-5 py-7 md:px-8 md:py-8">
+          <div className="relative px-5 py-4 md:px-5 md:py-5">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 backdrop-blur-md px-3 py-1.5 rounded-full mb-4">
               <GraduationCap className="w-3.5 h-3.5 text-yellow-400" />
@@ -76,7 +76,7 @@ const NCERTSubjects = () => {
               </span>
             </h2>
             {/* Description */}
-            <p className="mt-4 text-xs md:text-sm text-gray-300 leading-relaxed max-w-2xl">
+            <p className="mt-2 text-xs md:text-sm text-gray-300 leading-relaxed max-w-2xl">
               Free NCERT Books, Notes & Study Materials for Classes 6th to 12th.
             </p>
           </div>
