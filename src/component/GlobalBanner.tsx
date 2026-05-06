@@ -18,7 +18,7 @@ export default function GlobalBanner() {
           {/* Mobile */}
           <div className="block sm:hidden relative w-full">
             <Image
-              src="/img/mobbanner.png"
+              src="/img/appmobile.png"
               alt="Mobile Banner"
               width={800}
               height={400}

@@ -300,6 +300,7 @@ const handleSubmit = async () => {
                   <option value="UPSC">UPSC</option>
                   <option value="UPPSC">UPPSC</option>
                   <option value="BPSC">BPSC</option>
+                  <option value="dikshant_Special">Dikshant Special</option>
                 </select>
               </div>
 
@@ -316,6 +317,7 @@ const handleSubmit = async () => {
                   <option value="">Select Page</option>
                   <option value="PYQ_PRE">PYQ Pre</option>
                   <option value="PYQ_MAINS">PYQ Mains</option>
+                  <option value="NCERT_6th_12th">NCERT (6th–12th)</option>
                 </select>
               </div>
 
