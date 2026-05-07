@@ -46,6 +46,11 @@ export async function POST(
     const className =
       formData.get("className");
 
+    const classNameHindi =
+      formData.get(
+        "classNameHindi",
+      );
+
     const status =
       formData.get("status") ===
       "true";
@@ -83,46 +88,94 @@ export async function POST(
       const subject =
         parsedSubjects[i];
 
-      const pdfFile =
+      // ENGLISH PDF
+      const englishPdfFile =
         formData.get(
-          `pdf_${i}`,
+          `englishPdf_${i}`,
         ) as File | null;
 
-      let pdfUrl = "";
+      // HINDI PDF
+      const hindiPdfFile =
+        formData.get(
+          `hindiPdf_${i}`,
+        ) as File | null;
 
-      // NEW PDF UPLOAD
-      if (pdfFile) {
+      let englishPdfUrl =
+        subject.englishPdf || "";
+
+      let hindiPdfUrl =
+        subject.hindiPdf || "";
+
+      // ENGLISH PDF UPLOAD
+      if (englishPdfFile) {
         const buffer =
           Buffer.from(
-            await pdfFile.arrayBuffer(),
+            await englishPdfFile.arrayBuffer(),
           );
 
         const uploaded =
           await uploadToS3(
             buffer,
-            pdfFile.name,
-            pdfFile.type,
+            englishPdfFile.name,
+            englishPdfFile.type,
             "ncert-pdfs",
           );
 
-        pdfUrl = uploaded.url;
+        englishPdfUrl =
+          uploaded.url;
+      }
+
+      // HINDI PDF UPLOAD
+      if (hindiPdfFile) {
+        const buffer =
+          Buffer.from(
+            await hindiPdfFile.arrayBuffer(),
+          );
+
+        const uploaded =
+          await uploadToS3(
+            buffer,
+            hindiPdfFile.name,
+            hindiPdfFile.type,
+            "ncert-pdfs",
+          );
+
+        hindiPdfUrl =
+          uploaded.url;
       }
 
       uploadedSubjects.push({
+        // OLD FIELD
         subjectName:
           subject.subjectName,
+
         pdf:
-          pdfUrl ||
+          englishPdfUrl ||
           subject.pdf ||
           "",
+
+        // NEW FIELD
+        subjectNameHindi:
+          subject.subjectNameHindi ||
+          "",
+
+        englishPdf:
+          englishPdfUrl,
+
+        hindiPdf:
+          hindiPdfUrl,
       });
     }
 
     const newBook =
       await NCERTBook.create({
         className,
+
+        classNameHindi,
+
         subjects:
           uploadedSubjects,
+
         status,
       });
 

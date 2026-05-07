@@ -1,11 +1,23 @@
 import mongoose, { Schema, Document, models, model } from "mongoose";
 
+/* ---------- Subject ---------- */
+
 export interface ISubject {
+  // OLD FIELD (existing data support)
   subjectName: string;
   pdf: string;
+
+  // NEW FIELDS
+  subjectNameHindi?: string;
+
+  englishPdf?: string;
+  hindiPdf?: string;
 }
 
+/* ---------- NCERT ---------- */
+
 export interface INCERTBook extends Document {
+  // OLD FIELD
   className:
     | "Class 6"
     | "Class 7"
@@ -15,22 +27,48 @@ export interface INCERTBook extends Document {
     | "Class 11"
     | "Class 12";
 
+  // NEW FIELD
+  classNameHindi?: string;
+
   subjects: ISubject[];
 
   status: boolean;
 }
 
+/* ---------- Subject Schema ---------- */
+
 const SubjectSchema = new Schema<ISubject>(
   {
+    // OLD FIELD
     subjectName: {
       type: String,
       required: true,
       trim: true,
     },
 
+    // OLD FIELD
     pdf: {
       type: String,
       required: true,
+    },
+
+    // NEW FIELD
+    subjectNameHindi: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    // NEW FIELD
+    englishPdf: {
+      type: String,
+      default: "",
+    },
+
+    // NEW FIELD
+    hindiPdf: {
+      type: String,
+      default: "",
     },
   },
   {
@@ -38,8 +76,11 @@ const SubjectSchema = new Schema<ISubject>(
   },
 );
 
+/* ---------- Main Schema ---------- */
+
 const NCERTBookSchema = new Schema<INCERTBook>(
   {
+    // OLD FIELD
     className: {
       type: String,
 
@@ -54,6 +95,12 @@ const NCERTBookSchema = new Schema<INCERTBook>(
       ],
 
       required: true,
+    },
+
+    // NEW FIELD
+    classNameHindi: {
+      type: String,
+      default: "",
     },
 
     subjects: {

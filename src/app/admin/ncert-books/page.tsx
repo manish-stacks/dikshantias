@@ -7,27 +7,45 @@ import toast from "react-hot-toast";
 import ConfirmDialog from "@/component/admin/ConfirmDialog";
 
 interface Subject {
+  // OLD DATA SUPPORT
   subjectName: string;
   pdf: string;
+
+  // NEW FIELDS
+  subjectNameHindi?: string;
+
+  englishPdf?: File | string | null;
+  hindiPdf?: File | string | null;
 }
 
 interface NCERTBook {
   _id: string;
+
   className: string;
+
+  classNameHindi?: string;
+
   subjects: Subject[];
+
   status: boolean;
 }
 
 export default function NCERTBooksPage() {
-  {
-    /* STATES */
-  }
+  /* STATES */
+
   const [className, setClassName] = useState("");
+
+  const [classNameHindi, setClassNameHindi] = useState("");
 
   const [subjects, setSubjects] = useState([
     {
       subjectName: "",
-      pdf: null,
+      subjectNameHindi: "",
+
+      pdf: "",
+
+      englishPdf: null,
+      hindiPdf: null,
     },
   ]);
 
@@ -54,7 +72,8 @@ export default function NCERTBooksPage() {
 
   const itemsPerPage = 5;
 
-  // AUTH
+  /* AUTH */
+
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
 
@@ -62,11 +81,13 @@ export default function NCERTBooksPage() {
       window.location.href = "/admin/login";
     } else {
       setAuthorized(true);
+
       fetchBooks();
     }
   }, []);
 
-  // FETCH BOOKS
+  /* FETCH BOOKS */
+
   const fetchBooks = async () => {
     try {
       const res = await fetch("/api/admin/ncert-books");
@@ -76,14 +97,18 @@ export default function NCERTBooksPage() {
       setBooks(data);
     } catch (err) {
       console.error(err);
+
       toast.error("Failed to fetch NCERT books");
     }
   };
 
-  // DELETE
+  /* DELETE */
+
   const handleDelete = (id: string) => {
     setConfirmTitle("Delete NCERT Book?");
+
     setConfirmMessage("This action cannot be undone.");
+
     setConfirmBtnText("Delete");
 
     setConfirmAction(() => async () => {
@@ -94,6 +119,7 @@ export default function NCERTBooksPage() {
 
         if (!res.ok) {
           toast.error("Failed to delete");
+
           return;
         }
 
@@ -112,189 +138,160 @@ export default function NCERTBooksPage() {
     setConfirmOpen(true);
   };
 
-  // STATUS TOGGLE
-const handleToggleStatus = async (
-  id: string,
-  currentStatus: boolean,
-) => {
-  try {
-    const res = await fetch(
-      `/api/admin/ncert-books/${id}`,
-      {
+  /* STATUS */
+
+  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      const res = await fetch(`/api/admin/ncert-books/${id}`, {
         method: "PATCH",
 
         headers: {
-          "Content-Type":
-            "application/json",
+          "Content-Type": "application/json",
         },
 
         body: JSON.stringify({
           status: !currentStatus,
         }),
-      },
-    );
+      });
 
-    if (res.ok) {
-      setBooks((prev) =>
-        prev.map((item) =>
-          item._id === id
-            ? {
-                ...item,
-                status:
-                  !currentStatus,
-              }
-            : item,
+      if (res.ok) {
+        setBooks((prev) =>
+          prev.map((item) =>
+            item._id === id
+              ? {
+                  ...item,
+                  status: !currentStatus,
+                }
+              : item,
+          ),
+        );
+
+        toast.success("Status updated");
+      } else {
+        toast.error("Failed to update status");
+      }
+    } catch (err) {
+      console.error(err);
+
+      toast.error("Something went wrong");
+    }
+  };
+
+  /* SUBMIT */
+
+  const handleSubmit = async () => {
+    try {
+      if (!className) {
+        toast.error("Please select class");
+
+        return;
+      }
+
+      if (subjects.some((sub) => !sub.subjectName.trim())) {
+        toast.error("Please enter all subject names");
+
+        return;
+      }
+
+      const formData = new FormData();
+
+      formData.append("className", className);
+
+      formData.append("classNameHindi", classNameHindi);
+
+      formData.append("status", "true");
+
+      /* SUBJECT DATA */
+
+      formData.append(
+        "subjects",
+        JSON.stringify(
+          subjects.map((sub) => ({
+            subjectName: sub.subjectName,
+
+            subjectNameHindi: sub.subjectNameHindi || "",
+
+            pdf: typeof sub.pdf === "string" ? sub.pdf : "",
+
+            englishPdf:
+              typeof sub.englishPdf === "string" ? sub.englishPdf : "",
+
+            hindiPdf: typeof sub.hindiPdf === "string" ? sub.hindiPdf : "",
+          })),
         ),
       );
 
-      toast.success(
-        "Status updated",
-      );
-    } else {
-      toast.error(
-        "Failed to update status",
-      );
-    }
-  } catch (err) {
-    console.error(err);
+      /* FILES */
 
-    toast.error(
-      "Something went wrong",
-    );
-  }
-};
-
-  const handleSubmit = async () => {
-  try {
-    // VALIDATION
-    if (!className) {
-      toast.error("Please select class");
-      return;
-    }
-
-    if (
-      subjects.some(
-        (sub) =>
-          !sub.subjectName.trim(),
-      )
-    ) {
-      toast.error(
-        "Please enter all subject names",
-      );
-
-      return;
-    }
-
-    // FORM DATA
-    const formData = new FormData();
-
-    formData.append(
-      "className",
-      className,
-    );
-
-    formData.append(
-      "status",
-      "true",
-    );
-
-    // SUBJECT DATA
-    formData.append(
-      "subjects",
-      JSON.stringify(
-        subjects.map((sub) => ({
-          subjectName:
-            sub.subjectName,
-
-          pdf:
-            typeof sub.pdf ===
-            "string"
-              ? sub.pdf
-              : "",
-        })),
-      ),
-    );
-
-    // PDF FILES
-    subjects.forEach(
-      (subject, index) => {
-        if (
-          subject.pdf instanceof File
-        ) {
-          formData.append(
-            `pdf_${index}`,
-            subject.pdf,
-          );
+      subjects.forEach((subject, index) => {
+        if (subject.englishPdf instanceof File) {
+          formData.append(`englishPdf_${index}`, subject.englishPdf);
         }
-      },
-    );
 
-    let res;
+        if (subject.hindiPdf instanceof File) {
+          formData.append(`hindiPdf_${index}`, subject.hindiPdf);
+        }
+      });
 
-    // UPDATE
-    if (editingBook) {
-      res = await fetch(
-        `/api/admin/ncert-books/${editingBook._id}`,
-        {
+      let res;
+
+      /* UPDATE */
+
+      if (editingBook) {
+        res = await fetch(`/api/admin/ncert-books/${editingBook._id}`, {
           method: "PUT",
 
           body: formData,
-        },
-      );
-    }
-
-    // CREATE
-    else {
-      res = await fetch(
-        "/api/admin/ncert-books",
-        {
+        });
+      } else {
+        /* CREATE */
+        res = await fetch("/api/admin/ncert-books", {
           method: "POST",
 
           body: formData,
+        });
+      }
+
+      if (!res.ok) {
+        toast.error(editingBook ? "Failed to update" : "Failed to create");
+
+        return;
+      }
+
+      toast.success(editingBook ? "NCERT Book updated" : "NCERT Book created");
+
+      /* RESET */
+
+      setShowModal(false);
+
+      setEditingBook(null);
+
+      setClassName("");
+
+      setClassNameHindi("");
+
+      setSubjects([
+        {
+          subjectName: "",
+          subjectNameHindi: "",
+
+          pdf: "",
+
+          englishPdf: null,
+          hindiPdf: null,
         },
-      );
+      ]);
+
+      fetchBooks();
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Something went wrong");
     }
+  };
 
-    if (!res.ok) {
-      toast.error(
-        editingBook
-          ? "Failed to update"
-          : "Failed to create",
-      );
+  /* LOADING */
 
-      return;
-    }
-
-    toast.success(
-      editingBook
-        ? "NCERT Book updated"
-        : "NCERT Book created",
-    );
-
-    // RESET
-    setShowModal(false);
-
-    setEditingBook(null);
-
-    setClassName("");
-
-    setSubjects([
-      {
-        subjectName: "",
-        pdf: null,
-      },
-    ]);
-
-    // REFRESH
-    fetchBooks();
-  } catch (error) {
-    console.error(error);
-
-    toast.error("Something went wrong");
-  }
-};
-
-  // LOADING
   if (!authorized) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
@@ -313,7 +310,8 @@ const handleToggleStatus = async (
     );
   }
 
-  // PAGINATION
+  /* PAGINATION */
+
   const totalPages = Math.ceil(books.length / itemsPerPage);
 
   const paginatedData = books.slice(
@@ -324,6 +322,7 @@ const handleToggleStatus = async (
   return (
     <AdminLayout>
       {/* HEADER */}
+
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">NCERT Books</h1>
@@ -332,22 +331,30 @@ const handleToggleStatus = async (
             Manage class-wise subjects & PDFs
           </p>
         </div>
+
         <button
           onClick={() => {
             setEditingBook(null);
 
             setClassName("");
 
+            setClassNameHindi("");
+
             setSubjects([
               {
                 subjectName: "",
-                pdf: null,
+                subjectNameHindi: "",
+
+                pdf: "",
+
+                englishPdf: null,
+                hindiPdf: null,
               },
             ]);
 
             setShowModal(true);
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#e94e4e] text-white rounded-xl hover:bg-red-600 shadow transition"
+          className="flex items-center gap-2 px-4 py-2 bg-[#e94e4e] text-white rounded-xl"
         >
           <Plus size={16} />
           Add NCERT Book
@@ -355,315 +362,374 @@ const handleToggleStatus = async (
       </div>
 
       {/* TABLE */}
-      <div className="bg-white p-6 rounded-2xl shadow-lg mb-8">
+
+      <div className="bg-white p-6 rounded-2xl shadow-lg">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            {/* HEAD */}
-            <thead className="bg-gray-100 text-gray-700 text-sm uppercase font-semibold">
+          <table className="w-full">
+            <thead>
               <tr>
-                <th className="py-4 px-5 text-left border-b">Class</th>
+                <th className="text-left py-3">Class</th>
 
-                <th className="py-4 px-5 text-left border-b">
-                  Subjects & PDFs
-                </th>
+                <th className="text-left py-3">Subjects</th>
 
-                <th className="py-4 px-5 text-center border-b">Status</th>
+                <th className="text-center py-3">Status</th>
 
-                <th className="py-4 px-5 text-center border-b">Actions</th>
+                <th className="text-center py-3">Actions</th>
               </tr>
             </thead>
 
-            {/* BODY */}
-            <tbody className="text-gray-800 text-sm">
-              {paginatedData.length > 0 ? (
-                paginatedData.map((item) => (
-                  <tr
-                    key={item._id}
-                    className="hover:bg-gray-50 transition border-b"
-                  >
-                    {/* CLASS */}
-                    <td className="py-4 px-5">
-                      <div className="font-bold text-lg text-gray-800">
-                        {item.className}
+            <tbody>
+              {paginatedData.map((item) => (
+                <tr key={item._id}>
+                  {/* CLASS */}
+
+                  <td className="py-4">
+                    <div className="font-bold">{item.className}</div>
+
+                    {item.classNameHindi && (
+                      <div className="text-xs text-gray-500">
+                        {item.classNameHindi}
                       </div>
-                    </td>
+                    )}
+                  </td>
 
-                    {/* SUBJECTS */}
-                    <td className="py-4 px-5">
-                      <div className="flex flex-col gap-3">
-                        {item.subjects.map((subject, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3"
-                          >
-                            <span className="font-medium text-gray-700">
-                              {subject.subjectName}
-                            </span>
+                  {/* SUBJECTS */}
 
-                            <a
-                              href={subject.pdf}
-                              target="_blank"
-                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition"
-                            >
-                               PDF
-                            </a>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-
-                    {/* STATUS */}
-                    <td className="py-4 px-5 text-center">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={item.status}
-                          readOnly
-                          className="sr-only"
-                        />
-
+                  <td className="py-4">
+                    <div className="space-y-3">
+                      {item.subjects.map((subject, index) => (
                         <div
-                          onClick={() =>
-                            handleToggleStatus(item._id, item.status)
-                          }
-                          className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${
-                            item.status ? "bg-green-500" : "bg-gray-300"
-                          }`}
+                          key={index}
+                          className="border rounded-xl p-3 flex items-center justify-between"
                         >
-                          <span
-                            className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${
-                              item.status ? "translate-x-6" : "translate-x-0"
-                            }`}
-                          ></span>
+                          <div>
+                            <div className="font-semibold">
+                              {subject.subjectName}
+                            </div>
+
+                            {subject.subjectNameHindi && (
+                              <div className="text-xs text-gray-500">
+                                {subject.subjectNameHindi}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex gap-2">
+                            {subject.englishPdf && (
+                              <a
+                                href={
+                                  typeof subject.englishPdf === "string"
+                                    ? subject.englishPdf
+                                    : "#"
+                                }
+                                target="_blank"
+                                className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs"
+                              >
+                                English
+                              </a>
+                            )}
+
+                            {subject.hindiPdf && (
+                              <a
+                                href={
+                                  typeof subject.hindiPdf === "string"
+                                    ? subject.hindiPdf
+                                    : "#"
+                                }
+                                target="_blank"
+                                className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs"
+                              >
+                                Hindi
+                              </a>
+                            )}
+                          </div>
                         </div>
-                      </label>
-                    </td>
+                      ))}
+                    </div>
+                  </td>
 
-                    {/* ACTIONS */}
-                    <td className="py-4 px-5 text-center">
-                      <div className="flex justify-center gap-2">
-                        <button
-                          onClick={() => {
-                            // SET EDITING DATA
-                            setEditingBook(item);
+                  {/* STATUS */}
 
-                            // SET CLASS NAME
-                            setClassName(item.className);
+                  <td className="py-4 px-5 text-center">
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={item.status}
+                        readOnly
+                        className="sr-only"
+                      />
 
-                            // SET SUBJECTS
-                            setSubjects(
-                              item.subjects.map((subject) => ({
-                                subjectName: subject.subjectName,
-                                pdf: subject.pdf,
-                              })),
-                            );
-
-                            // OPEN MODAL
-                            setShowModal(true);
-                          }}
-                          className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 shadow transition"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-
-                        <button
-                          onClick={() => handleDelete(item._id)}
-                          className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500 text-white hover:bg-red-600 shadow transition"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                      <div
+                        onClick={() =>
+                          handleToggleStatus(item._id, item.status)
+                        }
+                        className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${
+                          item.status ? "bg-green-500" : "bg-gray-300"
+                        }`}
+                      >
+                        <span
+                          className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${
+                            item.status ? "translate-x-6" : "translate-x-0"
+                          }`}
+                        ></span>
                       </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="text-center py-10 text-gray-500">
-                    No NCERT Books found
+                    </label>
+                  </td>
+                  {/* ACTIONS */}
+
+                  <td className="text-center">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingBook(item);
+
+                          setClassName(item.className);
+
+                          setClassNameHindi(item.classNameHindi || "");
+
+                          setSubjects(
+                            item.subjects.map((subject) => ({
+                              subjectName: subject.subjectName || "",
+
+                              subjectNameHindi: subject.subjectNameHindi || "",
+
+                              pdf: subject.pdf || "",
+
+                              englishPdf: subject.englishPdf || "",
+
+                              hindiPdf: subject.hindiPdf || "",
+                            })),
+                          );
+
+                          setShowModal(true);
+                        }}
+                        className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>
-
-        {/* PAGINATION */}
-        <div className="flex justify-end items-center mt-5 gap-2">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className={`px-3 py-1 rounded-md ${
-              currentPage === 1
-                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                : "bg-gray-100 hover:bg-gray-200"
-            }`}
-          >
-            Prev
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 rounded-md ${
-                currentPage === i + 1
-                  ? "bg-[#e94e4e] text-white"
-                  : "bg-gray-100 hover:bg-gray-200"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded-md ${
-              currentPage === totalPages
-                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                : "bg-gray-100 hover:bg-gray-200"
-            }`}
-          >
-            Next
-          </button>
-        </div>
       </div>
 
-      {/* MODAL PLACEHOLDER */}
-
       {/* MODAL */}
+
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-4xl rounded-2xl overflow-hidden">
             {/* HEADER */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  {editingBook ? "Edit NCERT Book" : "Add NCERT Book"}
-                </h2>
 
-                <p className="text-sm text-gray-500 mt-1">
-                  Manage class-wise subjects & PDFs
-                </p>
-              </div>
+            <div className="flex items-center justify-between p-5 border-b">
+              <h2 className="text-xl font-bold">
+                {editingBook ? "Edit NCERT Book" : "Add NCERT Book"}
+              </h2>
 
-              <button
-                onClick={() => setShowModal(false)}
-                className="w-9 h-9 rounded-full bg-gray-100 hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center"
-              >
-                ✕
-              </button>
+              <button onClick={() => setShowModal(false)}>✕</button>
             </div>
 
             {/* BODY */}
-            <div className="p-6 max-h-[75vh] overflow-y-auto">
+
+            <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
               {/* CLASS */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Select Class
-                </label>
 
-                <select
-                  value={className}
-                  onChange={(e) => setClassName(e.target.value)}
-                  className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500"
-                >
-                  <option value="">Choose Class</option>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">
+                    Class Name
+                  </label>
 
-                  <option value="Class 6">Class 6</option>
-                  <option value="Class 7">Class 7</option>
-                  <option value="Class 8">Class 8</option>
-                  <option value="Class 9">Class 9</option>
-                  <option value="Class 10">Class 10</option>
-                  <option value="Class 11">Class 11</option>
-                  <option value="Class 12">Class 12</option>
-                </select>
+                  <select
+                    value={className}
+                    onChange={(e) => setClassName(e.target.value)}
+                    className="w-full h-11 border rounded-xl px-4"
+                  >
+                    <option value="">Select Class</option>
+
+                    <option value="Class 6">Class 6</option>
+
+                    <option value="Class 7">Class 7</option>
+
+                    <option value="Class 8">Class 8</option>
+
+                    <option value="Class 9">Class 9</option>
+
+                    <option value="Class 10">Class 10</option>
+
+                    <option value="Class 11">Class 11</option>
+
+                    <option value="Class 12">Class 12</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2">
+                    Class Name (Hindi)
+                  </label>
+
+                  <input
+                    type="text"
+                    value={classNameHindi}
+                    onChange={(e) => setClassNameHindi(e.target.value)}
+                    placeholder="कक्षा"
+                    className="w-full h-11 border rounded-xl px-4"
+                  />
+                </div>
               </div>
 
               {/* SUBJECTS */}
+
               <div className="space-y-4">
                 {subjects.map((subject, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-200 rounded-2xl p-4 bg-gray-50"
-                  >
-                    {/* TOP */}
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-gray-800 text-sm">
-                        Subject {index + 1}
-                      </h3>
+                  <div key={index} className="border rounded-2xl p-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-semibold">Subject {index + 1}</h3>
 
                       {subjects.length > 1 && (
                         <button
-                          type="button"
                           onClick={() => {
-                            const updatedSubjects = subjects.filter(
+                            const updated = subjects.filter(
                               (_, i) => i !== index,
                             );
 
-                            setSubjects(updatedSubjects);
+                            setSubjects(updated);
                           }}
-                          className="text-xs font-medium text-red-500 hover:text-red-700"
+                          className="text-red-500 text-sm"
                         >
                           Remove
                         </button>
                       )}
                     </div>
 
-                    {/* FIELDS */}
                     <div className="grid md:grid-cols-2 gap-4">
-                      {/* SUBJECT */}
+                      {/* ENGLISH */}
+
                       <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-2">
-                          Subject Name
+                        <label className="block text-xs font-semibold mb-2">
+                          Subject Name (English)
                         </label>
 
                         <input
                           type="text"
                           value={subject.subjectName}
                           onChange={(e) => {
-                            const updatedSubjects = [...subjects];
+                            const updated = [...subjects];
 
-                            updatedSubjects[index].subjectName = e.target.value;
+                            updated[index].subjectName = e.target.value;
 
-                            setSubjects(updatedSubjects);
+                            setSubjects(updated);
                           }}
-                          placeholder="Enter Subject Name"
-                          className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                          className="w-full h-11 border rounded-xl px-4"
                         />
                       </div>
 
-                      {/* PDF */}
+                      {/* HINDI */}
+
                       <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-2">
-                          Upload PDF
+                        <label className="block text-xs font-semibold mb-2">
+                          Subject Name (Hindi)
+                        </label>
+
+                        <input
+                          type="text"
+                          value={subject.subjectNameHindi || ""}
+                          onChange={(e) => {
+                            const updated = [...subjects];
+
+                            updated[index].subjectNameHindi = e.target.value;
+
+                            setSubjects(updated);
+                          }}
+                          className="w-full h-11 border rounded-xl px-4"
+                        />
+                      </div>
+                      {/* ENGLISH PDF */}
+
+                      <div>
+                        <label className="block text-xs font-semibold mb-2">
+                          English PDF
                         </label>
 
                         <input
                           type="file"
                           accept=".pdf"
                           onChange={(e) => {
-                            const updatedSubjects = [...subjects];
+                            const updated = [...subjects];
 
-                            updatedSubjects[index].pdf =
+                            updated[index].englishPdf =
                               e.target.files?.[0] || null;
 
-                            setSubjects(updatedSubjects);
+                            setSubjects(updated);
                           }}
-                          className="w-full text-sm px-3 py-2.5 rounded-xl border border-gray-200 bg-white file:mr-3 file:px-3 file:py-1.5 file:border-0 file:rounded-lg file:bg-red-50 file:text-red-600"
+                          className="w-full border rounded-xl p-2"
                         />
 
-                        {typeof subject.pdf === "string" && subject.pdf && (
+                        {/* OLD FILE VIEW */}
+                        {typeof subject.englishPdf === "string" &&
+                          subject.englishPdf && (
+                            <a
+                              href={subject.englishPdf}
+                              target="_blank"
+                              className="inline-block mt-2 text-xs text-blue-600 hover:underline"
+                            >
+                              View English PDF
+                            </a>
+                          )}
+
+                        {/* OLD PDF SUPPORT */}
+                        {!subject.englishPdf && subject.pdf && (
                           <a
                             href={subject.pdf}
                             target="_blank"
-                            className="inline-block mt-2 text-xs text-red-600 hover:underline"
+                            className="inline-block mt-2 text-xs text-blue-600 hover:underline"
                           >
                             View Current PDF
                           </a>
                         )}
+                      </div>
+
+                      {/* HINDI PDF */}
+
+                      <div>
+                        <label className="block text-xs font-semibold mb-2">
+                          Hindi PDF
+                        </label>
+
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          onChange={(e) => {
+                            const updated = [...subjects];
+
+                            updated[index].hindiPdf =
+                              e.target.files?.[0] || null;
+
+                            setSubjects(updated);
+                          }}
+                          className="w-full border rounded-xl p-2"
+                        />
+
+                        {/* OLD HINDI FILE */}
+                        {typeof subject.hindiPdf === "string" &&
+                          subject.hindiPdf && (
+                            <a
+                              href={subject.hindiPdf}
+                              target="_blank"
+                              className="inline-block mt-2 text-xs text-green-600 hover:underline"
+                            >
+                              View Hindi PDF
+                            </a>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -671,18 +737,23 @@ const handleToggleStatus = async (
               </div>
 
               {/* ADD SUBJECT */}
+
               <button
-                type="button"
                 onClick={() =>
                   setSubjects([
                     ...subjects,
                     {
                       subjectName: "",
-                      pdf: null,
+                      subjectNameHindi: "",
+
+                      pdf: "",
+
+                      englishPdf: null,
+                      hindiPdf: null,
                     },
                   ])
                 }
-                className="mt-5 flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-700"
+                className="flex items-center gap-2 text-red-600"
               >
                 <Plus size={16} />
                 Add More Subject
@@ -690,17 +761,18 @@ const handleToggleStatus = async (
             </div>
 
             {/* FOOTER */}
-            <div className="flex items-center justify-end gap-3 px-6 py-5 border-t border-gray-100 bg-gray-50">
+
+            <div className="flex justify-end gap-3 p-5 border-t">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+                className="px-5 py-2 border rounded-xl"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleSubmit}
-                className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-md transition"
+                className="px-6 py-2 bg-red-600 text-white rounded-xl"
               >
                 {editingBook ? "Update" : "Save"}
               </button>
@@ -709,7 +781,8 @@ const handleToggleStatus = async (
         </div>
       )}
 
-      {/* CONFIRM DIALOG */}
+      {/* CONFIRM */}
+
       <ConfirmDialog
         isOpen={confirmOpen}
         title={confirmTitle}
