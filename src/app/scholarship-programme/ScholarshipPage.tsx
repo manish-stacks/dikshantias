@@ -21,7 +21,7 @@ const ScholarshipPage: React.FC = () => {
         {/* Hero Section */}
         <div className="container max-w-7xl mx-auto my-4 px-2 mt-2 md:mt-3 md:px-0">
           <Image
-            src="https://dikshantiasnew-web.s3.ap-south-1.amazonaws.com/sliders/1774513098087-ed3223d7-b8d5-4afd-8f31-f36d085ffa0c-desktop_banner.png"
+            src="/img/desktopscholarship.jpeg"
             // src="/img/Scholarship-banner.png"
             width={1920}
             height={500}
