@@ -1,8 +1,14 @@
-import TestSeriesDetailPage from '@/component/test-series/TestSeriesDetailPage'
-import React from 'react'
+import TestSeriesDetailPage from "@/component/test-series/TestSeriesDetailPage";
+import React from "react";
 
-const page = ({params}) => {
-  return <TestSeriesDetailPage id={params.id}/>
+interface PageProps {
+  params: {
+    id: string;
+  };
 }
 
-export default page
+const Page = ({ params }: PageProps) => {
+  return <TestSeriesDetailPage slug={params?.id} />
+};
+
+export default Page;

@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware"; // optional but recommended
 import Cookies from "js-cookie";
 import axiosInstance from "@/lib/axios";
 
@@ -19,7 +18,6 @@ interface User {
 }
 
 interface AuthState {
-  // ── State ───────────────────────────────────────
   phone: string;
   token: string | null;
   refreshToken: string | null;
@@ -29,7 +27,6 @@ interface AuthState {
   userId: string | number | null;
   isInitializing: boolean;
 
-  // ── Actions ─────────────────────────────────────
   setPhone: (phone: string) => void;
   setUser: (user: User | null) => void;
 
@@ -42,20 +39,27 @@ interface AuthState {
     fcm_token?: string;
     platform?: string;
     appVersion?: string;
-  }) => Promise<{ success: boolean; message: string }>;
+  }) => Promise<void>;
 
+  // Step 1 of OTP login: request OTP for existing user
+  requestLoginOtp: (mobile: string) => Promise<{
+    success: boolean;
+    userId?: string | number;
+    message: string;
+  }>;
+
+  // Step 2 of OTP login OR signup OTP verify
+  loginWithOtp: (userId: string | number, otp: string) => Promise<void>;
+
+  // Generic OTP request (signup flow resend)
   requestOtp: (phone: string) => Promise<{
     success: boolean;
     message: string;
     userId?: string | number;
   }>;
 
-  verifyOtp: (otp: string) => Promise<{
-    success: boolean;
-    message: string;
-    token?: string;
-    user?: User;
-  }>;
+  // Kept for signup OTP verify via modal (calls loginWithOtp internally)
+  verifyOtp: (otp: string) => Promise<void>;
 
   login: (
     phone: string,
@@ -65,12 +69,8 @@ interface AuthState {
     platform?: string,
     appVersion?: string
   ) => Promise<{
-    success: boolean;
-    message: string;
     otpSent?: boolean;
     userId?: string | number;
-    token?: string;
-    user?: User;
   }>;
 
   getProfile: () => Promise<User | null>;
@@ -78,18 +78,12 @@ interface AuthState {
   logout: () => Promise<{ success: boolean; message: string }>;
   getCurrentUser: () => User | null;
 
-  resendOtp: () => Promise<any>;
+  resendOtp: () => Promise<void>;
   clearOtpState: () => void;
-
-  // Call this once on app mount (usually in root layout / _app / main.tsx)
   initializeAuth: () => Promise<void>;
 }
 
-// Helper to safely get current state in async actions
-const getState = () => useAuthStore.getState();
-
 export const useAuthStore = create<AuthState>()((set, get) => ({
-  // ── Initial State ───────────────────────────────────────
   phone: "",
   token: null,
   refreshToken: null,
@@ -99,25 +93,21 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   userId: null,
   isInitializing: true,
 
-  // ── Simple setters ──────────────────────────────────────
   setPhone: (phone) => set({ phone }),
   setUser: (user) => set({ user, userId: user?.id ?? null }),
 
-  // ── Core Auth Flows ─────────────────────────────────────
-
+  // ── Signup ────────────────────────────────────────────────────────
   signup: async (formData) => {
     const { name, email, mobile, password, ...optional } = formData;
 
     if (!name || !email || !mobile || !password) {
-      return { success: false, message: "Name, email, mobile and password are required" };
+      throw new Error("All fields are required");
     }
-
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return { success: false, message: "Invalid email format" };
+      throw new Error("Invalid email format");
     }
-
     if (!/^\d{10}$/.test(mobile)) {
-      return { success: false, message: "Phone number must be 10 digits" };
+      throw new Error("Phone number must be 10 digits");
     }
 
     try {
@@ -130,49 +120,40 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       });
 
       const { id } = res.data.user;
-
       Cookies.set("userId", String(id), COOKIE_OPTIONS);
       set({ otpSent: true, phone: mobile, userId: id });
-
-      return { success: true, message: "OTP sent to your phone" };
     } catch (err: any) {
       const msg = err.response?.data?.error || err.message || "Signup failed";
-      console.error("Signup error:", msg);
-      return { success: false, message: msg };
+      throw new Error(msg);
     }
   },
 
-  requestOtp: async (phone) => {
-    if (!/^\d{10}$/.test(phone)) {
-      return { success: false, message: "Phone number must be 10 digits" };
+  // ── Request OTP for login (existing user) ─────────────────────────
+  requestLoginOtp: async (mobile) => {
+    if (!mobile || !/^[6-9]\d{9}$/.test(mobile)) {
+      return { success: false, message: "Invalid mobile number" };
     }
 
     try {
       const res = await axiosInstance.post<{ user_id: string | number }>("/auth/request-otp", {
-        mobile: phone,
+        mobile,
       });
 
       const { user_id } = res.data;
-
       Cookies.set("userId", String(user_id), COOKIE_OPTIONS);
-      set({ otpSent: true, phone, userId: user_id });
+      set({ phone: mobile, userId: user_id, otpSent: true });
 
-      return {
-        success: true,
-        message: `OTP sent successfully to ${phone}`,
-        userId: user_id,
-      };
+      return { success: true, userId: user_id, message: "OTP sent successfully" };
     } catch (err: any) {
-      const msg = err.response?.data?.message || err.message || "Failed to send OTP";
+      const msg = err.response?.data?.error || err.message || "Failed to send OTP";
       return { success: false, message: msg };
     }
   },
 
-  verifyOtp: async (otp) => {
-    const { userId, phone } = get();
-
-    if (!userId) return { success: false, message: "No OTP request found. Please request OTP first." };
-    if (!otp || otp.length !== 6) return { success: false, message: "OTP must be 6 digits" };
+  // ── Verify OTP + complete login/signup ────────────────────────────
+  loginWithOtp: async (userId, otp) => {
+    if (!userId) throw new Error("User ID missing");
+    if (!/^\d{6}$/.test(otp)) throw new Error("Invalid OTP");
 
     try {
       const res = await axiosInstance.post<{
@@ -194,19 +175,47 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         token,
         refreshToken: refresh_token ?? null,
         user,
-        phone,
         userId: user.id,
+        phone: user.mobile,
         otpSent: false,
         isInitializing: false,
       });
-
-      return { success: true, message: "Login successful!", token, user };
     } catch (err: any) {
-      const msg = err.response?.data?.message || "OTP verification failed";
+      const msg = err.response?.data?.error || err.message || "OTP verification failed";
+      throw new Error(msg);
+    }
+  },
+
+  // ── Generic OTP request (signup resend) ───────────────────────────
+  requestOtp: async (phone) => {
+    if (!phone || !/^\d{10}$/.test(phone)) {
+      return { success: false, message: "Invalid phone number" };
+    }
+
+    try {
+      const res = await axiosInstance.post<{ user_id: string | number }>("/auth/request-otp", {
+        mobile: phone,
+      });
+
+      const { user_id } = res.data;
+      Cookies.set("userId", String(user_id), COOKIE_OPTIONS);
+      set({ otpSent: true, phone, userId: user_id });
+
+      return { success: true, message: `OTP sent to ${phone}`, userId: user_id };
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || "Failed to send OTP";
       return { success: false, message: msg };
     }
   },
 
+  // ── verifyOtp: modal calls this (wraps loginWithOtp) ──────────────
+  verifyOtp: async (otp) => {
+    const { userId } = get();
+    if (!userId) throw new Error("No OTP request found. Please request OTP first.");
+    await get().loginWithOtp(userId, otp);
+  },
+
+  // ── Password Login ────────────────────────────────────────────────
   login: async (phone, password, device_id?, fcm_token?, platform?, appVersion?) => {
     try {
       const res = await axiosInstance.post("/auth/login", {
@@ -219,29 +228,19 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         appVersion,
       });
 
-      // ── OTP-based login flow ──
-      if (res.data.isLoginOtpSent) {
+      // OTP flow — API sends OTP instead of token
+      if (
+        res.data.isLoginOtpSent ||
+        res.data.message === "OTP sent successfully! Please check your messages."
+      ) {
         const user_id = res.data.user_id;
-
         Cookies.set("userId", String(user_id), COOKIE_OPTIONS);
-
-        set({
-          otpSent: true,
-          phone,
-          userId: user_id,
-        });
-
-        return {
-          success: true,
-          otpSent: true,
-          userId: user_id,
-          message: res.data.message || "OTP sent to registered email/phone",
-        };
+        set({ otpSent: true, phone, userId: user_id });
+        return { otpSent: true, userId: user_id };
       }
 
-      // ── Direct login (password correct) ──
+      // Direct password login
       const { token, user, refresh_token } = res.data;
-
       if (!token) throw new Error("No token received from server");
 
       Cookies.set("authToken", token, COOKIE_OPTIONS);
@@ -258,34 +257,21 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         isInitializing: false,
       });
 
-      return {
-        success: true,
-        otpSent: false,
-        message: "Login successful!",
-        token,
-        user,
-      };
+      return { otpSent: false };
     } catch (err: any) {
       const msg = err.response?.data?.error || err.message || "Login failed";
-      return { success: false, message: msg };
+      throw new Error(msg);
     }
   },
 
+  // ── Profile ───────────────────────────────────────────────────────
   getProfile: async () => {
     try {
       const res = await axiosInstance.get<{ data: User }>("/auth/profile-details");
       const user = res.data.data;
-
-      set({
-        user,
-        userId: user.id,
-        phone: user.mobile,
-        loggedIn: true,
-      });
-
+      set({ user, userId: user.id, phone: user.mobile, loggedIn: true });
       return user;
-    } catch (err) {
-      console.warn("Failed to fetch profile:", err);
+    } catch {
       return null;
     }
   },
@@ -293,20 +279,16 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   checkLogin: async () => {
     const token = Cookies.get("authToken");
     if (!token) return false;
-
     const user = await get().getProfile();
     return !!user;
   },
 
   logout: async () => {
     try {
-      // Fire-and-forget logout request (don't block UI)
-      axiosInstance.get("/auth/logout").catch(() => { });
-
+      axiosInstance.get("/auth/logout").catch(() => {});
       Cookies.remove("authToken", COOKIE_OPTIONS);
       Cookies.remove("refreshToken", COOKIE_OPTIONS);
       Cookies.remove("userId", COOKIE_OPTIONS);
-
       set({
         loggedIn: false,
         token: null,
@@ -317,9 +299,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         userId: null,
         isInitializing: false,
       });
-
       return { success: true, message: "Logged out successfully" };
-    } catch (err: any) {
+    } catch {
       return { success: false, message: "Logout failed" };
     }
   },
@@ -330,60 +311,32 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     return { ...user, phone, userId };
   },
 
+  // resendOtp: used in signup OTP step
   resendOtp: async () => {
     const { phone } = get();
-    if (!phone) return { success: false, message: "No phone number available" };
-    return get().requestOtp(phone);
+    if (!phone) throw new Error("No phone number found");
+    const res = await get().requestOtp(phone);
+    if (!res.success) throw new Error(res.message);
   },
 
   clearOtpState: () => set({ otpSent: false, userId: null }),
 
-initializeAuth: async () => {
-  set({ isInitializing: true });
+  initializeAuth: async () => {
+    set({ isInitializing: true });
+    try {
+      const token = Cookies.get("authToken");
+      if (!token) { set({ isInitializing: false }); return; }
 
-  try {
-    const token = Cookies.get("authToken");
-    const refreshToken = Cookies.get("refreshToken");
-    const userIdCookie = Cookies.get("userId");
-
-    const user = await get().getProfile();
-
-    if (!token || !userIdCookie) {
-      set({ isInitializing: false });
-      return;
-    }
-
-    if (user) {
-      set({
-        loggedIn: true,
-        user,
-        userId: user.id,
-        isInitializing: false,
-      });
-      return;
-    }
-
-    set({
-      token,
-      refreshToken: refreshToken ?? null,
-    });
-
-    if (!user) {
+      const user = await get().getProfile();
+      if (user) {
+        set({ loggedIn: true, user, userId: user.id, isInitializing: false });
+      } else {
+        await get().logout();
+      }
+    } catch {
       await get().logout();
-      return;
+    } finally {
+      set({ isInitializing: false });
     }
-
-    set({
-      loggedIn: true,
-      user,
-      userId: user.id,
-      phone: user.mobile,
-      isInitializing: false,
-    });
-  } catch (err) {
-    await get().logout();
-  } finally {
-    set({ isInitializing: false });
-  }
-},
+  },
 }));

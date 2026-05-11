@@ -1,644 +1,334 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axios";
 import {
-    Clock,
-    FileText,
-    Star,
-    Lock,
-    CheckCircle,
-    X,
-    ChevronRight,
-    AlertTriangle,
     BookOpen,
-    Search,
-    Package,
-    Layers,
-    BarChart2,
-    Award,
-    Zap,
+    FileText,
+    Clock,
+    PlayCircle,
+    CheckCircle,
+    Inbox,
+    ArrowRight,
 } from "lucide-react";
-import TestseriesImage from "./TestSeries.png"
-import Image from "next/image";
-
-interface TestSeriesItem {
-    id: number | string;
-    title: string;
-    description: string;
-    imageUrl: string;
-    price: number;
-    discountPrice: number;
-    timeDurationForTest?: number;
-    displayIn?: string;
-}
-
-interface Bundle {
-    id: number | string;
-    title: string;
-    description: string;
-    price: number;
-    discountPrice: number;
-    gst: number;
-    testSeries: TestSeriesItem[];
-}
-
-interface Quiz {
-    id: number | string;
-    title: string;
-    description: string;
-    image?: string;
-    totalQuestions: number;
-    durationMinutes?: number;
-    duration?: number;
-    price?: number;
-    isFree?: boolean;
-    level?: string;
-}
 
 const TABS = [
-    { id: "all", label: "All to All Test", icon: Layers },
-    { id: "bundle", label: "Bundles to Package", icon: Package },
-    { id: "objective", label: "Objective to Prelims Tests", icon: FileText },
-    { id: "subjective", label: "Mains Tests", icon: FileText },
-    { id: "my", label: "My Tests", icon: Star },
+    { key: "all", label: "All" },
+    { key: "prelims", label: "Prelims" },
+    { key: "mains", label: "Mains" },
+    { key: "combo", label: "Combo" },
+    { key: "mine", label: "My Tests" },
 ];
 
-export default function TestSeriesPage() {
-    const router = useRouter();
+const TYPE_COLOR: any = {
+    prelims: {
+        bg: "bg-sky-50",
+        text: "text-sky-700",
+        border: "border-sky-200",
+    },
+    mains: {
+        bg: "bg-violet-50",
+        text: "text-violet-700",
+        border: "border-violet-200",
+    },
+    combo: {
+        bg: "bg-red-50",
+        text: "text-red-700",
+        border: "border-red-200",
+    },
+};
 
-    const [activeTab, setActiveTab] = useState("all");
-    const [testSeries, setTestSeries] = useState<TestSeriesItem[]>([]);
-    const [bundles, setBundles] = useState<Bundle[]>([]);
-    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-    const [purchasedMap, setPurchasedMap] = useState<Record<string | number, boolean>>({});
-    const [searchQuery, setSearchQuery] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [bundleLoading, setBundleLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+interface SeriesItem {
+    id: string;
+    slug: string;
+    title: string;
+    description?: string;
+    thumbnail_url?: string;
+    type: string;
+    price: number;
+    discount_price?: number;
+    total_tests?: number;
+    total_live?: number;
+    validity_days?: number;
+    is_purchased?: boolean;
+}
 
-    const checkPurchases = useCallback(async (items: TestSeriesItem[]) => {
-        if (!items.length) return;
-        const map: Record<string | number, boolean> = {};
-        await Promise.all(
-            items.map(async (item) => {
-                try {
-                    const res = await axiosInstance.get("/orders/already-purchased", {
-                        params: { itemId: item.id, type: "test" },
-                    });
-                    map[item.id] = !!res.data?.purchased;
-                } catch {
-                    map[item.id] = false;
-                }
-            })
-        );
-        setPurchasedMap((prev) => ({ ...prev, ...map }));
-    }, []);
+const getSeriesType = (series: SeriesItem) => series.type;
 
-    const fetchBundles = useCallback(async () => {
-        setBundleLoading(true);
-        try {
-            const res = await axiosInstance.get("/testseries-bundles");
-            if (res.data?.success) {
-                setBundles(res.data.data || []);
-                const allSeries = (res.data.data || []).flatMap((b: Bundle) => b.testSeries || []);
-                await checkPurchases(allSeries);
-            }
-        } catch {
-        } finally {
-            setBundleLoading(false);
-        }
-    }, [checkPurchases, activeTab]);
+const formatPrice = (price: number, discountPrice?: number) => {
+    const p = Number(price);
+    const d = discountPrice ? Number(discountPrice) : null;
+    if (p === 0) return { label: "FREE", original: null, discount: null };
+    if (d && d < p) {
+        return {
+            label: `₹${d.toFixed(0)}`,
+            original: `₹${p.toFixed(0)}`,
+            discount: Math.round(((p - d) / p) * 100),
+        };
+    }
+    return { label: `₹${p.toFixed(0)}`, original: null, discount: null };
+};
 
-    const fetchTestSeries = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await axiosInstance.get("/testseriess", {
-                params: { limit: 120, sortBy: "displayOrder", sortOrder: "ASC" },
-            });
-            const data = res.data?.data || [];
-            setTestSeries(data);
-            await checkPurchases(data);
-        } catch {
-            setError("Failed to load test series. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    }, [checkPurchases]);
+function SeriesCard({ item, onPress }: { item: SeriesItem; onPress: (item: SeriesItem) => void }) {
+    const seriesType = getSeriesType(item);
+    const typeStyle = TYPE_COLOR[seriesType] || TYPE_COLOR.prelims;
+    const pricing = formatPrice(item.price, item.discount_price);
 
-    const fetchQuizzes = useCallback(async () => {
-        setLoading(true);
-        try {
-            const res = await axiosInstance.get("/quiz/quizzes", {
-                params: { displayIn: "TestSeries", search: searchQuery.trim() || undefined, limit: 60 },
-            });
-            setQuizzes(res.data.data || []);
-        } catch {
-            setError("Failed to load objective quizzes.");
-        } finally {
-            setLoading(false);
-        }
-    }, [searchQuery]);
-
-    useEffect(() => {
-        fetchTestSeries();
-        fetchBundles();
-        fetchQuizzes();
-    }, [fetchTestSeries, fetchBundles]);
-
-    useEffect(() => {
-        if (activeTab === "objective") fetchQuizzes();
-    }, [activeTab, searchQuery, fetchQuizzes]);
-
-    const visibleTestSeries = useMemo(() => {
-
-        let filtered = [...testSeries];
-
-        // My Tests
-        if (activeTab === "my") {
-            return filtered.filter((t) => purchasedMap[t.id]);
-        }
-
-        // Subjective (Mains)
-        if (activeTab === "subjective") {
-            return filtered.filter((t) => t.type === "subjective");
-        }
-        console.log(filtered)
-        // All tab → NO FILTER
-        return filtered;
-
-    }, [activeTab, testSeries, purchasedMap]);
-
-    const enrolledCount = Object.values(purchasedMap).filter(Boolean).length;
-
-    const renderBundleCard = (bundle: Bundle) => {
-        const savings = bundle.price - bundle.discountPrice;
-        const savingsPercent = Math.round((savings / bundle.price) * 100);
-        return (
-            <div
-                key={bundle.id}
-                onClick={() => router.push(`/bundle/${bundle.id}`)}
-                className="bg-white rounded-xl border border-gray-200 hover:border-red-300 transition-colors cursor-pointer overflow-hidden"
-            >
-                <div className="bg-red-600 px-4 py-4 text-white">
-                    <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                            <span className="inline-block bg-white/20 text-white text-[10px] font-semibold px-2 py-0.5 rounded mb-2">
-                                {savingsPercent}% OFF
-                            </span>
-                            <h3 className="text-sm font-semibold leading-snug line-clamp-2">{bundle.title}</h3>
-                            <p className="text-xs text-red-100 mt-1 line-clamp-1">{bundle.description}</p>
-                        </div>
-                        <div className="text-center shrink-0">
-                            <Package size={22} className="mx-auto mb-1 opacity-80" />
-                            <div className="text-lg font-bold leading-none">{bundle.testSeries?.length || 0}</div>
-                            <div className="text-[10px] opacity-75">Series</div>
-                        </div>
+    return (
+        <div
+            onClick={() => onPress(item)}
+            className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-red-300 hover:shadow-[0_8px_30px_rgba(245,158,11,0.12)]"
+        >
+            {/* Thumbnail */}
+            <div className="relative h-48 w-full overflow-hidden bg-slate-100">
+                {item.thumbnail_url ? (
+                    <img
+                        src={item.thumbnail_url}
+                        alt={item.title}
+                        className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+                    />
+                ) : (
+                    <div className="flex h-full items-center justify-center">
+                        <BookOpen className="h-12 w-12 text-slate-300" />
                     </div>
+                )}
+
+                {/* gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
+                {/* Type Badge */}
+     
+
+                {/* Purchased Badge */}
+                {item.is_purchased && (
+                    <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+                        <CheckCircle size={10} />
+                        Purchased
+                    </div>
+                )}
+            </div>
+
+            {/* Left accent line on hover */}
+            <div className="absolute left-0 top-0 h-full w-[3px] bg-red-400 opacity-0 transition-opacity group-hover:opacity-100 rounded-l-2xl" />
+
+            {/* Content */}
+            <div className="p-5">
+                <h3 className="line-clamp-2 text-base font-bold text-slate-900 leading-snug">
+                    {item.title}
+                </h3>
+
+                {item.description && (
+                    <p className="mt-1.5 line-clamp-2 text-xs text-slate-500 leading-relaxed">
+                        {item.description}
+                    </p>
+                )}
+
+                {/* Stats */}
+                <div className="mt-4 flex flex-wrap gap-4 text-xs text-slate-400">
+                    <div className="flex items-center gap-1.5">
+                        <FileText size={12} className="text-red-500" />
+                        {item.total_tests || 0} Tests
+                                   <div className={` rounded-full border px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider ${typeStyle.bg} ${typeStyle.text} ${typeStyle.border}`}>
+                    {seriesType}
+                </div>
+                    </div>
+
+                    {item.total_live ? (
+                        <div className="flex items-center gap-1.5 text-emerald-600">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            {item.total_live} Live
+                        </div>
+                    ) : null}
+
+                    {item.validity_days && (
+                        <div className="flex items-center gap-1.5">
+                            <Clock size={12} className="text-red-500" />
+                            {item.validity_days}d validity
+                        </div>
+                    )}
                 </div>
 
-                <div className="p-4 space-y-2">
-                    {bundle.testSeries?.slice(0, 3).map((s) => (
-                        <div key={s.id} className="flex items-center gap-3 bg-gray-50 rounded-lg p-2">
-                            <img src={s.imageUrl} alt={s.title} className="w-10 h-10 rounded-lg object-cover shrink-0" />
-                            <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium line-clamp-1">{s.title}</p>
-                                <p className="text-xs text-red-600 font-semibold">
-                                    ₹{s.discountPrice}
-                                    <span className="text-gray-400 line-through ml-1.5">₹{s.price}</span>
-                                </p>
+                {/* Footer */}
+                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+                    <div>
+                        {pricing.label === "FREE" ? (
+                            <div className="text-lg font-black text-emerald-600">FREE</div>
+                        ) : (
+                            <div className="flex flex-wrap items-end gap-1.5">
+                                <span className="text-lg font-black text-slate-900">{pricing.label}</span>
+                                {pricing.original && (
+                                    <span className="text-xs text-slate-400 line-through mb-0.5">{pricing.original}</span>
+                                )}
+                                {pricing.discount && (
+                                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
+                                        {pricing.discount}% OFF
+                                    </span>
+                                )}
                             </div>
-                            <CheckCircle size={14} className="text-green-500 shrink-0" />
-                        </div>
-                    ))}
-                    {bundle.testSeries?.length > 3 && (
-                        <p className="text-center text-xs text-blue-600 font-medium pt-1">
-                            +{bundle.testSeries.length - 3} more series
-                        </p>
-                    )}
-
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-2">
-                        <div>
-                            <p className="text-base font-bold text-gray-900">₹{bundle.discountPrice}</p>
-                            <p className="text-[10px] text-gray-400">+{bundle.gst}% GST · Save ₹{savings}</p>
-                        </div>
-                        <button className="h-9 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors">
-                            Get Bundle <ChevronRight size={14} />
-                        </button>
+                        )}
                     </div>
+
+                    {item.is_purchased ? (
+                        <button className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-red-300 hover:text-red-600 transition-colors">
+                            <PlayCircle size={13} />
+                            View
+                        </button>
+                    ) : pricing.label === "FREE" ? (
+                        <button className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-600 transition-colors">
+                            Start Free
+                            <ArrowRight size={12} />
+                        </button>
+                    ) : (
+                        <button className="flex items-center gap-1.5 rounded-xl bg-red-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-red-400 transition-colors">
+                            Buy Now
+                            <ArrowRight size={12} />
+                        </button>
+                    )}
                 </div>
             </div>
-        );
+        </div>
+    );
+}
+
+const TestSeriesPage = () => {
+    const router = useRouter();
+
+    const [series, setSeries] = useState<SeriesItem[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState("all");
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+
+    const LIMIT = 20;
+
+    const fetchSeries = useCallback(async (pageNum = 1) => {
+        try {
+            setLoading(true);
+            const response = await axiosInstance.get(`/new/test-series?page=${pageNum}&limit=${LIMIT}`);
+            const data = response.data?.data || response.data;
+            const incoming = data?.series || [];
+            const totalPages = data?.total_pages || 1;
+            setSeries((prev) => (pageNum === 1 ? incoming : [...prev, ...incoming]));
+            setHasMore(pageNum < totalPages);
+            setPage(pageNum);
+        } catch (error) {
+            console.error("Failed to fetch series:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchSeries(1);
+    }, [fetchSeries]);
+
+    const filteredSeries = useMemo(() => {
+        return series.filter((item) => {
+            const t = getSeriesType(item);
+            if (activeTab === "all") return true;
+            if (activeTab === "mine") return item.is_purchased;
+            if (activeTab === "combo") return t === "combo";
+            return t === activeTab;
+        });
+    }, [series, activeTab]);
+
+    const handlePress = (item: SeriesItem) => {
+        router.push(`/test-series/${item.slug}?purchased=${item.is_purchased ? "1" : "0"}`);
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#FAFAF8]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap');
+                .serif { font-family: 'Playfair Display', serif; }
+                .grid-bg { background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 40px 40px; }
+            `}</style>
 
-            <div className="relative overflow-hidden bg-gradient-to-br from-red-400 via-rose-400 to-red-500 text-white mt-3">
-
-                {/* Main container (reduced height) */}
-                <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10 lg:py-14">
-
-                    <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-
-                        {/* Left Content */}
-                        <div className="space-y-6">
-
-                            {/* Badge */}
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 rounded-full text-xs font-medium border border-white/20">
-                                <Zap className="w-3.5 h-3.5" />
-                                <span>Master Competitive Exams</span>
+            {/* ── HEADER ─────────────────────────────────── */}
+            <div className="grid-bg border-b border-black/5">
+                <div className="mx-auto max-w-7xl px-6 py-12">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                        <div>
+                            <div className="mb-2 flex items-center gap-3">
+                                <span className="h-px w-8 bg-red-400" />
+                                <p className="text-xs font-bold uppercase tracking-[0.25em] text-red-600">
+                                    UPSC Preparation
+                                </p>
                             </div>
-
-                            {/* Heading (reduced size) */}
-                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
-                                <span className="block">Test Series & Practice</span>
-                                <span className="block mt-1 bg-gradient-to-r from-white via-rose-100 to-white bg-clip-text text-transparent">
-                                    Ace Every Exam
-                                </span>
-                            </h1>
-
-                            {/* Description */}
-                            <p className="text-sm sm:text-base text-white/90 max-w-lg">
-                                Structured tests, smart bundles, quizzes & analytics — everything you need to crack your next exam.
-                            </p>
-
-                            {/* Stats (smaller + tighter) */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
-
-                                <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                                        <Award className="w-4 h-4" />
-                                    </div>
-                                    <div>
-                                        <div className="text-lg font-semibold">{testSeries?.length - 1 || 0}+</div>
-                                        <div className="text-[10px] opacity-80">Tests</div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                                        <BarChart2 className="w-4 h-4" />
-                                    </div>
-                                    <div>
-                                        <div className="text-lg font-semibold">Analytics</div>
-                                        <div className="text-[10px] opacity-80">Detailed</div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                                        <BookOpen className="w-4 h-4" />
-                                    </div>
-                                    <div>
-                                        <div className="text-lg font-semibold">Bundles</div>
-                                        <div className="text-[10px] opacity-80">Save 40%</div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-
+                            <h1 className="serif text-5xl font-black text-slate-900">Test Series</h1>
+                            <p className="mt-2 text-slate-500">Choose your preparation path</p>
                         </div>
 
-                        {/* Right Image (slightly smaller) */}
-                        <div className="relative hidden lg:block">
-
-                            <div className="absolute -right-10 -top-10 w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
-
-                            <div className="relative rounded-2xl overflow-hidden border-4 border-white/20 shadow-xl">
-
-                                <Image
-                                    src={TestseriesImage}
-                                    alt="Test Series"
-                                    className="w-full h-auto object-cover"
-                                />
-
-                                <div className="absolute top-3 left-3 bg-white/90 px-3 py-1 rounded-full text-xs font-semibold text-red-600">
-                                    2026 Updated
-                                </div>
-
-                            </div>
+                        {/* Count pill */}
+                        <div className="rounded-2xl border border-black/8 bg-white px-5 py-3 shadow-sm">
+                            <p className="text-xs text-slate-400 uppercase tracking-widest">Available</p>
+                            <p className="text-2xl font-black text-red-500">{filteredSeries.length}</p>
                         </div>
+                    </div>
 
+                    {/* ── TABS ─────────────────────────────── */}
+                    <div className="mt-8 flex gap-2 overflow-x-auto pb-1">
+                        {TABS.map((tab) => (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveTab(tab.key)}
+                                className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+                                    activeTab === tab.key
+                                        ? "bg-red-500 text-white shadow-md shadow-red-200"
+                                        : "bg-white text-slate-600 border border-slate-200 hover:border-red-300 hover:text-red-600"
+                                }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
-
-
             </div>
 
-            <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-6">
-                <div className="flex flex-wrap items-center gap-3 mb-5">
-                    <div className="flex gap-2 flex-wrap">
-                        {TABS.map((tab) => {
-                            const Icon = tab.icon;
-                            const isActive = activeTab === tab.id;
-                            return (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`h-9 px-4 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors ${isActive
-                                        ? "bg-red-600 text-white"
-                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                        }`}
-                                >
-                                    <Icon size={14} />
-                                    {tab.label}
-                                </button>
-                            );
-                        })}
+            {/* ── BODY ───────────────────────────────────── */}
+            <div className="mx-auto max-w-7xl px-6 py-10">
+                {loading && page === 1 ? (
+                    <div className="flex h-[400px] flex-col items-center justify-center gap-4">
+                        <div className="h-10 w-10 animate-spin rounded-full border-2 border-red-400 border-t-transparent" />
+                        <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Loading series…</p>
                     </div>
-
-                    {activeTab === "objective" && (
-                        <div className="relative ml-auto">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Search objective tests..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="h-10 w-64 pl-9 pr-8 bg-gray-100 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-300"
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery("")}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                    <X size={13} />
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {loading && (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <div className="w-8 h-8 border-2 border-gray-200 border-t-red-600 rounded-full animate-spin mb-4" />
-                        <p className="text-sm text-gray-500">Loading content...</p>
+                ) : filteredSeries.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white py-24 text-center">
+                        <Inbox className="h-12 w-12 text-slate-300" />
+                        <h3 className="mt-4 text-lg font-bold text-slate-700">No series found</h3>
+                        <p className="mt-1 text-sm text-slate-400">Check back soon for new content.</p>
+                    </div>
+                ) : (
+                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {filteredSeries.map((item) => (
+                            <SeriesCard key={item.id} item={item} onPress={handlePress} />
+                        ))}
                     </div>
                 )}
 
-                {error && !loading && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center max-w-md mx-auto">
-                        <AlertTriangle size={32} className="mx-auto text-red-500 mb-3" />
-                        <h3 className="text-sm font-semibold text-red-800 mb-1">Something went wrong</h3>
-                        <p className="text-xs text-red-600 mb-4">{error}</p>
+                {/* ── LOAD MORE ───────────────────────────── */}
+                {hasMore && !loading && (
+                    <div className="mt-10 flex justify-center">
                         <button
-                            onClick={() => { setError(null); fetchTestSeries(); fetchBundles(); }}
-                            className="h-9 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors"
+                            onClick={() => fetchSeries(page + 1)}
+                            className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-7 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:border-red-300 hover:text-red-600 hover:shadow-md"
                         >
-                            Try Again
+                            Load More
+                            <ArrowRight size={15} />
                         </button>
                     </div>
                 )}
 
-                {!loading && !error && (
-                    <div>
-                        {(activeTab === "all" || activeTab === "bundle") && (
-                            <div className="py-3">
-                                {activeTab === "all" && <span>Bundle Test Series</span>}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {bundles.length === 0 ? (
-                                        <div className="col-span-full py-16 text-center text-gray-400">
-                                            <Package size={40} className="mx-auto mb-3 opacity-40" />
-                                            <p className="text-sm font-medium">No Bundles Available</p>
-                                            <p className="text-xs mt-1">Check back soon for exciting bundle offers!</p>
-                                        </div>
-                                    ) : (
-                                        bundles.map(renderBundleCard)
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === "my" && (
-                            <div className="py-3">
-                                {/* {activeTab === "all" && <span>My Test Series</span>} */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {visibleTestSeries.length === 0 ? (
-                                        <div className="col-span-full py-16 text-center text-gray-400">
-                                            <BookOpen size={40} className="mx-auto mb-3 opacity-40" />
-                                            <p className="text-sm font-medium">
-                                                {activeTab === "my" ? "No Enrolled Tests" : "No Test Series Found"}
-                                            </p>
-                                            <p className="text-xs mt-1">
-                                                {activeTab === "my" ? "Enroll in tests to see them here" : "New series coming soon!"}
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        visibleTestSeries.map((item) => {
-                                            const isPurchased = !!purchasedMap[item.id];
-                                            return (
-                                                <div
-                                                    key={item.id}
-                                                    onClick={() => router.push(`/test-series/${item.id}?purchased=${isPurchased}`)}
-                                                    className="bg-white rounded-xl border border-gray-200 hover:border-red-300 transition-colors cursor-pointer overflow-hidden"
-                                                >
-                                                    <div className="relative">
-                                                        <div className="relative w-full aspect-[16/9]">
-                                                            <Image
-                                                                src={item.imageUrl}
-                                                                alt={item.title}
-                                                                fill
-                                                                className="object-contain rounded-lg"
-                                                            />
-                                                        </div>
-                                                        <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between">
-                                                            <span className="bg-blue-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
-                                                                Featured
-                                                            </span>
-                                                            {isPurchased && (
-                                                                <span className="bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
-                                                                    <CheckCircle size={10} /> Enrolled
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded flex items-center gap-1">
-                                                            <Clock size={10} />
-                                                            {item.timeDurationForTest || "?"} min
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="p-4">
-                                                        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
-                                                            {item.title}
-                                                        </h3>
-                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.description}</p>
-
-                                                        <div className="mt-4 flex items-center justify-between">
-                                                            <div>
-                                                                {item.discountPrice < item.price && (
-                                                                    <span className="text-[11px] text-gray-400 line-through block">₹{item.price}</span>
-                                                                )}
-                                                                <p className="text-base font-bold text-gray-900">
-                                                                    ₹{item.discountPrice || item.price}
-                                                                </p>
-                                                            </div>
-                                                            <button className="h-9 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors">
-                                                                {isPurchased ? "Continue" : "Enroll"}
-                                                                <ChevronRight size={14} />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {(activeTab === "all" || activeTab === "subjective") && (
-                            <div className="py-3">
-                                {activeTab === "all" && <span>Subjective Test Series</span>}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {visibleTestSeries.length === 0 ? (
-                                        <div className="col-span-full py-16 text-center text-gray-400">
-                                            <BookOpen size={40} className="mx-auto mb-3 opacity-40" />
-                                            <p className="text-sm font-medium">
-                                                {activeTab === "my" ? "No Enrolled Tests" : "No Test Series Found"}
-                                            </p>
-                                            <p className="text-xs mt-1">
-                                                {activeTab === "my" ? "Enroll in tests to see them here" : "New series coming soon!"}
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        visibleTestSeries.map((item) => {
-                                            const isPurchased = !!purchasedMap[item.id];
-                                            return (
-                                                <div
-                                                    key={item.id}
-                                                    onClick={() => router.push(`/test-series/${item.id}?purchased=${isPurchased}`)}
-                                                    className="bg-white rounded-xl border border-gray-200 hover:border-red-300 transition-colors cursor-pointer overflow-hidden"
-                                                >
-                                                    <div className="relative">
-                                                        <div className="relative w-full aspect-[16/9]">
-                                                            <Image
-                                                                src={item.imageUrl}
-                                                                alt={item.title}
-                                                                fill
-                                                                className="object-contain rounded-lg"
-                                                            />
-                                                        </div>
-                                                        <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between">
-                                                            <span className="bg-blue-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
-                                                                Featured
-                                                            </span>
-                                                            {isPurchased && (
-                                                                <span className="bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
-                                                                    <CheckCircle size={10} /> Enrolled
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded flex items-center gap-1">
-                                                            <Clock size={10} />
-                                                            {item.timeDurationForTest || "?"} min
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="p-4">
-                                                        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
-                                                            {item.title}
-                                                        </h3>
-                                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.description}</p>
-
-                                                        <div className="mt-4 flex items-center justify-between">
-                                                            <div>
-                                                                {item.discountPrice < item.price && (
-                                                                    <span className="text-[11px] text-gray-400 line-through block">₹{item.price}</span>
-                                                                )}
-                                                                <p className="text-base font-bold text-gray-900">
-                                                                    ₹{item.discountPrice || item.price}
-                                                                </p>
-                                                            </div>
-                                                            <button className="h-9 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors">
-                                                                {isPurchased ? "Continue" : "Enroll"}
-                                                                <ChevronRight size={14} />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {(activeTab === "all" || activeTab === "objective") && (
-                            <div className="py-3">
-                                {activeTab === "all" && <span>Objective Test Series</span>}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {quizzes.length === 0 ? (
-                                        <div className="col-span-full py-16 text-center text-gray-400">
-                                            <FileText size={40} className="mx-auto mb-3 opacity-40" />
-                                            <p className="text-sm font-medium">
-                                                {searchQuery ? "No matching quizzes" : "No Objective Quizzes"}
-                                            </p>
-                                            <p className="text-xs mt-1">{searchQuery ? "Try different keywords" : "Coming soon!"}</p>
-                                        </div>
-                                    ) : (
-                                        quizzes.map((quiz) => (
-                                            <div
-                                                key={quiz.id}
-                                                onClick={() => router.push(`/quiz/${quiz.id}`)}
-                                                className="bg-white rounded-xl border border-gray-200 hover:border-red-300 transition-colors cursor-pointer overflow-hidden"
-                                            >
-                                                <div className="relative">
-                                                    <img
-                                                        src={quiz.image || "https://i.ibb.co/5WvN9fMJ/image.png"}
-                                                        alt={quiz.title}
-                                                        className="w-full h-36 object-cover"
-                                                    />
-                                                    {quiz.isFree ? (
-                                                        <span className="absolute top-2.5 left-2.5 bg-green-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
-                                                            Free
-                                                        </span>
-                                                    ) : (
-                                                        <span className="absolute top-2.5 left-2.5 bg-amber-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
-                                                            <Lock size={9} /> Premium
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                <div className="p-4">
-                                                    <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
-                                                        {quiz.title}
-                                                    </h3>
-                                                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{quiz.description}</p>
-
-                                                    <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-gray-500">
-                                                        <span className="flex items-center gap-1">
-                                                            <FileText size={12} /> {quiz.totalQuestions} Qs
-                                                        </span>
-                                                        <span className="flex items-center gap-1">
-                                                            <Clock size={12} /> {quiz.durationMinutes || quiz.duration || "?"} min
-                                                        </span>
-                                                        {!quiz.isFree && (
-                                                            <span className="text-red-600 font-semibold">₹{quiz.price || 0}</span>
-                                                        )}
-                                                    </div>
-
-                                                    <div className="mt-4 flex items-center justify-between">
-                                                        <span className="text-[11px] font-medium px-2.5 py-1 bg-gray-100 text-gray-600 rounded-md">
-                                                            {quiz.level || "Beginner"}
-                                                        </span>
-                                                        <button className="h-9 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors">
-                                                            Start Quiz <ChevronRight size={14} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        )}
+                {/* inline load-more spinner */}
+                {loading && page > 1 && (
+                    <div className="mt-10 flex justify-center">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-red-400 border-t-transparent" />
                     </div>
                 )}
             </div>
         </div>
     );
-}
+};
+
+export default TestSeriesPage;

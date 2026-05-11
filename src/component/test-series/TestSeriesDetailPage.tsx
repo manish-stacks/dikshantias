@@ -1,769 +1,636 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
+import React, { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
-import { useAuthStore } from "@/lib/store/auth.store";
 import {
-  ArrowLeft,
+  BookOpen,
   Clock,
-  Download,
   FileText,
+  PlayCircle,
   Lock,
+  CheckCircle2,
+  AlertCircle,
+  Hourglass,
+  XCircle,
+  ArrowRight,
   Trophy,
-  Upload,
-  CheckCircle,
-  X,
-  ChevronRight,
-  Timer,
-  Award,
-  BarChart,
-  Shield,
-  Users,
-  Zap,
-  Star,
-  CalendarDays,
-  BadgeCheck,
 } from "lucide-react";
+import Link from "next/link";
+import DikshantAuthModal from "@/components/auth-model/DikshantAuthModal";
+import { useAuthStore } from "@/lib/store/auth.store";
 
-export default function TestSeriesDetailPage({ id }: { id: string }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialPurchased = searchParams.get("purchased") === "true";
-  const { user } = useAuthStore();
+interface TestItem {
+  id: string;
+  title: string;
+  test_number: number;
+  type: string;
+  status: string;
+  duration_minutes: number;
+  total_marks: number;
+  is_free: boolean;
+  accessible: boolean;
+}
 
-  const [testSeries, setTestSeries] = useState<any>(null);
+interface Series {
+  id: string;
+  title: string;
+  slug: string;
+  type: string;
+  description: string;
+  total_tests: number;
+  price: string;
+  discount_price: string;
+  thumbnail_url: string;
+  tests: TestItem[];
+  is_purchased: boolean;
+  payment_status?: "confirmed" | "pending" | "cancelled" | null;
+}
+
+type PaymentState = "idle" | "processing" | "confirmed" | "pending" | "cancelled" | "error";
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=in.kaksya.dikshant&hl=en_IN";
+const formatPrice = (price: string, discountPrice?: string) => {
+  const p = Number(price);
+  const d = discountPrice ? Number(discountPrice) : null;
+  if (p === 0) return { label: "FREE", original: null, discount: null };
+  if (d && d < p) {
+    return {
+      label: `₹${d.toLocaleString()}`,
+      original: `₹${p.toLocaleString()}`,
+      discount: Math.round(((p - d) / p) * 100),
+    };
+  }
+  return { label: `₹${p.toLocaleString()}`, original: null, discount: null };
+};
+
+// ─── Payment Status Banner ────────────────────────────────────────────────────
+const PaymentBanner = ({
+  state,
+  onRetry,
+  onDismiss,
+}: {
+  state: PaymentState;
+  onRetry?: () => void;
+  onDismiss?: () => void;
+}) => {
+  if (state === "idle" || state === "processing") return null;
+
+  const config = {
+    confirmed: {
+      bg: "bg-emerald-50 border-emerald-500",
+      icon: <CheckCircle2 size={20} className="text-emerald-600" />,
+      title: "Payment Confirmed",
+      msg: "Your purchase is complete. All tests are now unlocked.",
+      accent: "text-emerald-700",
+      action: null,
+    },
+    pending: {
+      bg: "bg-red-50 border-red-400",
+      icon: <Hourglass size={20} className="text-red-600" />,
+      title: "Payment Pending",
+      msg: "Your payment is being verified. This usually takes a few minutes. Refresh to check status.",
+      accent: "text-red-700",
+      action: (
+        <button
+          onClick={onDismiss}
+          className="mt-3 rounded-lg border border-red-500 px-4 py-2 text-xs font-bold tracking-widest text-red-600 uppercase hover:bg-red-500 hover:text-white transition-colors"
+        >
+          Dismiss
+        </button>
+      ),
+    },
+    cancelled: {
+      bg: "bg-red-50 border-red-400",
+      icon: <XCircle size={20} className="text-red-500" />,
+      title: "Payment Cancelled",
+      msg: "Your payment was not completed. No charges were made.",
+      accent: "text-red-700",
+      action: (
+        <button
+          onClick={onRetry}
+          className="mt-3 rounded-lg border border-red-400 px-4 py-2 text-xs font-bold tracking-widest text-red-600 uppercase hover:bg-red-500 hover:text-white transition-colors"
+        >
+          Try Again
+        </button>
+      ),
+    },
+    error: {
+      bg: "bg-red-50 border-red-400",
+      icon: <AlertCircle size={20} className="text-red-500" />,
+      title: "Something Went Wrong",
+      msg: "An error occurred during payment. Please try again or contact support.",
+      accent: "text-red-700",
+      action: (
+        <button
+          onClick={onRetry}
+          className="mt-3 rounded-lg border border-red-400 px-4 py-2 text-xs font-bold tracking-widest text-red-600 uppercase hover:bg-red-500 hover:text-white transition-colors"
+        >
+          Retry
+        </button>
+      ),
+    },
+  };
+
+  const c = config[state as keyof typeof config];
+  if (!c) return null;
+
+  return (
+    <div className={`border-l-4 rounded-xl p-5 ${c.bg} mb-8 flex gap-4 items-start`}>
+      <div className="mt-0.5">{c.icon}</div>
+      <div>
+        <p className={`font-bold text-sm tracking-wide ${c.accent}`}>{c.title}</p>
+        <p className="text-slate-600 text-sm mt-1">{c.msg}</p>
+        {c.action}
+      </div>
+    </div>
+  );
+};
+
+// ─── CTA Button ───────────────────────────────────────────────────────────────
+const CtaButton = ({
+  series,
+  paymentState,
+  price,
+  onBuy,
+}: {
+  series: Series;
+  paymentState: PaymentState;
+  price: ReturnType<typeof formatPrice>;
+  onBuy: () => void;
+}) => {
+  if (series.is_purchased || paymentState === "confirmed") {
+    return (
+      <button className="group flex items-center gap-3 rounded-2xl bg-emerald-500 px-8 py-4 font-bold text-black transition-all hover:bg-emerald-400">
+        <CheckCircle2 size={20} />
+        <span>Purchased — Start Now</span>
+        <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+      </button>
+    );
+  }
+
+  if (paymentState === "pending") {
+    return (
+      <button
+        disabled
+        className="flex items-center gap-3 rounded-2xl bg-red-100 border border-red-300 px-8 py-4 font-bold text-red-700 cursor-not-allowed"
+      >
+        <Hourglass size={20} className="animate-pulse" />
+        Payment Pending…
+      </button>
+    );
+  }
+
+  if (paymentState === "processing") {
+    return (
+      <button
+        disabled
+        className="flex items-center gap-3 rounded-2xl bg-red-500 px-8 py-4 font-bold text-black opacity-80 cursor-not-allowed"
+      >
+        <div className="h-5 w-5 rounded-full border-2 border-black border-t-transparent animate-spin" />
+        Processing…
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={onBuy}
+      className="group relative flex items-center gap-3 overflow-hidden rounded-2xl bg-red-400 px-8 py-4 font-bold text-white transition-all hover:bg-red-300 active:scale-95"
+    >
+      <span className="relative z-10">
+        {price.label === "FREE" ? "Enroll Free" : `Buy Now · ${price.label}`}
+      </span>
+      <ArrowRight size={16} className="relative z-10 transition-transform group-hover:translate-x-1" />
+    </button>
+  );
+};
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+const TestSeriesDetailPage = ({ slug }: { slug: string }) => {
+  const [series, setSeries] = useState<Series | null>(null);
+  const [recommended, setRecommended] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
-  const [paying, setPaying] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<"success" | "failed" | null>(null);
-  const [downloadModal, setDownloadModal] = useState({ visible: false, title: "", progress: 0 });
-  const [uploadModal, setUploadModal] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [dragOver, setDragOver] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [timeUntilStart, setTimeUntilStart] = useState<number | null>(null);
-  const [timeUntilEnd, setTimeUntilEnd] = useState<number | null>(null);
-  const [canSubmit, setCanSubmit] = useState(false);
-  const [alert, setAlert] = useState<{ visible: boolean; title: string; message: string }>({
-    visible: false, title: "", message: "",
-  });
-
-
-  useEffect(() => {
-    if (!id) { router.back(); return; }
-    fetchTestSeries();
-  }, [id]);
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (testSeries && initialPurchased) calculateSubmissionTimers();
-  }, [currentTime, testSeries, initialPurchased]);
-
-
-  //   const checkPurchases = useCallback(async (items: TestSeriesItem[]) => {
-  //     if (!items.length) return;
-  //     const map: Record<string | number, boolean> = {};
-  //     await Promise.all(
-  //         items.map(async (item) => {
-  //             try {
-  //                 const res = await axiosInstance.get("/orders/already-purchased", {
-  //                     params: { itemId: item.id, type: "test" },
-  //                 });
-  //                 map[item.id] = !!res.data?.purchased;
-  //             } catch {
-  //                 map[item.id] = false;
-  //             }
-  //         })
-  //     );
-  //     setPurchasedMap((prev) => ({ ...prev, ...map }));
-  // }, []);
-
-  const calculateSubmissionTimers = () => {
-    const now = currentTime.getTime();
-    const start = new Date(testSeries?.AnswerSubmitDateAndTime || "").getTime();
-    const end = new Date(testSeries?.AnswerLastSubmitDateAndTime || "").getTime();
-    if (now < start) { setTimeUntilStart(start - now); setTimeUntilEnd(null); setCanSubmit(false); }
-    else if (now >= start && now < end) { setTimeUntilStart(null); setTimeUntilEnd(end - now); setCanSubmit(true); }
-    else { setTimeUntilStart(null); setTimeUntilEnd(null); setCanSubmit(false); }
-  };
-
-  const formatTime = (ms: number) => {
-    const total = Math.floor(ms / 1000);
-    const d = Math.floor(total / 86400);
-    const h = Math.floor((total % 86400) / 3600);
-    const m = Math.floor((total % 3600) / 60);
-    const s = total % 60;
-    if (d > 0) return `${d}d ${h}h ${m}m ${s}s`;
-    if (h > 0) return `${h}h ${m}m ${s}s`;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
-  };
-
-  const fetchTestSeries = async () => {
-    setLoading(true);
+  const [paymentState, setPaymentState] = useState<PaymentState>("idle");
+  const [open, setOpen] = useState(false);
+  const { loggedIn, user } = useAuthStore();
+const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const fetchSeries = async () => {
     try {
-      const res = await axiosInstance.get(`/testseriess/user/${id}`);
-      console.log(res.data)
-      setTestSeries(res.data?.data);
-    } catch {
-      setAlert({ visible: true, title: "Error", message: "Failed to load test series details" });
+      setLoading(true);
+      const res = await axiosInstance.get(`/new/test-series/${slug}`);
+      const currentSeries = res.data.data.series;
+      setSeries(currentSeries);
+
+      // Sync payment_status from server if present
+      if (currentSeries.payment_status) {
+        if (currentSeries.payment_status === "confirmed") setPaymentState("confirmed");
+        else if (currentSeries.payment_status === "pending") setPaymentState("pending");
+        else if (currentSeries.payment_status === "cancelled") setPaymentState("cancelled");
+      }
+
+      const recRes = await axiosInstance.get(`/new/test-series?page=1&limit=8`);
+      const allSeries = recRes.data?.data?.series || [];
+      setRecommended(allSeries.filter((item: Series) => item.slug !== currentSeries.slug));
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const initiatePayment = async () => {
-    if (!testSeries || paying) return;
-    setPaying(true);
-    setPaymentStatus(null);
+  useEffect(() => {
+    if (slug) fetchSeries();
+  }, [slug]);
+
+  const handleBuy = async () => {
+    if (!series) return;
+    if (!loggedIn || !user) {
+      setOpen(true);
+      return;
+    }
+
     try {
-      const res = await axiosInstance.post("/orders", {
-        userId: user?.id,
-        type: "test",
-        itemId: testSeries.id,
-        amount: testSeries.discountPrice || testSeries.price,
+      setPaymentState("processing");
+
+      const res = await axiosInstance.post("/new/purchases", {
+        purchase_type: "series",
+        series_id: series.id,
       });
-      const { razorOrder, key } = res.data?.data || res.data;
+
+      const data = res.data.data;
+
+if (data.free) {
+  setPaymentState("confirmed");
+  setShowSuccessModal(true);
+
+  fetchSeries();
+  return;
+}
+
       const options = {
-        key,
-        amount: razorOrder.amount,
+        key: data.key_id,
+        amount: data.amount * 100,
         currency: "INR",
         name: "Dikshant IAS",
-        description: testSeries.title,
-        image: "https://dikshantiasnew-web.s3.amazonaws.com/logo.png",
-        order_id: razorOrder.id,
-        prefill: { name: user?.name || "", email: user?.email || "", contact: user?.phone || "" },
-        theme: { color: "#dc2626" },
-        handler: async (response: any) => { await verifyPayment(response); },
+        description: data.item_title,
+        order_id: data.order_id,
+
+  handler: async function (payment: any) {
+  try {
+    setPaymentState("pending");
+
+    await axiosInstance.post("/new/purchases/verify", {
+      razorpay_order_id: payment.razorpay_order_id,
+      razorpay_payment_id: payment.razorpay_payment_id,
+      razorpay_signature: payment.razorpay_signature,
+      purchase_id: data.purchase_id,
+    });
+
+    setPaymentState("confirmed");
+    setShowSuccessModal(true);
+
+    fetchSeries();
+  } catch {
+    setPaymentState("error");
+  }
+},
+
+        modal: {
+          ondismiss: () => {
+            setPaymentState("cancelled");
+          },
+        },
+
+        theme: { color: "#F59E0B" },
       };
-      // @ts-ignore
-      const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", () => {
-        setPaying(false);
-        setPaymentStatus("failed");
-        setTimeout(() => setPaymentStatus(null), 4000);
+
+      const razor = new (window as any).Razorpay(options);
+
+      razor.on("payment.failed", () => {
+        setPaymentState("cancelled");
       });
-      rzp.open();
-    } catch {
-      setPaying(false);
-      setPaymentStatus("failed");
-      setTimeout(() => setPaymentStatus(null), 4000);
-    }
-  };
 
-  const verifyPayment = async (response: any) => {
-    try {
-      await axiosInstance.post("/orders/verify", {
-        razorpay_order_id: response.razorpay_order_id,
-        razorpay_payment_id: response.razorpay_payment_id,
-        razorpay_signature: response.razorpay_signature,
-      });
-      setPaymentStatus("success");
-      setTimeout(() => { setPaymentStatus(null); router.replace("/testseries"); }, 3500);
-    } catch {
-      setPaymentStatus("failed");
-      setTimeout(() => setPaymentStatus(null), 4000);
-    } finally {
-      setPaying(false);
-    }
-  };
-
-  const downloadFile = async (url: string, title: string) => {
-    try {
-      setDownloadModal({ visible: true, title, progress: 0 });
-      const res = await fetch(url);
-      if (!res.ok) throw new Error();
-      const total = parseInt(res.headers.get("content-length") || "0", 10);
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error();
-      let received = 0;
-      const chunks: Uint8Array[] = [];
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-          chunks.push(value);
-          received += value.length;
-          setDownloadModal((p) => ({ ...p, progress: total ? Math.round((received / total) * 100) : 50 }));
-        }
-      }
-      const blob = new Blob(chunks);
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `${title.replace(/[^a-z0-9]/gi, "_")}.pdf`;
-      link.click();
-      window.URL.revokeObjectURL(blobUrl);
-      setDownloadModal({ visible: false, title: "", progress: 0 });
-      setAlert({ visible: true, title: "Success", message: "File downloaded successfully!" });
-    } catch {
-      setDownloadModal({ visible: false, title: "", progress: 0 });
-      setAlert({ visible: true, title: "Error", message: "Failed to download file" });
-    }
-  };
-
-  const handleFileChange = (file: File | null | undefined) => {
-    if (!file) return;
-    if (file.type !== "application/pdf") {
-      setAlert({ visible: true, title: "Error", message: "Only PDF files are allowed" });
-      return;
-    }
-    if (file.size > 50 * 1024 * 1024) {
-      setAlert({ visible: true, title: "Error", message: "File size must be less than 50MB" });
-      return;
-    }
-    setSelectedFile(file);
-  };
-
-  const uploadAnswerSheet = async () => {
-    if (!selectedFile || !testSeries) return;
-    setUploading(true);
-    setUploadProgress(0);
-    try {
-      const formData = new FormData();
-      formData.append("answerSheet", selectedFile);
-      formData.append("testSeriesId", testSeries.id);
-      formData.append("userId", user?.id || "");
-      await axiosInstance.post(`/testseriess/${testSeries.id}/submit-answer`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        onUploadProgress: (p) => setUploadProgress(Math.round((p.loaded * 100) / (p.total || 1))),
-      });
-      setUploading(false);
-      setUploadModal(false);
-      setSelectedFile(null);
-      setAlert({ visible: true, title: "Success", message: "Answer sheet uploaded successfully!" });
+      razor.open();
     } catch (err: any) {
-      setUploading(false);
-      setAlert({ visible: true, title: "Error", message: err.response?.data?.message || "Upload failed" });
+      setPaymentState("error");
     }
+  };
+
+  const handleRetry = () => {
+    setPaymentState("idle");
+    handleBuy();
+  };
+
+  const handleDismiss = () => {
+    setPaymentState("idle");
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="w-10 h-10 border-2 border-red-100 border-t-red-600 rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm text-gray-500">Loading details...</p>
+      <div className="flex h-screen items-center justify-center bg-[#FAFAF8]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-2 border-red-400 border-t-transparent" />
+          <p className="text-xs tracking-[0.3em] text-slate-400 uppercase">Loading Series</p>
         </div>
       </div>
     );
   }
 
-  if (!testSeries) return null;
+  if (!series) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center bg-[#FAFAF8] text-slate-400">
+        <AlertCircle size={40} className="mb-4 text-slate-600" />
+        <p className="text-lg font-semibold text-slate-600">Series not found</p>
+      </div>
+    );
+  }
 
-  const hasDiscount = testSeries.discountPrice < testSeries.price;
-  const actualPrice = hasDiscount ? testSeries.discountPrice : testSeries.price;
-  const originalPrice = hasDiscount ? testSeries.price : null;
-  const savingsPercent = originalPrice ? Math.round(((originalPrice - actualPrice) / originalPrice) * 100) : 0;
-  const hasSubmitted = testSeries.hasSubmitted || false;
-  const hasResult = Boolean(testSeries.resultGenerated);
-  const validTill = testSeries.expirSeries
-    ? new Date(testSeries.expirSeries).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
-    : "—";
-
-  const features = [
-    { icon: FileText, label: "Full Length Mock Tests" },
-    { icon: BarChart, label: "Performance Analytics" },
-    { icon: BadgeCheck, label: "Expert Evaluated Answers" },
-    { icon: CalendarDays, label: `Valid till ${validTill}` },
-    { icon: Zap, label: "Instant Access After Purchase" },
-    { icon: Shield, label: "Secure & Encrypted" },
-  ];
+  const price = formatPrice(series.price, series.discount_price);
+  const tests = series.tests || [];
+  const unlocked = series.is_purchased || paymentState === "confirmed";
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-28 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#FAFAF8] text-slate-800" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap');
+        .serif { font-family: 'Playfair Display', serif; }
+        .grid-bg { background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 40px 40px; }
+        .red-glow { box-shadow: 0 0 60px rgba(245,158,11,0.2); }
+        @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:1} }
+      `}</style>
 
-      {/* Hero */}
-      {/* Hero */}
-      <div className="relative w-full mt-4 aspect-video max-h-[300px] overflow-hidden rounded-2xl">
+      {/* ── HERO ───────────────────────────────────────────────────── */}
+      <div className="relative grid-bg border-b border-black/5">
+        {/* Accent blob */}
+        <div className="pointer-events-none absolute right-0 top-0 h-[500px] w-[500px] rounded-full bg-red-300/20 blur-[120px]" />
 
-        <Image
-          src={testSeries.imageUrl}
-          alt={testSeries.title}
-          fill
-          className="object-cover"
-          priority
-        />
-
-        {/* Soft overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-        {/* Top actions */}
-        <div className="absolute top-3 left-3 right-3 flex justify-between items-center">
-
-          <button
-            onClick={() => router.back()}
-            className="bg-white/90 p-2 rounded-lg shadow-sm"
-          >
-            <ArrowLeft size={16} className="text-gray-800" />
-          </button>
-
-          {!initialPurchased && (
-            <button
-              onClick={initiatePayment}
-              disabled={paying}
-              className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-sm disabled:opacity-70"
-            >
-              {paying ? "..." : "Buy"}
-            </button>
-          )}
-        </div>
-
-        {/* Bottom content */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-
-          {/* Badges */}
-          <div className="flex gap-2 mb-2">
-            <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
-              2026
-            </span>
-            <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full">
-              {testSeries.status || "Premium"}
-            </span>
-          </div>
-
-          {/* Title */}
-          <h1 className="text-white text-base md:text-lg font-semibold leading-snug line-clamp-2">
-            {testSeries.title}
-          </h1>
-
-          {/* Info */}
-          <div className="flex gap-3 mt-2 text-[11px] text-white/90">
-            <span>{testSeries.timeDurationForTest || "?"} min</span>
-            <span>•</span>
-            <span>{testSeries.type || "Test"}</span>
-            <span>•</span>
-            <span>{validTill}</span>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Trust strip */}
-      <div className="bg-red-50 border-b border-red-100 px-5 py-2.5 flex items-center gap-4 overflow-x-auto no-scrollbar">
-        {[
-          { icon: Users, text: "1000+ Students Enrolled" },
-          { icon: Shield, text: "Secure Payment" },
-          { icon: Zap, text: "Instant Access" },
-          { icon: Star, text: "Expert Evaluated" },
-        ].map(({ icon: Icon, text }) => (
-          <span key={text} className="flex items-center gap-1.5 text-red-700 text-[11px] font-medium whitespace-nowrap shrink-0">
-            <Icon size={12} />{text}
-          </span>
-        ))}
-      </div>
-
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 space-y-5">
-
-        {/* Overview */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-2">Overview</h2>
-          <p className="text-xs text-gray-600 leading-relaxed">{testSeries.description}</p>
-        </div>
-
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { icon: Clock, label: "Duration", value: `${testSeries.timeDurationForTest || "?"}m`, color: "text-blue-600", bg: "bg-blue-50" },
-            { icon: FileText, label: "Type", value: testSeries.type || "Written", color: "text-amber-600", bg: "bg-amber-50" },
-            { icon: Award, label: "Pass Marks", value: testSeries.passing_marks || "—", color: "text-green-600", bg: "bg-green-50" },
-          ].map(({ icon: Icon, label, value, color, bg }) => (
-            <div key={label} className="bg-white rounded-xl border border-gray-200 p-3.5 text-center">
-              <div className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center mx-auto mb-2`}>
-                <Icon size={15} className={color} />
+        <div className="relative mx-auto max-w-7xl px-6 py-16">
+          <div className="grid gap-14 lg:grid-cols-[1fr_420px]">
+            {/* LEFT */}
+            <div className="flex flex-col justify-center">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="rounded-full border border-red-400/60 bg-red-50 px-4 py-1 text-xs font-bold uppercase tracking-[0.2em] text-red-600">
+                  {series.type}
+                </span>
+                <span className="h-px flex-1 bg-gradient-to-r from-red-400/20 to-transparent" />
               </div>
-              <div className="text-[10px] text-gray-500">{label}</div>
-              <div className={`text-sm font-bold mt-0.5 ${color} capitalize`}>{value}</div>
-            </div>
-          ))}
-        </div>
 
-        {/* What you'll get */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">What You'll Get</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {features.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2.5">
-                <CheckCircle size={13} className="text-green-500 shrink-0" />
-                <span className="text-xs text-gray-700 leading-tight">{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+              <h1 className="serif text-5xl font-black leading-[1.1] text-slate-900 lg:text-6xl">
+                {series.title}
+              </h1>
 
-        {/* Schedule */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Schedule</h2>
-          <div className="space-y-3">
-            {[
-              {
-                label: "Test Date",
-                value: new Date(testSeries.testStartDate).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
-                urgent: false,
-              },
-              {
-                label: "Starts At",
-                value: new Date(testSeries.testStartTime).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true }),
-                urgent: false,
-              },
-              {
-                label: "Submission Opens",
-                value: new Date(testSeries.AnswerSubmitDateAndTime).toLocaleString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true }),
-                urgent: false,
-              },
-              {
-                label: "Last Submission",
-                value: new Date(testSeries.AnswerLastSubmitDateAndTime).toLocaleString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true }),
-                urgent: true,
-              },
-            ].map((item, i) => (
-              <div key={i} className={`flex items-start gap-3 rounded-lg px-3 py-2.5 ${item.urgent ? "bg-red-50 border border-red-100" : "bg-gray-50"}`}>
-                <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${item.urgent ? "bg-red-500" : "bg-gray-400"}`} />
-                <div className="min-w-0">
-                  <div className="text-[10px] text-gray-500">{item.label}</div>
-                  <div className={`text-xs font-semibold leading-snug mt-0.5 ${item.urgent ? "text-red-700" : "text-gray-800"}`}>{item.value}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              <p className="mt-6 max-w-xl leading-relaxed text-slate-500">{series.description}</p>
 
-        {/* Countdown timers (purchased only) */}
-        {initialPurchased && !hasSubmitted && !hasResult && (
-          <div className="grid grid-cols-1 gap-3">
-            {timeUntilStart !== null && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-center gap-3">
-                <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
-                  <Clock size={15} className="text-amber-600" />
-                </div>
-                <div>
-                  <div className="text-[10px] text-amber-700 font-medium">Submission opens in</div>
-                  <div className="text-sm font-bold text-amber-800">{formatTime(timeUntilStart)}</div>
-                </div>
-              </div>
-            )}
-            {timeUntilEnd !== null && canSubmit && (
-              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-3">
-                <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
-                  <Timer size={15} className="text-red-600" />
-                </div>
-                <div>
-                  <div className="text-[10px] text-red-700 font-medium">Time left to submit</div>
-                  <div className="text-sm font-bold text-red-800">{formatTime(timeUntilEnd)}</div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Result card */}
-        {initialPurchased && hasResult && (
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                <Trophy size={18} className="text-green-600" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-green-800">Result Announced!</div>
-                <div className="text-[11px] text-green-600 mt-0.5">Your performance is ready</div>
-              </div>
-            </div>
-            <button
-              onClick={() => router.push(`/result?submissionId=${testSeries?.submissionId || ""}`)}
-              className="h-9 px-4 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors"
-            >
-              View Score <BarChart size={13} />
-            </button>
-          </div>
-        )}
-
-        {/* Already submitted */}
-        {initialPurchased && hasSubmitted && !hasResult && (
-          <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-3">
-            <CheckCircle size={18} className="text-green-600 shrink-0" />
-            <div className="text-xs font-semibold text-green-800">Answer sheet submitted. Result coming soon.</div>
-          </div>
-        )}
-
-        {/* Materials */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Test Materials</h2>
-          {initialPurchased ? (
-            <div className="space-y-2">
-              {testSeries.questionPdf && (
-                <button
-                  onClick={() => downloadFile(testSeries.questionPdf, "Question Paper")}
-                  className="w-full flex items-center gap-3 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 p-3.5 rounded-xl transition-colors group"
-                >
-                  <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-                    <FileText size={16} className="text-blue-600" />
+              <div className="mt-8 flex flex-wrap gap-6">
+                {[
+                  { icon: <FileText size={15} />, label: `${series.total_tests} Tests` },
+                  { icon: <Clock size={15} />, label: "180 Min / Test" },
+                  { icon: <BookOpen size={15} />, label: "UPSC Mains" },
+                  { icon: <Trophy size={15} />, label: "Ranked Leaderboard" },
+                ].map((stat) => (
+                  <div key={stat.label} className="flex items-center gap-2 text-sm text-slate-500">
+                    <span className="text-red-400">{stat.icon}</span>
+                    {stat.label}
                   </div>
-                  <div className="flex-1 text-left">
-                    <div className="text-xs font-semibold text-gray-900">Question Paper</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">Click to download PDF</div>
-                  </div>
-                  <Download size={15} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
-                </button>
-              )}
-              {testSeries.answerkey && (
-                <button
-                  onClick={() => downloadFile(testSeries.answerkey, "Answer Key")}
-                  className="w-full flex items-center gap-3 bg-gray-50 hover:bg-green-50 border border-gray-200 hover:border-green-200 p-3.5 rounded-xl transition-colors group"
-                >
-                  <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
-                    <CheckCircle size={16} className="text-green-600" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="text-xs font-semibold text-gray-900">Answer Key</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">Click to download PDF</div>
-                  </div>
-                  <Download size={15} className="text-gray-400 group-hover:text-green-600 transition-colors" />
-                </button>
-              )}
-              {!testSeries.questionPdf && !testSeries.answerkey && (
-                <p className="text-xs text-gray-400 text-center py-4">Materials will be uploaded before the test.</p>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-4">
-              <Lock size={16} className="text-red-500 shrink-0" />
-              <div>
-                <div className="text-xs font-semibold text-red-800">Locked</div>
-                <div className="text-[11px] text-red-600 mt-0.5">Purchase to access question papers & answer keys</div>
+                ))}
               </div>
-            </div>
-          )}
-        </div>
 
-        {/* Why choose */}
-        <div className="bg-gradient-to-br from-red-50 to-rose-50 border border-red-100 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-red-900 mb-3">Why Choose This Series?</h2>
-          <div className="space-y-2">
-            {[
-              "Modelled after actual UPSC pattern",
-              "Detailed evaluation by experienced faculty",
-              "Track & compare with top scorers",
-              "Access anytime, anywhere on all devices",
-            ].map((text) => (
-              <div key={text} className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-                  <CheckCircle size={10} className="text-red-600" />
-                </div>
-                <span className="text-xs text-red-800">{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3">
-          {!initialPurchased ? (
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xl font-black text-gray-900">₹{actualPrice}</span>
-                  {originalPrice && (
-                    <span className="text-sm text-gray-400 line-through">₹{originalPrice}</span>
-                  )}
-                  {savingsPercent > 0 && (
-                    <span className="text-[10px] font-bold text-green-700 bg-green-100 px-1.5 py-0.5 rounded">{savingsPercent}% OFF</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-3 mt-0.5">
-                  <span className="text-[10px] text-gray-400">+18% GST</span>
-                  <span className="text-[10px] text-gray-400">·</span>
-                  <span className="text-[10px] text-green-600 font-medium flex items-center gap-1">
-                    <Users size={9} />1000+ enrolled
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={initiatePayment}
-                disabled={paying}
-                className="h-11 px-6 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-colors disabled:opacity-70 shrink-0"
-              >
-                {paying ? "Processing..." : "Buy Now"}
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          ) : (
-            <div>
-              {hasResult ? (
-                <button
-                  onClick={() => router.push(`/result/${testSeries?.subsmissionId || ""}`)}
-                  className="w-full h-11 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-colors"
-                >
-                  <Trophy size={16} />View My Result
-                </button>
-              ) : hasSubmitted ? (
-                <div className="h-11 bg-gray-100 rounded-xl flex items-center justify-center gap-2">
-                  <CheckCircle size={16} className="text-green-600" />
-                  <span className="text-sm font-semibold text-gray-700">Answer Sheet Submitted</span>
-                </div>
-              ) : (
-                <button
-                  onClick={() => canSubmit && !hasSubmitted && setUploadModal(true)}
-                  disabled={!canSubmit}
-                  className={`w-full h-11 text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-colors ${canSubmit ? "bg-red-600 hover:bg-red-700 text-white" : "bg-gray-100 text-gray-500 cursor-not-allowed"}`}
-                >
-                  <Upload size={16} />
-                  {!canSubmit
-                    ? timeUntilStart !== null
-                      ? `Submission opens in ${formatTime(timeUntilStart)}`
-                      : "Submission Closed"
-                    : "Submit Answer Sheet"}
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Download Modal */}
-      {downloadModal.visible && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center shadow-xl">
-            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <Download size={22} className="text-blue-600" />
-            </div>
-            <h3 className="text-sm font-bold text-gray-900 mb-1">Downloading...</h3>
-            <p className="text-xs text-gray-500 mb-4">{downloadModal.title}</p>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-2">
-              <div className="h-full bg-blue-600 transition-all duration-300 rounded-full" style={{ width: `${downloadModal.progress}%` }} />
-            </div>
-            <div className="text-xs font-semibold text-blue-600">{downloadModal.progress}%</div>
-          </div>
-        </div>
-      )}
-
-      {/* Upload Modal */}
-      {uploadModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-gray-900">Upload Answer Sheet</h3>
-                <p className="text-[11px] text-gray-500 mt-0.5">PDF only · Max 50MB</p>
-              </div>
-              <button onClick={() => !uploading && setUploadModal(false)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
-                <X size={18} className="text-gray-500" />
-              </button>
-            </div>
-
-            <div className="p-5 space-y-4">
-              {timeUntilEnd !== null && (
-                <div className="bg-red-50 border border-red-100 rounded-xl px-3 py-2.5 flex items-center gap-2">
-                  <Timer size={13} className="text-red-600 shrink-0" />
-                  <span className="text-xs font-medium text-red-700">Time remaining: {formatTime(timeUntilEnd)}</span>
-                </div>
-              )}
-
-              <label
-                className={`block rounded-xl border-2 border-dashed p-8 text-center cursor-pointer transition-colors ${dragOver ? "border-red-400 bg-red-50" : selectedFile ? "border-green-400 bg-green-50" : "border-gray-200 hover:border-red-300 hover:bg-red-50/30"}`}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFileChange(e.dataTransfer.files?.[0]); }}
-              >
-                <input type="file" accept="application/pdf" onChange={(e) => handleFileChange(e.target.files?.[0])} className="hidden" disabled={uploading} />
-                {selectedFile ? (
-                  <>
-                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                      <FileText size={18} className="text-green-600" />
-                    </div>
-                    <div className="text-xs font-semibold text-gray-900 line-clamp-1">{selectedFile.name}</div>
-                    <div className="text-[11px] text-gray-500 mt-1">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</div>
-                    <div className="text-[11px] text-blue-600 font-medium mt-2">Click to change</div>
-                  </>
+              {/* PRICE */}
+              <div className="mt-10">
+                {price.label === "FREE" ? (
+                  <div className="text-5xl font-black text-emerald-400">FREE</div>
                 ) : (
-                  <>
-                    <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                      <Upload size={18} className="text-gray-500" />
-                    </div>
-                    <div className="text-xs font-semibold text-gray-800">Drop PDF here or click to browse</div>
-                    <div className="text-[11px] text-gray-400 mt-1">PDF only · Max 50MB</div>
-                  </>
-                )}
-              </label>
-
-              {uploading && (
-                <div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-red-600 transition-all duration-300 rounded-full" style={{ width: `${uploadProgress}%` }} />
+                  <div className="flex flex-wrap items-end gap-4">
+                    <div className="text-5xl font-black text-slate-900">{price.label}</div>
+                    {price.original && (
+                      <div className="mb-1 text-2xl font-medium text-slate-600 line-through">
+                        {price.original}
+                      </div>
+                    )}
+                    {price.discount && (
+                      <div className="mb-1 rounded-full bg-red-400 px-3 py-1 text-xs font-black text-black">
+                        {price.discount}% OFF
+                      </div>
+                    )}
                   </div>
-                  <div className="text-center mt-2 text-xs font-semibold text-red-600">Uploading... {uploadProgress}%</div>
-                </div>
-              )}
+                )}
+              </div>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => !uploading && setUploadModal(false)}
-                  disabled={uploading}
-                  className="flex-1 h-10 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={uploadAnswerSheet}
-                  disabled={!selectedFile || uploading}
-                  className={`flex-1 h-10 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors ${selectedFile && !uploading ? "bg-red-600 hover:bg-red-700 text-white" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
-                >
-                  <Upload size={13} />
-                  {uploading ? "Uploading..." : "Upload"}
-                </button>
+              {/* PAYMENT BANNER */}
+              <div className="mt-6">
+                <PaymentBanner state={paymentState} onRetry={handleRetry} onDismiss={handleDismiss} />
+              </div>
+
+              {/* CTA */}
+              <div className="mt-4">
+                <CtaButton series={series} paymentState={paymentState} price={price} onBuy={handleBuy} />
+              </div>
+            </div>
+
+            {/* RIGHT — Thumbnail */}
+            <div className="relative">
+              <div className="red-glow overflow-hidden rounded-3xl border border-black/10">
+                <img
+                  src={series.thumbnail_url}
+                  alt={series.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              {/* Floating stat pill */}
+              <div className="absolute -bottom-4 -left-4 rounded-2xl border border-black/8 bg-white px-5 py-3 shadow-xl">
+                <p className="text-xs text-slate-400 uppercase tracking-widest">Total Tests</p>
+                <p className="text-2xl font-black text-red-500">{series.total_tests}</p>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Payment feedback */}
-      {paymentStatus && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 text-center max-w-sm w-full shadow-xl">
-            <div className="text-5xl mb-4">{paymentStatus === "success" ? "🎉" : "❌"}</div>
-            <h3 className="text-base font-bold text-gray-900 mb-2">
-              {paymentStatus === "success" ? "Enrolled Successfully!" : "Payment Failed"}
-            </h3>
-            <p className="text-xs text-gray-500 mb-6">
-              {paymentStatus === "success"
-                ? "You now have full access to this test series."
-                : "No money was deducted. Please try again."}
-            </p>
-            <button
-              onClick={() => setPaymentStatus(null)}
-              className="h-10 px-8 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-colors"
-            >
-              Close
-            </button>
+      {/* ── TEST LIST ─────────────────────────────────────────────── */}
+      <div className="mx-auto max-w-7xl px-6 py-16">
+        <div className="mb-10 flex items-end justify-between border-b border-black/5 pb-6">
+          <div>
+            <p className="mb-1 text-xs uppercase tracking-[0.25em] text-red-600">Curriculum</p>
+            <h2 className="serif text-4xl font-black text-slate-900">Included Tests</h2>
+          </div>
+          <p className="text-sm text-slate-400">{tests.length} papers total</p>
+        </div>
+
+        <div className="space-y-3">
+          {tests.map((test, idx) => {
+            const accessible = test.accessible || unlocked;
+            return (
+              <div
+                key={test.id}
+                className={`group relative flex flex-col gap-5 overflow-hidden rounded-2xl border p-6 transition-all lg:flex-row lg:items-center lg:justify-between ${
+                  accessible
+                    ? "border-slate-200 bg-white hover:border-red-300 hover:shadow-md"
+                    : "border-slate-100 bg-slate-50"
+                }`}
+              >
+                {/* Left accent line */}
+                {accessible && (
+                  <div className="absolute left-0 top-0 h-full w-[3px] rounded-l-2xl bg-red-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                )}
+
+                <div className="flex items-start gap-5">
+                  {/* Number */}
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-black ${
+                      accessible ? "bg-red-100 text-red-600" : "bg-slate-100 text-slate-400"
+                    }`}
+                  >
+                    {String(test.test_number).padStart(2, "0")}
+                  </div>
+
+                  <div>
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                          test.status === "active"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {test.status}
+                      </span>
+                      {test.is_free && (
+                        <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-600">
+                          Free
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className={`text-base font-semibold ${accessible ? "text-slate-900" : "text-slate-400"}`}>
+                      {test.title}
+                    </h3>
+
+                    <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-400">
+                      <span className="flex items-center gap-1.5">
+                        <Clock size={11} /> {test.duration_minutes} min
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <FileText size={11} /> {test.total_marks} marks
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lg:shrink-0">
+                  {accessible ? (
+                    <button className="flex items-center gap-2 rounded-xl bg-red-400 px-5 py-2.5 text-sm font-bold text-black transition-all hover:bg-red-300 active:scale-95">
+                      <PlayCircle size={15} />
+                      Start Test
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleBuy}
+                      className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:border-red-300 hover:text-red-600"
+                    >
+                      <Lock size={14} />
+                      Unlock
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── RECOMMENDED ───────────────────────────────────────────── */}
+      {recommended.length > 0 && (
+        <div className="border-t border-black/5 bg-slate-50">
+          <div className="mx-auto max-w-7xl px-6 py-16">
+            <div className="mb-10">
+              <p className="mb-1 text-xs uppercase tracking-[0.25em] text-red-600">Explore More</p>
+              <h2 className="serif text-4xl font-black text-slate-900">Recommended Series</h2>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+              {recommended.map((item) => {
+                const itemPrice = formatPrice(item.price, item.discount_price);
+                return (
+                  <Link
+                    href={`/test-series/${item.slug}`}
+                    key={item.id}
+                    className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:border-red-300 hover:shadow-lg hover:-translate-y-1"
+                  >
+                    <div className="relative h-44 overflow-hidden bg-slate-100">
+                      <img
+                        src={item.thumbnail_url}
+                        alt={item.title}
+                        className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      <div className="absolute left-3 top-3 rounded-full border border-white/40 bg-white/70 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-700 backdrop-blur">
+                        {item.type}
+                      </div>
+                    </div>
+
+                    <div className="p-4">
+                      <h3 className="line-clamp-2 text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                        {item.title}
+                      </h3>
+
+                      <p className="mt-1 text-xs text-slate-400">{item.total_tests} Tests</p>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <div>
+                          <div className="text-lg font-black text-red-500">{itemPrice.label}</div>
+                          {itemPrice.original && (
+                            <div className="text-xs text-slate-400 line-through">{itemPrice.original}</div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs font-semibold text-slate-400 transition-colors group-hover:text-red-600">
+                          View <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
-
-      {/* Alert */}
-      {alert.visible && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 text-center max-w-sm w-full shadow-xl">
-            <div className="text-4xl mb-3">{alert.title === "Success" ? "✅" : "⚠️"}</div>
-            <h3 className="text-sm font-bold text-gray-900 mb-1">{alert.title}</h3>
-            <p className="text-xs text-gray-600 mb-5">{alert.message}</p>
-            <button
-              onClick={() => setAlert({ visible: false, title: "", message: "" })}
-              className="h-10 px-8 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-colors"
-            >
-              OK
-            </button>
-          </div>
+{/* Payment Success Modal */}
+{showSuccessModal && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
+    <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+      
+      <div className="flex flex-col items-center text-center">
+        <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
+          <CheckCircle2 size={42} className="text-emerald-600" />
         </div>
-      )}
+
+        <h2 className="text-3xl font-black text-slate-900">
+          Payment Successful 🎉
+        </h2>
+
+        <p className="mt-3 text-sm leading-relaxed text-slate-500">
+          Your test series has been unlocked successfully.
+          <br />
+          Download the Dikshant App for the best test experience.
+        </p>
+
+        <a
+          href={PLAY_STORE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 flex w-full items-center justify-center rounded-2xl bg-red-500 px-6 py-4 text-sm font-bold text-white transition-all hover:bg-red-600"
+        >
+          Download App from Play Store
+        </a>
+
+       
+      </div>
+    </div>
+  </div>
+)}
+      <DikshantAuthModal open={open} onClose={() => setOpen(false)} />
     </div>
   );
-}
+};
+
+export default TestSeriesDetailPage;

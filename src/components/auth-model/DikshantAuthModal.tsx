@@ -3,26 +3,11 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useAuthStore } from "@/lib/store/auth.store"
 import {
-  Phone,
-  Lock,
-  Mail,
-  User,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  X,
-  Shield,
-  RefreshCw,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  ChevronRight,
+  Phone, Lock, Mail, User, Eye, EyeOff, ArrowRight, X,
+  Shield, RefreshCw, CheckCircle, AlertCircle, Loader2, ChevronRight,
 } from "lucide-react"
 import Link from "next/link"
 
-/* ─────────────────────────────────────────────
-   Types
-───────────────────────────────────────────── */
 interface Props {
   open: boolean
   onClose: () => void
@@ -30,9 +15,6 @@ interface Props {
 
 type AuthMode = "login" | "register" | "otp"
 
-/* ─────────────────────────────────────────────
-   Password strength helper (UI only)
-───────────────────────────────────────────── */
 function passwordStrength(v: string): { score: number; label: string; color: string } {
   let score = 0
   if (v.length >= 8) score++
@@ -49,36 +31,25 @@ function passwordStrength(v: string): { score: number; label: string; color: str
   return { score, ...map[score] }
 }
 
-/* ─────────────────────────────────────────────
-   Component
-───────────────────────────────────────────── */
 export default function DikshantAuthModal({ open, onClose }: Props) {
+  const { login, signup, verifyOtp, resendOtp, requestLoginOtp, loginWithOtp } = useAuthStore()
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL STORE HOOKS — unchanged
-  ══════════════════════════════════════════ */
-  const { login, signup, verifyOtp, resendOtp } = useAuthStore()
-
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL STATE — unchanged
-  ══════════════════════════════════════════ */
   const [mode, setMode] = useState<AuthMode>("login")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  // Form fields
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [password, setPassword] = useState("")
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(""))
 
-  // Resend OTP timer
-  const [countdown, setCountdown] = useState(0)
+  // login OTP flow: after login returns otpSent, store userId here
+  const [loginOtpUserId, setLoginOtpUserId] = useState<string | number | null>(null)
+  // track whether OTP step is for login or signup
+  const [otpContext, setOtpContext] = useState<"login" | "register">("register")
 
-  /* ══════════════════════════════════════════
-     UI-ONLY STATE (new, does not touch logic)
-  ══════════════════════════════════════════ */
+  const [countdown, setCountdown] = useState(0)
   const [activeTab, setActiveTab] = useState<"login" | "register">("login")
   const [showPassword, setShowPassword] = useState(false)
   const [successMsg, setSuccessMsg] = useState("")
@@ -86,10 +57,6 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
   const strength = passwordStrength(password)
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL useEffect — reset on close
-     (only added activeTab + UI resets)
-  ══════════════════════════════════════════ */
   useEffect(() => {
     if (!open) {
       setMode("login")
@@ -104,59 +71,46 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
       setOtpDigits(Array(6).fill(""))
       setCountdown(0)
       setShowPassword(false)
+      setLoginOtpUserId(null)
+      setOtpContext("register")
     }
   }, [open])
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL startOtpTimer — unchanged
-  ══════════════════════════════════════════ */
-  const startOtpTimer = () => {
-    setCountdown(30)
-  }
+  const startOtpTimer = () => setCountdown(30)
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL timer useEffect — unchanged
-  ══════════════════════════════════════════ */
   useEffect(() => {
     if (countdown <= 0) return
     const timer = setInterval(() => {
       setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          return 0
-        }
+        if (prev <= 1) { clearInterval(timer); return 0 }
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(timer)
   }, [countdown])
 
-  /* Auto-clear success toast (UI only) */
   useEffect(() => {
     if (!successMsg) return
     const t = setTimeout(() => setSuccessMsg(""), 3000)
     return () => clearTimeout(t)
   }, [successMsg])
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL handleLogin — unchanged
-  ══════════════════════════════════════════ */
+  // ── LOGIN ────────────────────────────────────────────────────────
   const handleLogin = async () => {
-    if (!phone || !password) {
-      setError("Phone and password are required")
-      return
-    }
+    if (!phone || !password) { setError("Phone and password are required"); return }
     setLoading(true)
     setError("")
     try {
       const res = await login(phone.trim(), password)
-      // LOGIN OTP FLOW
       if (res?.otpSent) {
+        // API returned OTP flow — store userId from store
+        const { userId } = useAuthStore.getState()
+        setLoginOtpUserId(userId)
+        setOtpContext("login")
         startOtpTimer()
         setMode("otp")
         return
       }
-      // DIRECT LOGIN
       onClose()
     } catch (err: any) {
       setError(err?.message || "Login failed. Please try again.")
@@ -165,23 +119,14 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
     }
   }
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL handleRegister — unchanged
-  ══════════════════════════════════════════ */
+  // ── REGISTER ─────────────────────────────────────────────────────
   const handleRegister = async () => {
-    if (!name || !email || !phone || !password) {
-      setError("All fields are required")
-      return
-    }
+    if (!name || !email || !phone || !password) { setError("All fields are required"); return }
     setLoading(true)
     setError("")
     try {
-      await signup({
-        name: name.trim(),
-        email: email.trim(),
-        mobile: phone.trim(),
-        password,
-      })
+      await signup({ name: name.trim(), email: email.trim(), mobile: phone.trim(), password })
+      setOtpContext("register")
       startOtpTimer()
       setMode("otp")
     } catch (err: any) {
@@ -191,19 +136,20 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
     }
   }
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL handleVerifyOtp — unchanged
-  ══════════════════════════════════════════ */
+  // ── VERIFY OTP ───────────────────────────────────────────────────
   const handleVerifyOtp = async () => {
     const otpValue = otpDigits.join("")
-    if (otpValue.length !== 6) {
-      setError("Please enter complete 6-digit OTP")
-      return
-    }
+    if (otpValue.length !== 6) { setError("Please enter complete 6-digit OTP"); return }
     setLoading(true)
     setError("")
     try {
-      await verifyOtp(otpValue)
+      if (otpContext === "login" && loginOtpUserId != null) {
+        // Login OTP: use loginWithOtp(userId, otp)
+        await loginWithOtp(loginOtpUserId, otpValue)
+      } else {
+        // Signup OTP: use verifyOtp(otp) — reads userId from store
+        await verifyOtp(otpValue)
+      }
       onClose()
     } catch (err: any) {
       setError(err?.message || "Invalid OTP")
@@ -212,15 +158,20 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
     }
   }
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL handleResendOtp — unchanged
-     (only moved success text to successMsg)
-  ══════════════════════════════════════════ */
+  // ── RESEND OTP ───────────────────────────────────────────────────
   const handleResendOtp = async () => {
     setLoading(true)
     setError("")
     try {
-      await resendOtp()
+      if (otpContext === "login") {
+        // Re-request login OTP
+        const res = await requestLoginOtp(phone.trim())
+        if (!res.success) throw new Error(res.message)
+        if (res.userId) setLoginOtpUserId(res.userId)
+      } else {
+        // Re-request signup OTP
+        await resendOtp()
+      }
       startOtpTimer()
       setOtpDigits(Array(6).fill(""))
       setSuccessMsg("New OTP sent successfully!")
@@ -231,29 +182,20 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
     }
   }
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL handleOtpChange — unchanged
-  ══════════════════════════════════════════ */
   const handleOtpChange = (value: string, index: number) => {
     if (!/^\d*$/.test(value)) return
     const newDigits = [...otpDigits]
     newDigits[index] = value.slice(-1)
     setOtpDigits(newDigits)
-    if (value && index < 5) {
-      otpRefs.current[index + 1]?.focus()
-    }
+    if (value && index < 5) otpRefs.current[index + 1]?.focus()
   }
 
-  /* ══════════════════════════════════════════
-     YOUR ORIGINAL handleOtpKeyDown — unchanged
-  ══════════════════════════════════════════ */
   const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
       otpRefs.current[index - 1]?.focus()
     }
   }
 
-  /* Tab switcher (UI helper only) */
   const switchTab = (tab: "login" | "register") => {
     setActiveTab(tab)
     setMode(tab)
@@ -263,9 +205,6 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
 
   if (!open) return null
 
-  /* ─────────────────────────────────────────
-     RENDER
-  ───────────────────────────────────────── */
   return (
     <>
       <style>{`
@@ -300,10 +239,7 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
           color: #1e293b; background: #fff; outline: none;
           transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
         }
-        .dik-input:focus {
-          border-color: #dc2626;
-          box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
-        }
+        .dik-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
         .dik-input.no-suffix { padding-right: 14px; }
 
         .dik-otp {
@@ -314,15 +250,6 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
         }
         .dik-otp:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.12); }
         .dik-otp.filled { border-color: #dc2626; background: #fff5f5; }
-
-        .dik-social {
-          flex: 1; padding: 10px 8px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-          background: #fff; cursor: pointer; display: flex; align-items: center;
-          justify-content: center; gap: 7px; font-size: 13px; font-weight: 500;
-          color: #475569; font-family: 'DM Sans', sans-serif;
-          transition: background 0.2s, border-color 0.2s;
-        }
-        .dik-social:hover { background: #f8fafc; border-color: #cbd5e1; }
 
         .dik-link {
           background: none; border: none; color: #dc2626; font-weight: 600;
@@ -345,7 +272,6 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
         }
       `}</style>
 
-      {/* ── Backdrop ── */}
       <div
         style={{
           position: "fixed", inset: 0, zIndex: 50,
@@ -354,71 +280,66 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
         }}
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
-        {/* ── Modal Card ── */}
         <div style={{
           width: "100%", maxWidth: 440, background: "#fff", borderRadius: 20,
           overflow: "hidden", fontFamily: "'DM Sans', sans-serif",
           boxShadow: "0 32px 80px rgba(0,0,0,0.35)",
         }}>
 
-          {/* ══════════ HEADER ══════════ */}
+          {/* HEADER */}
           <div style={{
             background: "linear-gradient(135deg, #991b1b 0%, #b91c1c 45%, #dc2626 100%)",
             padding: "28px 28px 22px", position: "relative", overflow: "hidden",
           }}>
-            {/* Decorative circles */}
-            <div style={{ position:"absolute", width:220, height:220, borderRadius:"50%", background:"rgba(255,255,255,0.05)", top:-90, right:-70, pointerEvents:"none" }} />
-            <div style={{ position:"absolute", width:130, height:130, borderRadius:"50%", background:"rgba(255,255,255,0.05)", bottom:-50, left:10, pointerEvents:"none" }} />
+            <div style={{ position: "absolute", width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.05)", top: -90, right: -70, pointerEvents: "none" }} />
+            <div style={{ position: "absolute", width: 130, height: 130, borderRadius: "50%", background: "rgba(255,255,255,0.05)", bottom: -50, left: 10, pointerEvents: "none" }} />
 
-            {/* Close */}
             <button
               onClick={onClose}
               style={{
-                position:"absolute", top:14, right:14, width:32, height:32, borderRadius:"50%",
-                background:"rgba(255,255,255,0.15)", border:"none", color:"#fff", cursor:"pointer",
-                display:"flex", alignItems:"center", justifyContent:"center", zIndex:2,
+                position: "absolute", top: 14, right: 14, width: 32, height: 32, borderRadius: "50%",
+                background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2,
               }}
             >
               <X size={14} />
             </button>
 
-            {/* Logo row */}
-            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14, position:"relative", zIndex:1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, position: "relative", zIndex: 1 }}>
               <div style={{
-                width:42, height:42, background:"#fff", borderRadius:11,
-                display:"flex", alignItems:"center", justifyContent:"center",
-                flexShrink:0, boxShadow:"0 2px 8px rgba(0,0,0,0.15)",
+                width: 42, height: 42, background: "#fff", borderRadius: 11,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
               }}>
                 <Shield size={22} color="#dc2626" fill="#fecaca" />
               </div>
               <div>
-                <div style={{ fontFamily:"'Playfair Display',serif", color:"#fff", fontSize:18, fontWeight:700, lineHeight:1.15 }}>
+                <div style={{ fontFamily: "'Playfair Display',serif", color: "#fff", fontSize: 18, fontWeight: 700, lineHeight: 1.15 }}>
                   Dikshant IAS
                 </div>
-                <div style={{ color:"rgba(255,255,255,0.7)", fontSize:10, letterSpacing:"2px", textTransform:"uppercase" }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase" }}>
                   Excellence in Civil Services
                 </div>
               </div>
             </div>
 
-            {/* Dynamic heading */}
-            <div style={{ position:"relative", zIndex:1 }}>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", color:"#fff", fontSize:22, fontWeight:700, margin:"0 0 4px" }}>
-                {mode === "login"    && "Welcome Back"}
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <h2 style={{ fontFamily: "'Playfair Display',serif", color: "#fff", fontSize: 22, fontWeight: 700, margin: "0 0 4px" }}>
+                {mode === "login" && "Welcome Back"}
                 {mode === "register" && "Join Dikshant IAS"}
-                {mode === "otp"      && "Verify Your Number"}
+                {mode === "otp" && "Verify Your Number"}
               </h2>
-              <p style={{ color:"rgba(255,255,255,0.72)", fontSize:13, fontWeight:300, margin:0 }}>
-                {mode === "login"    && "Sign in to continue your UPSC preparation"}
+              <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 13, fontWeight: 300, margin: 0 }}>
+                {mode === "login" && "Sign in to continue your UPSC preparation"}
                 {mode === "register" && "Create your account & begin your IAS journey"}
-                {mode === "otp"      && "Enter the 6-digit OTP sent to your registered mobile"}
+                {mode === "otp" && "Enter the 6-digit OTP sent to your registered mobile"}
               </p>
             </div>
           </div>
 
-          {/* ══════════ TABS (hidden in OTP) ══════════ */}
+          {/* TABS */}
           {mode !== "otp" && (
-            <div style={{ display:"flex", background:"#fafafa", borderBottom:"1px solid #f1f5f9" }}>
+            <div style={{ display: "flex", background: "#fafafa", borderBottom: "1px solid #f1f5f9" }}>
               <button className={`dik-tab${activeTab === "login" ? " active" : ""}`} onClick={() => switchTab("login")}>
                 Sign In
               </button>
@@ -428,40 +349,36 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
             </div>
           )}
 
-          {/* ══════════ BODY ══════════ */}
-          <div style={{ padding:"24px 28px 28px" }}>
+          {/* BODY */}
+          <div style={{ padding: "24px 28px 28px" }}>
 
-            {/* Error banner */}
             {error && (
               <div style={{
-                display:"flex", alignItems:"center", gap:9, padding:"10px 14px",
-                borderRadius:10, marginBottom:16, fontSize:13,
-                background:"#fef2f2", color:"#b91c1c", border:"1px solid #fecaca",
+                display: "flex", alignItems: "center", gap: 9, padding: "10px 14px",
+                borderRadius: 10, marginBottom: 16, fontSize: 13,
+                background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca",
               }}>
                 <AlertCircle size={14} />
                 {error}
               </div>
             )}
 
-            {/* Success banner */}
             {successMsg && (
               <div style={{
-                display:"flex", alignItems:"center", gap:9, padding:"10px 14px",
-                borderRadius:10, marginBottom:16, fontSize:13,
-                background:"#f0fdf4", color:"#166534", border:"1px solid #bbf7d0",
+                display: "flex", alignItems: "center", gap: 9, padding: "10px 14px",
+                borderRadius: 10, marginBottom: 16, fontSize: 13,
+                background: "#f0fdf4", color: "#166534", border: "1px solid #bbf7d0",
               }}>
                 <CheckCircle size={14} />
                 {successMsg}
               </div>
             )}
 
-            {/* ════════ LOGIN ════════ */}
+            {/* LOGIN */}
             {mode === "login" && (
               <div className="dik-slide">
-
-                {/* Phone — your original value/onChange */}
-                <div style={{ marginBottom:16, position:"relative" }}>
-                  <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)", color:"#94a3b8", display:"flex", pointerEvents:"none" }}>
+                <div style={{ marginBottom: 16, position: "relative" }}>
+                  <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
                     <Phone size={16} />
                   </span>
                   <input
@@ -473,9 +390,8 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                {/* Password — your original value/onChange */}
-                <div style={{ marginBottom:6, position:"relative" }}>
-                  <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)", color:"#94a3b8", display:"flex", pointerEvents:"none" }}>
+                <div style={{ marginBottom: 6, position: "relative" }}>
+                  <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
                     <Lock size={16} />
                   </span>
                   <input
@@ -487,17 +403,16 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   />
                   <button
                     onClick={() => setShowPassword(!showPassword)}
-                    style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", color:"#94a3b8", display:"flex", padding:0 }}
+                    style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", display: "flex", padding: 0 }}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
 
-                <div style={{ textAlign:"right", marginBottom:14 }}>
-                  <button className="dik-link" style={{ fontSize:12 }}>Forgot password?</button>
+                <div style={{ textAlign: "right", marginBottom: 14 }}>
+                  <button className="dik-link" style={{ fontSize: 12 }}>Forgot password?</button>
                 </div>
 
-                {/* Submit — your original handleLogin */}
                 <button className="dik-btn" onClick={handleLogin} disabled={loading}>
                   {loading
                     ? <><Loader2 size={17} className="spin" /> Please wait...</>
@@ -505,23 +420,20 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   }
                 </button>
 
-
-                <p style={{ textAlign:"center", fontSize:13, color:"#64748b", marginTop:20 }}>
+                <p style={{ textAlign: "center", fontSize: 13, color: "#64748b", marginTop: 20 }}>
                   New to Dikshant IAS?{" "}
                   <button className="dik-link" onClick={() => switchTab("register")}>
-                    Create Account <ChevronRight size={12} style={{ verticalAlign:"middle" }} />
+                    Create Account <ChevronRight size={12} style={{ verticalAlign: "middle" }} />
                   </button>
                 </p>
               </div>
             )}
 
-            {/* ════════ REGISTER ════════ */}
+            {/* REGISTER */}
             {mode === "register" && (
               <div className="dik-slide">
-
-                {/* Name — your original */}
-                <div style={{ marginBottom:16, position:"relative" }}>
-                  <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)", color:"#94a3b8", display:"flex", pointerEvents:"none" }}>
+                <div style={{ marginBottom: 16, position: "relative" }}>
+                  <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
                     <User size={16} />
                   </span>
                   <input
@@ -532,9 +444,8 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                {/* Email — your original */}
-                <div style={{ marginBottom:16, position:"relative" }}>
-                  <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)", color:"#94a3b8", display:"flex", pointerEvents:"none" }}>
+                <div style={{ marginBottom: 16, position: "relative" }}>
+                  <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
                     <Mail size={16} />
                   </span>
                   <input
@@ -546,9 +457,8 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                {/* Phone — your original */}
-                <div style={{ marginBottom:16, position:"relative" }}>
-                  <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)", color:"#94a3b8", display:"flex", pointerEvents:"none" }}>
+                <div style={{ marginBottom: 16, position: "relative" }}>
+                  <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
                     <Phone size={16} />
                   </span>
                   <input
@@ -560,9 +470,8 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                {/* Password — your original */}
-                <div style={{ marginBottom: password ? 8 : 16, position:"relative" }}>
-                  <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)", color:"#94a3b8", display:"flex", pointerEvents:"none" }}>
+                <div style={{ marginBottom: password ? 8 : 16, position: "relative" }}>
+                  <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", display: "flex", pointerEvents: "none" }}>
                     <Lock size={16} />
                   </span>
                   <input
@@ -574,33 +483,31 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   />
                   <button
                     onClick={() => setShowPassword(!showPassword)}
-                    style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", color:"#94a3b8", display:"flex", padding:0 }}
+                    style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", display: "flex", padding: 0 }}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
 
-                {/* Password strength (UI only, doesn't affect your logic) */}
                 {password && (
-                  <div style={{ marginBottom:16 }}>
-                    <div style={{ display:"flex", gap:4, marginBottom:4 }}>
-                      {[1,2,3,4].map((i) => (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: "flex", gap: 4, marginBottom: 4 }}>
+                      {[1, 2, 3, 4].map((i) => (
                         <div key={i} style={{
-                          flex:1, height:3, borderRadius:2,
+                          flex: 1, height: 3, borderRadius: 2,
                           background: i <= strength.score ? strength.color : "#e2e8f0",
-                          transition:"background 0.3s",
+                          transition: "background 0.3s",
                         }} />
                       ))}
                     </div>
                     {strength.label && (
-                      <span style={{ fontSize:11, color:strength.color, fontWeight:500 }}>
+                      <span style={{ fontSize: 11, color: strength.color, fontWeight: 500 }}>
                         {strength.label} password
                       </span>
                     )}
                   </div>
                 )}
 
-                {/* Submit — your original handleRegister */}
                 <button className="dik-btn" onClick={handleRegister} disabled={loading}>
                   {loading
                     ? <><Loader2 size={17} className="spin" /> Creating account...</>
@@ -608,43 +515,41 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   }
                 </button>
 
-                <p style={{ fontSize:11, color:"#94a3b8", textAlign:"center", marginTop:12 }}>
+                <p style={{ fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 12 }}>
                   By registering you agree to our{" "}
-                  <Link href={"/terms-conditions"}>
-                                    <button className="dik-link" style={{ fontSize:11 }}>Terms &amp; Privacy Policy</button>
-
+                  <Link href="/terms-conditions">
+                    <button className="dik-link" style={{ fontSize: 11 }}>Terms &amp; Privacy Policy</button>
                   </Link>
                 </p>
 
-                <p style={{ textAlign:"center", fontSize:13, color:"#64748b", marginTop:14 }}>
+                <p style={{ textAlign: "center", fontSize: 13, color: "#64748b", marginTop: 14 }}>
                   Already registered?{" "}
                   <button className="dik-link" onClick={() => switchTab("login")}>
-                    Sign In <ChevronRight size={12} style={{ verticalAlign:"middle" }} />
+                    Sign In <ChevronRight size={12} style={{ verticalAlign: "middle" }} />
                   </button>
                 </p>
               </div>
             )}
 
-            {/* ════════ OTP ════════ */}
+            {/* OTP */}
             {mode === "otp" && (
               <div className="dik-slide">
-
                 <div style={{
-                  background:"#fef2f2", border:"1px solid #fecaca", borderRadius:10,
-                  padding:"10px 14px", fontSize:12, color:"#b91c1c",
-                  display:"flex", alignItems:"center", gap:8, marginBottom:22,
+                  background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10,
+                  padding: "10px 14px", fontSize: 12, color: "#b91c1c",
+                  display: "flex", alignItems: "center", gap: 8, marginBottom: 22,
                 }}>
                   <AlertCircle size={14} />
-                  Enter OTP sent to your registered email
+                  {otpContext === "login"
+                    ? `OTP sent to registered email/phone for ${phone}`
+                    : "OTP sent to your registered email"}
                 </div>
 
-                {/* 6 OTP inputs — your original logic */}
-                <div style={{ display:"flex", gap:8, justifyContent:"center", marginBottom:24 }}>
+                <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 24 }}>
                   {otpDigits.map((digit, i) => (
                     <input
                       key={i}
                       ref={(el) => { otpRefs.current[i] = el }}
-                      id={`otp-${i}`}
                       type="text"
                       inputMode="numeric"
                       maxLength={1}
@@ -656,7 +561,6 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   ))}
                 </div>
 
-                {/* Verify — your original handleVerifyOtp */}
                 <button className="dik-btn" onClick={handleVerifyOtp} disabled={loading}>
                   {loading
                     ? <><Loader2 size={17} className="spin" /> Verifying...</>
@@ -664,19 +568,18 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   }
                 </button>
 
-                {/* Resend — your original countdown + handleResendOtp */}
-                <div style={{ textAlign:"center", marginTop:18, fontSize:13 }}>
+                <div style={{ textAlign: "center", marginTop: 18, fontSize: 13 }}>
                   {countdown > 0 ? (
-                    <p style={{ color:"#64748b" }}>
+                    <p style={{ color: "#64748b" }}>
                       Resend OTP in{" "}
-                      <span style={{ color:"#dc2626", fontWeight:600 }}>{countdown}s</span>
+                      <span style={{ color: "#dc2626", fontWeight: 600 }}>{countdown}s</span>
                     </p>
                   ) : (
                     <button
                       className="dik-link"
                       onClick={handleResendOtp}
                       disabled={loading}
-                      style={{ display:"inline-flex", alignItems:"center", gap:5 }}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 5 }}
                     >
                       <RefreshCw size={13} />
                       Resend OTP
@@ -684,9 +587,13 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
                   )}
                 </div>
 
-                <p style={{ textAlign:"center", fontSize:12, color:"#94a3b8", marginTop:14 }}>
+                <p style={{ textAlign: "center", fontSize: 12, color: "#94a3b8", marginTop: 14 }}>
                   Wrong number?{" "}
-                  <button className="dik-link" style={{ fontSize:12 }} onClick={() => setMode(activeTab)}>
+                  <button className="dik-link" style={{ fontSize: 12 }} onClick={() => {
+                    setMode(activeTab)
+                    setLoginOtpUserId(null)
+                    setOtpContext("register")
+                  }}>
                     Go back
                   </button>
                 </p>
@@ -695,11 +602,11 @@ export default function DikshantAuthModal({ open, onClose }: Props) {
 
           </div>
 
-          {/* ══════════ FOOTER ══════════ */}
+          {/* FOOTER */}
           <div style={{
-            padding:"12px 28px", background:"#f8fafc",
-            borderTop:"1px solid #f1f5f9", textAlign:"center",
-            fontSize:11, color:"#94a3b8", letterSpacing:"0.3px",
+            padding: "12px 28px", background: "#f8fafc",
+            borderTop: "1px solid #f1f5f9", textAlign: "center",
+            fontSize: 11, color: "#94a3b8", letterSpacing: "0.3px",
           }}>
             Preparing future civil servants &nbsp;•&nbsp; Dikshant IAS © {new Date().getFullYear()}
           </div>
