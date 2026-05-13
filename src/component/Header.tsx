@@ -14,13 +14,8 @@ import {
   Wifi,
   MapPin,
   FileText,
-  Trophy,
-  ClipboardList,
   Newspaper,
-  GraduationCap,
-  Zap,
   BarChart2,
-  Target,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -220,38 +215,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      {/* ── Top announcement bar ──────────────────────── */}
-      {/* <div className="bg-red-600 text-white text-xs py-1.5 hidden md:block">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            <span className="animate-pulse inline-block w-2 h-2 rounded-full bg-white/80" />
-            Admissions Open for {currentYear}–{nextYear} Batch — Limited Seats!
-          </span>
-          <div className="flex items-center gap-4">
-            <a
-              href="tel:09312511015"
-              className="hover:underline flex items-center gap-1"
-            >
-              <Phone className="w-3 h-3" /> +91 9312511015
-            </a>
-            <span className="opacity-40">|</span>
-            <button
-              onClick={() => changeLanguage("en")}
-              className={`hover:underline ${lang === "en" ? "font-bold" : "opacity-70"}`}
-            >
-              EN
-            </button>
-            <span className="opacity-40">/</span>
-            <button
-              onClick={() => changeLanguage("hi")}
-              className={`hover:underline ${lang === "hi" ? "font-bold" : "opacity-70"}`}
-            >
-              हि
-            </button>
-          </div>
-        </div>
-      </div> */}
-
+  
       <div className="bg-red-600 text-white text-xs py-1.5 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
           {/* LEFT TEXT */}
@@ -426,10 +390,6 @@ const Header: React.FC = () => {
                 {t("Test Series") || "Test Series"}
               </NavLink>
 
-              {/* <NavLink href="/scholarship-programme">
-                {t("scholarship") || "Scholarship"}
-              </NavLink> */}
-
               <DropdownMenu
                 label={t("menu.dikshant_special")}
                 menuKey="dikshantSpecial"
@@ -449,7 +409,6 @@ const Header: React.FC = () => {
                   ))}
                 </div>
               </DropdownMenu>
-              {/* <NavLink href="/blogs">{t("blogs") || "Blogs"}</NavLink> */}
 
               <DropdownMenu
                 label={t("menu.videos")}
@@ -472,7 +431,6 @@ const Header: React.FC = () => {
                 </div>
               </DropdownMenu>
 
-              {/* <NavLink href="/blogs">{t("blogs") || "Blogs"}</NavLink> */}
             </nav>
 
             {/* ── Right actions ─────────────────────────── */}
@@ -522,10 +480,7 @@ const Header: React.FC = () => {
                     >
                       {t("login") || "Sign In/Sign Up"}
                     </button>
-                    {/* <Link href="/register"
-                      className="px-4 py-1.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition shadow-sm">
-                      Sign Up Free
-                    </Link> */}
+                  
                   </>
                 )}
               </div>
