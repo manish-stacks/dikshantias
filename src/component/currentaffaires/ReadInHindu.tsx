@@ -269,29 +269,75 @@ useEffect(() => {
 
           {/* pagination */}
 
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-10 gap-2">
-              <button onClick={handlePrev} className="px-3 py-1 border rounded">
-                Prev
-              </button>
+         {/* pagination */}
 
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => handlePageClick(i + 1)}
-                  className={`px-3 py-1 border rounded ${
-                    currentPage === i + 1 ? "bg-red-600 text-white" : ""
+{totalPages > 1 && (
+  <div className="flex items-center justify-center flex-wrap gap-2 mt-10">
+    
+    {/* Prev Button */}
+    <button
+      onClick={handlePrev}
+      disabled={currentPage === 1}
+      className={`h-10 px-4 rounded-lg border text-sm font-medium transition-all
+        ${
+          currentPage === 1
+            ? "cursor-not-allowed opacity-50 bg-gray-100 text-gray-400"
+            : "bg-white hover:bg-red-50 hover:border-red-500 hover:text-red-600"
+        }`}
+    >
+      Prev
+    </button>
+
+    {/* Page Numbers */}
+    <div className="flex items-center gap-2 flex-wrap justify-center">
+      {Array.from({ length: totalPages }, (_, i) => i + 1)
+        .filter((page) => {
+          return (
+            page === 1 ||
+            page === totalPages ||
+            Math.abs(page - currentPage) <= 1
+          );
+        })
+        .map((page, index, array) => {
+          const prevPage = array[index - 1];
+
+          return (
+            <React.Fragment key={page}>
+              {prevPage && page - prevPage > 1 && (
+                <span className="px-2 text-gray-400">...</span>
+              )}
+
+              <button
+                onClick={() => handlePageClick(page)}
+                className={`h-10 min-w-[40px] px-3 rounded-lg text-sm font-semibold transition-all duration-200
+                  ${
+                    currentPage === page
+                      ? "bg-red-600 text-white shadow-md scale-105"
+                      : "bg-white border hover:bg-red-50 hover:border-red-500 hover:text-red-600"
                   }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-
-              <button onClick={handleNext} className="px-3 py-1 border rounded">
-                Next
+              >
+                {page}
               </button>
-            </div>
-          )}
+            </React.Fragment>
+          );
+        })}
+    </div>
+
+    {/* Next Button */}
+    <button
+      onClick={handleNext}
+      disabled={currentPage === totalPages}
+      className={`h-10 px-4 rounded-lg border text-sm font-medium transition-all
+        ${
+          currentPage === totalPages
+            ? "cursor-not-allowed opacity-50 bg-gray-100 text-gray-400"
+            : "bg-white hover:bg-red-50 hover:border-red-500 hover:text-red-600"
+        }`}
+    >
+      Next
+    </button>
+  </div>
+)}
         </div>
       </div>
     </>
