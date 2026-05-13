@@ -19,9 +19,19 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import SlidingButtons from "./SlidingButtons";
+import { fallbackText } from "@/helpers/t";
+const SlidingButtons = dynamic(() => import("./SlidingButtons"), {
+  ssr: false,
+});
 import { useAuthStore } from "@/lib/store/auth.store";
-import DikshantAuthModal from "@/components/auth-model/DikshantAuthModal";
+import dynamic from "next/dynamic";
+
+const DikshantAuthModal = dynamic(
+  () => import("@/components/auth-model/DikshantAuthModal"),
+  {
+    ssr: false,
+  },
+);
 
 interface SubCategory {
   _id: string;
@@ -149,16 +159,38 @@ const Header: React.FC = () => {
   const [settings, setSettings] = useState<SettingsData | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
-
   const { t, i18n } = useTranslation("common");
+
+  const tr = (key: string) => {
+    const value = t(key);
+
+    return value !== key ? value : fallbackText[key] || key;
+  };
+
   const { loggedIn, user, logout } = useAuthStore();
   const [lang, setLang] = useState(i18n.language || "en");
   const displayName = user?.name || user?.mobile || "User";
 
   /* scroll shadow */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    let ticking = false;
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 8);
+
+          ticking = false;
+        });
+
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, {
+      passive: true,
+    });
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -215,7 +247,6 @@ const Header: React.FC = () => {
 
   return (
     <>
-  
       <div className="bg-red-600 text-white text-xs py-1.5 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
           {/* LEFT TEXT */}
@@ -294,12 +325,12 @@ const Header: React.FC = () => {
 
             {/* ── Desktop nav ───────────────────────────── */}
             <nav className="hidden xl:flex items-center gap-0.5 whitespace-nowrap">
-              <NavLink href="/">{t("home") || "Home"}</NavLink>
+              <NavLink href="/">{tr("home")}</NavLink>
 
-              <NavLink href="/about-us">{t("about") || "About"}</NavLink>
+              <NavLink href="/about-us">{tr("about")}</NavLink>
 
               <DropdownMenu
-                label={t("menu.about_upsc")}
+                label={tr("menu.about_upsc")}
                 menuKey="aboutExams"
                 openDropdown={openDropdown}
                 onEnter={handleMouseEnter}
@@ -342,7 +373,7 @@ const Header: React.FC = () => {
                                 href={link.href}
                                 className="block text-sm text-gray-600 hover:text-red-600"
                               >
-                                {t(link.label)}
+                                {tr(link.label)}
                               </Link>
                             ))}
                           </div>
@@ -354,17 +385,17 @@ const Header: React.FC = () => {
               </DropdownMenu>
 
               <DropdownMenu
-                label={t("courses") || "Courses"}
+                label={tr("courses")}
                 menuKey="courses"
                 openDropdown={openDropdown}
                 onEnter={handleMouseEnter}
                 onLeave={handleMouseLeave}
               >
-                <MegaDropdown items={COURSES_MENU} />
+                <MegaDropdown items={COURSES_MENU}  tr={tr} />
               </DropdownMenu>
 
               <DropdownMenu
-                label={t("currentAffairs") || "Current Affairs"}
+                label={tr("currentAffairs")}
                 menuKey="currentAffairs"
                 openDropdown={openDropdown}
                 onEnter={handleMouseEnter}
@@ -384,14 +415,12 @@ const Header: React.FC = () => {
                 </div>
               </DropdownMenu>
 
-              <NavLink href="/quiz">{t("Quiz") || "Quiz"}</NavLink>
+              <NavLink href="/quiz">{tr("Quiz")}</NavLink>
 
-              <NavLink href="/test-series">
-                {t("Test Series") || "Test Series"}
-              </NavLink>
+              <NavLink href="/test-series">{tr("Test Series")}</NavLink>
 
               <DropdownMenu
-                label={t("menu.dikshant_special")}
+                label={tr("menu.dikshant_special")}
                 menuKey="dikshantSpecial"
                 openDropdown={openDropdown}
                 onEnter={handleMouseEnter}
@@ -404,14 +433,14 @@ const Header: React.FC = () => {
                       href={item.href}
                       className="block px-4 py-2 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg mx-1 transition"
                     >
-                      {t(item.label)}
+                      {tr(item.label)}
                     </Link>
                   ))}
                 </div>
               </DropdownMenu>
 
               <DropdownMenu
-                label={t("menu.videos")}
+                label={tr("menu.videos")}
                 menuKey="videos"
                 openDropdown={openDropdown}
                 onEnter={handleMouseEnter}
@@ -425,12 +454,11 @@ const Header: React.FC = () => {
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg mx-1 transition"
                     >
                       <item.icon className="w-3.5 h-3.5 opacity-70" />
-                      {t(item.label)}
+                      {tr(item.label)}
                     </Link>
                   ))}
                 </div>
               </DropdownMenu>
-
             </nav>
 
             {/* ── Right actions ─────────────────────────── */}
@@ -480,7 +508,6 @@ const Header: React.FC = () => {
                     >
                       {t("login") || "Sign In/Sign Up"}
                     </button>
-                  
                   </>
                 )}
               </div>
@@ -541,7 +568,7 @@ const Header: React.FC = () => {
                 href={item.href}
                 className="px-3 py-1 text-xs font-medium text-gray-600 hover:text-red-600 whitespace-nowrap rounded-full hover:bg-white hover:shadow-sm transition"
               >
-                {item.label}
+                {tr(item.label)}
               </Link>
             ))}
           </div>
@@ -600,7 +627,7 @@ const Header: React.FC = () => {
               {About_UPSC.map((section) => (
                 <div key={section.title}>
                   <div className="px-3 py-1 text-xs font-semibold text-gray-400">
-                    {t(section.title)}
+                    {tr(section.title)}
                   </div>
 
                   {section.links.map((link) => (
@@ -610,7 +637,7 @@ const Header: React.FC = () => {
                       icon={BookOpen}
                       onClick={toggleMobileMenu}
                     >
-                      {t(link.label)}
+                      {tr(link.label)}
                     </MobileSubLink>
                   ))}
                 </div>
@@ -629,7 +656,7 @@ const Header: React.FC = () => {
                   icon={item.icon}
                   onClick={toggleMobileMenu}
                 >
-                  {item.label}
+                  {tr(item.label)}
                 </MobileSubLink>
               ))}
             </MobileAccordion>
@@ -669,7 +696,7 @@ const Header: React.FC = () => {
                   icon={FileText}
                   onClick={toggleMobileMenu}
                 >
-                  {t(item.label)}
+                  {tr(item.label)}
                 </MobileSubLink>
               ))}
             </MobileAccordion>
@@ -685,7 +712,7 @@ const Header: React.FC = () => {
                   icon={item.icon}
                   onClick={toggleMobileMenu}
                 >
-                  {t(item.label)}
+                  {tr(item.label)}
                 </MobileSubLink>
               ))}
             </MobileAccordion>
@@ -836,7 +863,13 @@ const MegaDropdown: React.FC<{
     label: string;
     desc: string;
   }[];
-}> = ({ items }) => (
+    tr: (
+    key: string
+  ) => string;
+}> = ({
+  items,
+  tr,
+}) => (
   <div className="py-2 min-w-[240px]">
     {items.map((item) => (
       <Link
@@ -849,7 +882,7 @@ const MegaDropdown: React.FC<{
         </span>
         <div>
           <div className="text-sm font-medium text-gray-800 group-hover:text-red-600 transition-colors">
-            {item.label}
+            {tr(item.label)}
           </div>
           <div className="text-xs text-gray-400 mt-0.5">{item.desc}</div>
         </div>
