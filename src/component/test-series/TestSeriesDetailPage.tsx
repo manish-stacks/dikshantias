@@ -1248,7 +1248,7 @@ const TestSeriesDetailPage = ({ slug }: { slug: string }) => {
 
     <ArrowRight
       size={14}
-      className="
+      className="     
         transition-transform
         duration-300
         group-hover:translate-x-1

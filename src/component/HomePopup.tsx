@@ -28,20 +28,34 @@ export default function HomePopup() {
   const [popup, setPopup] = useState<Popup | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/popup")
-      .then((res) => res.json())
-      .then((data) => {
-        const activePopup = data.find((p: Popup) => p.active);
-        if (activePopup) {
-          setPopup(activePopup);
+  let timer: NodeJS.Timeout;
 
-          setTimeout(() => {
-            setShow(true);
-          }, 800);
-        }
-      })
-      .catch((err) => console.error(err));
-  }, []);
+  fetch("/api/admin/popup", {
+    cache: "force-cache",
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const activePopup = data.find((p: Popup) => p.active);
+
+      if (!activePopup) return;
+
+      // preload image
+      const img = new window.Image();
+
+      img.src = activePopup.image.url;
+
+      img.onload = () => {
+        setPopup(activePopup);
+
+        timer = setTimeout(() => {
+          setShow(true);
+        }, 500);
+      };
+    })
+    .catch(console.error);
+
+  return () => clearTimeout(timer);
+}, []);
 
   if (!show || !popup) return null;
 
@@ -74,8 +88,8 @@ export default function HomePopup() {
                 alt={popup.title}
                 width={800}
                 height={1000}
+                loading="lazy"
                 className="w-full h-auto max-h-[55vh] object-contain hover:opacity-95 transition"
-                priority
               />
             </a>
           ) : (
