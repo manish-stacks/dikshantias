@@ -11,16 +11,13 @@ import {
   requestNotificationPermission,
 } from "@/hooks/use-notification";
 
-import {
-  onMessage,
-} from "firebase/messaging";
-
-import { messaging } from "@/lib/firebase";
-
 import NotificationModal from
   "@/components/NotificationModal/NotificationModal";
 
+// =========================
 // Lazy Components
+// =========================
+
 const HomePopup = dynamic(
   () => import("@/component/HomePopup"),
   {
@@ -80,7 +77,10 @@ const TabBestIasCoachingCenter =
   );
 
 const DailyBlog = dynamic(
-  () => import("@/component/DailyBlog")
+  () =>
+    import(
+      "@/component/DailyBlog"
+    )
 );
 
 export default function HomeClient() {
@@ -95,54 +95,70 @@ export default function HomeClient() {
     setNotificationData,
   ] = useState<any>(null);
 
+  // =========================
+  // SAFE SERVICE WORKER
+  // =========================
+
   useEffect(() => {
 
     if (
-      "serviceWorker" in navigator
+      typeof window !==
+        "undefined" &&
+      "serviceWorker" in
+        navigator
     ) {
 
-      navigator.serviceWorker.register(
-        "/firebase-messaging-sw.js"
-      );
+      navigator.serviceWorker
+        .register(
+          "/firebase-messaging-sw.js"
+        )
+        .catch((err) => {
+
+          console.log(
+            "Service worker error:",
+            err
+          );
+
+        });
 
     }
 
   }, []);
 
+  // =========================
+  // SAFE NOTIFICATIONS
+  // =========================
+
   useEffect(() => {
+
+    const isIphoneSafari =
+
+      /iP(hone|ad|od)/.test(
+        navigator.userAgent
+      ) &&
+      /Safari/.test(
+        navigator.userAgent
+      );
+
+    // ❌ SKIP SAFARI
+    if (isIphoneSafari) {
+
+      console.log(
+        "Skipping notifications on iPhone Safari"
+      );
+
+      return;
+
+    }
 
     requestNotificationPermission();
 
   }, []);
 
-  useEffect(() => {
-
-    const unsubscribe = onMessage(
-      messaging,
-      async (payload) => {
-
-        const title =
-          payload.notification?.title;
-
-        const body =
-          payload.notification?.body;
-
-        setNotificationData({
-          title,
-          body,
-        });
-
-        setOpenModal(true);
-
-      }
-    );
-
-    return () => unsubscribe();
-
-  }, []);
-
   return (
+
     <>
+
       <NotificationModal
         open={openModal}
         data={notificationData}
@@ -154,13 +170,23 @@ export default function HomeClient() {
       <HomePopup />
 
       <TopperReview />
+
       <Testimonials />
+
       <OurProudAchivement />
+
       <FeatureUpsc />
+
       <DirectorMessage />
+
       <BestIasCoaching />
+
       <TabBestIasCoachingCenter />
+
       <DailyBlog />
+
     </>
+
   );
+
 }
