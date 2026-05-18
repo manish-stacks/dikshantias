@@ -1,8 +1,6 @@
 import "@/app/lib/i18n";
 
-import type {
-  Metadata,
-} from "next";
+import type { Metadata } from "next";
 
 import {
   GeistSans,
@@ -16,67 +14,46 @@ import Script from "next/script";
 import dynamic from "next/dynamic";
 
 // =========================
-// Dynamic Components
+// NORMAL IMPORTS
 // =========================
 
-const Providers = dynamic(
-  () => import("./providers"),
+import Providers from "./providers";
+
+import ClientLayoutWrapper from "@/component/ClientLayoutWrapper";
+
+import AuthInitializer from "@/lib/AuthProvider";
+
+// =========================
+// DYNAMIC TOASTER ONLY
+// =========================
+
+const ToasterComponent = dynamic(
+  async () => {
+
+    const mod =
+      await import(
+        "react-hot-toast"
+      );
+
+    return mod.Toaster;
+
+  },
   {
     ssr: false,
   }
 );
 
-const ClientLayoutWrapper =
-  dynamic(
-    () =>
-      import(
-        "@/component/ClientLayoutWrapper"
-      ),
-    {
-      ssr: false,
-    }
-  );
-
-const ToasterComponent =
-  dynamic(
-    async () => {
-
-      const mod =
-        await import(
-          "react-hot-toast"
-        );
-
-      return mod.Toaster;
-
-    },
-    {
-      ssr: false,
-    }
-  );
-
-const AuthInitializer =
-  dynamic(
-    () =>
-      import(
-        "@/lib/AuthProvider"
-      ),
-    {
-      ssr: false,
-    }
-  );
-
 // =========================
 // SEO
 // =========================
 
-export const metadata:
-Metadata = {
+export const metadata: Metadata = {
 
   title:
     "Best IAS Coaching Centre in Delhi | Dikshant IAS",
 
   description:
-    "Dikshant IAS is a Best IAS coaching centre in Delhi led by Dr S. S. Pandey offering expert guidance, live classes, and personalized mentorship. Enroll today and start your IAS preparation!",
+    "Dikshant IAS is a Best IAS coaching centre in Delhi led by Dr S. S. Pandey offering expert guidance, live classes, and personalized mentorship.",
 
   metadataBase: new URL(
     "https://www.dikshantias.com"
@@ -89,7 +66,7 @@ Metadata = {
 };
 
 // =========================
-// Layout
+// LAYOUT
 // =========================
 
 export default function RootLayout({
@@ -102,6 +79,7 @@ export default function RootLayout({
 
     <html
       lang="en"
+      suppressHydrationWarning
       className={`
         ${GeistSans.variable}
         ${GeistMono.variable}
@@ -110,25 +88,23 @@ export default function RootLayout({
 
       <head>
 
-        {/* Verification */}
-
         <meta
           name="google-site-verification"
           content="c7FgyR8QTNRAU7VO6riBBz8M8JYhKXKQa11Q8Bn5CN4"
         />
 
-        {/* =========================
-            GTM
-        ========================= */}
+        {/* GTM */}
 
         <Script
           id="gtm-script"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         >
 
           {`
             (function(w,d,s,l,i){
+
               w[l]=w[l]||[];
+
               w[l].push({
                 'gtm.start':
                 new Date().getTime(),
@@ -136,9 +112,9 @@ export default function RootLayout({
               });
 
               var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),
-              dl=l!='dataLayer'
-              ?'&l='+l:'';
+                  j=d.createElement(s),
+                  dl=l!='dataLayer'
+                  ?'&l='+l:'';
 
               j.async=true;
 
@@ -158,18 +134,16 @@ export default function RootLayout({
 
         </Script>
 
-        {/* =========================
-            Google Analytics
-        ========================= */}
+        {/* Google Analytics */}
 
         <Script
-          strategy="lazyOnload"
+          strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-ZB3WCMNJ4D"
         />
 
         <Script
           id="google-analytics"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         >
 
           {`
@@ -192,7 +166,7 @@ export default function RootLayout({
 
       </head>
 
-      <body>
+      <body suppressHydrationWarning>
 
         {/* GTM NOSCRIPT */}
 
@@ -204,32 +178,21 @@ export default function RootLayout({
             width="0"
             style={{
               display: "none",
-              visibility:
-                "hidden",
+              visibility: "hidden",
             }}
           />
 
         </noscript>
 
-        {/* =========================
-            Providers
-        ========================= */}
-
         <Providers>
 
-          {/* Auth */}
-
           <AuthInitializer />
-
-          {/* Layout */}
 
           <ClientLayoutWrapper>
 
             {children}
 
           </ClientLayoutWrapper>
-
-          {/* Toast */}
 
           <ToasterComponent
             position="top-center"
