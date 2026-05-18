@@ -1,40 +1,22 @@
-// import GlobalBanner from "@/component/GlobalBanner";
+import GlobalBanner from "@/component/GlobalBanner";
 
-// import HeroSlider from "@/component/home/HeroSlider";
+import HeroSlider from "@/component/home/HeroSlider";
 
-// import HomeClient from "@/component/HomeClient";
-
-// export default function HomePage() {
-
-//   return (
-//     <>
-//       {/* FAST SERVER RENDER */}
-//       <GlobalBanner />
-
-//       <HeroSlider />
-
-//       {/* CLIENT COMPONENTS */}
-//       <HomeClient />
-//     </>
-//   );
-// }
-
+import HomeClient from "@/component/HomeClient";
 
 export default function HomePage() {
 
   return (
+    <>
+      {/* FAST SERVER RENDER */}
+      <GlobalBanner />
 
-    <div
-      style={{
-        padding: "40px",
-        fontSize: "30px",
-      }}
-    >
+      <HeroSlider />
 
-      Website Working on iPhone checking...
-
-    </div>
-
+      {/* CLIENT COMPONENTS */}
+      <HomeClient />
+    </>
   );
-
 }
+
+
