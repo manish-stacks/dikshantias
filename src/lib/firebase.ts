@@ -1,6 +1,14 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, isSupported } from "firebase/messaging";
-import { getAnalytics, isSupported as isAnalyticsSupported } from "firebase/analytics";
+
+import {
+  getAnalytics,
+  isSupported as isAnalyticsSupported,
+} from "firebase/analytics";
+
+import {
+  getMessaging,
+  isSupported as isMessagingSupported,
+} from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBXKqG4KT5vMipvobLf9YTUlIb2fyj4WBA",
@@ -14,32 +22,97 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// 🔥 SAFE ANALYTICS
+// =========================
+// ANALYTICS
+// =========================
+
 let analytics: any = null;
 
 if (typeof window !== "undefined") {
-  isAnalyticsSupported().then((yes) => {
-    if (yes) {
-      analytics = getAnalytics(app);
-      console.log("✅ Analytics initialized");
-    } else {
-      console.log("⚠️ Analytics not supported");
-    }
-  });
+
+  isAnalyticsSupported()
+    .then((supported) => {
+
+      if (supported) {
+
+        analytics =
+          getAnalytics(app);
+
+        console.log(
+          "✅ Analytics initialized"
+        );
+
+      }
+
+    })
+    .catch((err) => {
+
+      console.log(
+        "Analytics error:",
+        err
+      );
+
+    });
+
 }
 
-// 🔥 SAFE MESSAGING
+// =========================
+// MESSAGING
+// =========================
+
 let messaging: any = null;
 
-if (typeof window !== "undefined") {
-  isSupported().then((yes) => {
-    if (yes) {
-      messaging = getMessaging(app);
-      console.log("✅ Messaging initialized");
-    } else {
-      console.log("⚠️ Messaging not supported");
-    }
-  });
+if (
+  typeof window !== "undefined" &&
+  "serviceWorker" in navigator &&
+  "Notification" in window
+) {
+
+  isMessagingSupported()
+    .then((supported) => {
+
+      if (supported) {
+
+        try {
+
+          messaging =
+            getMessaging(app);
+
+          console.log(
+            "✅ Messaging initialized"
+          );
+
+        } catch (err) {
+
+          console.log(
+            "Messaging init error:",
+            err
+          );
+
+        }
+
+      } else {
+
+        console.log(
+          "⚠️ Messaging not supported"
+        );
+
+      }
+
+    })
+    .catch((err) => {
+
+      console.log(
+        "Messaging support error:",
+        err
+      );
+
+    });
+
 }
 
-export { app, analytics, messaging };
+export {
+  app,
+  analytics,
+  messaging,
+};
