@@ -14,6 +14,10 @@ import {
   XCircle,
   ArrowRight,
   Trophy,
+   ShieldCheck,
+  Target,
+  TrendingUp,
+  RefreshCcw,
 } from "lucide-react";
 import Link from "next/link";
 import DikshantAuthModal from "@/components/auth-model/DikshantAuthModal";
@@ -397,11 +401,7 @@ const TestSeriesDetailPage = ({ slug }: { slug: string }) => {
           {/* Grid */}
           <div
             className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right,#000 1px,transparent 1px),linear-gradient(to bottom,#000 1px,transparent 1px)",
-              backgroundSize: "50px 50px",
-            }}
+           
           />
         </div>
 
@@ -584,6 +584,136 @@ const TestSeriesDetailPage = ({ slug }: { slug: string }) => {
                 </div>
 
                 {/* CONTENT */}
+                {/* CONTENT */}
+<div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+  
+  {/* PRICE */}
+  <div className="mb-6">
+    <div className="flex items-end justify-between">
+      <div>
+        <div className="flex items-end gap-3">
+          <h2 className="text-4xl font-black text-slate-900">
+            {price.label}
+          </h2>
+
+          {price.original && (
+            <span className="mb-1 text-lg text-slate-400 line-through">
+              {price.original}
+            </span>
+          )}
+        </div>
+
+      </div>
+
+      {price.discount && (
+        <div className="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-500">
+          {price.discount}% OFF
+        </div>
+      )}
+    </div>
+  </div>
+
+{/* FEATURES */}
+
+
+<div className="border-y border-slate-100 py-5">
+
+  <h3 className="mb-4 text-sm font-extrabold uppercase tracking-wide text-slate-800">
+    What You’ll Get
+  </h3>
+
+  <div className="space-y-4">
+
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 rounded-lg bg-blue-50 p-2 text-blue-600">
+        <FileText size={16} />
+      </div>
+
+      <p className="text-sm font-semibold leading-6 text-slate-700">
+        Access to{" "}
+        <span className="font-extrabold text-slate-900">
+          {series.total_tests} full-length tests
+        </span>{" "}
+        with latest exam pattern.
+      </p>
+    </div>
+
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 rounded-lg bg-purple-50 p-2 text-purple-600">
+        <ShieldCheck size={16} />
+      </div>
+
+      <p className="text-sm font-semibold leading-6 text-slate-700">
+        <span className="font-extrabold text-slate-900">
+          Detailed solutions
+        </span>{" "}
+        and performance analysis included.
+      </p>
+    </div>
+
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 rounded-lg bg-orange-50 p-2 text-orange-600">
+        <Target size={16} />
+      </div>
+
+      <p className="text-sm font-semibold leading-6 text-slate-700">
+        Get{" "}
+        <span className="font-extrabold text-slate-900">
+          real exam-like experience
+        </span>{" "}
+        with timed mock tests.
+      </p>
+    </div>
+
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 rounded-lg bg-green-50 p-2 text-green-600">
+        <TrendingUp size={16} />
+      </div>
+
+      <p className="text-sm font-semibold leading-6 text-slate-700">
+        Improve your{" "}
+        <span className="font-extrabold text-slate-900">
+          speed, accuracy, and confidence
+        </span>{" "}
+        before the final exam.
+      </p>
+    </div>
+
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 rounded-lg bg-pink-50 p-2 text-pink-600">
+        <RefreshCcw size={16} />
+      </div>
+
+      <p className="text-sm font-semibold leading-6 text-slate-700">
+        Regularly updated content based on{" "}
+        <span className="font-extrabold text-slate-900">
+          latest syllabus and exam trends
+        </span>.
+      </p>
+    </div>
+
+  </div>
+</div>
+  {/* PAYMENT STATUS */}
+  <div className="mt-5">
+    <PaymentBanner
+      state={paymentState}
+      onRetry={handleRetry}
+      onDismiss={handleDismiss}
+    />
+  </div>
+
+  {/* BUY BUTTON */}
+  <div className="mt-5">
+    <CtaButton
+      series={series}
+      paymentState={paymentState}
+      price={price}
+      onBuy={handleBuy}
+    />
+  </div>
+</div>
+                  
                
               </div>
             </div>
